@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@types/glob": "^7.2.0",
+    "discord-api-types": "^0.33.0-next.d3163ca.1652398777",
     "discord.js": "^14.0.0-dev.1651493371-4ba0f56",
     "dotenv": "^14.3.2",
     "glob": "7.2.0",
