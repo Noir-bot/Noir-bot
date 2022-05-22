@@ -20,7 +20,7 @@ export default class NoirClient extends Client {
 		super(settings)
 	}
 
-	public async execute() {
+	public async start() {
 		await mongoose.connect(cluster).then(() => console.log(chalk.green.bold('Database ready!')))
 		await this.loadEvents(`${__dirname}/../../events/**/*{.js,.ts}`)
 		await this.login(token)

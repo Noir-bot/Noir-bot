@@ -1,4 +1,4 @@
-export interface WarnSchemaInterface {
+export default interface WarnSchemaInterface {
 	guild: string
 	user: string
 	moderator: string

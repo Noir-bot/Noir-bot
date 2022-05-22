@@ -1,4 +1,4 @@
-export interface VerificationSchemaInterface {
+export default interface VerificationSchemaInterface {
 	guild: string
 	status: boolean
 	button: string

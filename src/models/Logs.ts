@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose'
-import { LogsSchemaInterface } from './interfaces/Logs'
+import LogsSchemaInterface from './interfaces/Logs'
 
 const LogsSchema = new Schema<LogsSchemaInterface>({
 	guild: { type: String, required: true },

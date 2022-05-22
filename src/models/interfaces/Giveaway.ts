@@ -1,4 +1,4 @@
-export interface GiveawaySchemaInterface {
+export default interface GiveawaySchemaInterface {
 	guild: string
 	duration: string
 	maintainer: string

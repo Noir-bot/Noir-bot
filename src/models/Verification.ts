@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose'
-import { VerificationSchemaInterface } from './interfaces/Verification'
+import VerificationSchemaInterface from './interfaces/Verification'
 
 const VerificationSchema = new Schema<VerificationSchemaInterface>({
 	guild: { type: String, required: true },

@@ -1,4 +1,4 @@
-export interface LogsSchemaInterface {
+export default interface LogsSchemaInterface {
 	guild: string
 	channel: string
 	status: {

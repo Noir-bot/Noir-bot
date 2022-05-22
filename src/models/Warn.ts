@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose'
-import { WarnSchemaInterface } from './interfaces/Warn'
+import WarnSchemaInterface from './interfaces/Warn'
 
 const WarnSchema = new Schema<WarnSchemaInterface>({
 	guild: { type: String, required: true },

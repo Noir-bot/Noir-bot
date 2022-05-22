@@ -1,4 +1,4 @@
-export interface RestrictionSchemaInterface {
+export default interface RestrictionSchemaInterface {
 	guild: string
 	user: string
 	moderator: string

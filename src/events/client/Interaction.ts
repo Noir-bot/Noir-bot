@@ -3,7 +3,8 @@ import { CommandInteraction, Interaction } from 'discord.js'
 import NoirClient from '../../libs/structures/Client'
 import NoirCommand from '../../libs/structures/Command'
 import NoirEvent from '../../libs/structures/Event'
-import { owners } from '../../config/config'
+import { invite, owners } from '../../config/config'
+import { PremiumModel } from '../../models/Premium'
 
 export default class InteractionEvent extends NoirEvent {
 	constructor(client: NoirClient) {
@@ -27,7 +28,7 @@ export default class InteractionEvent extends NoirEvent {
 				await client.noirReply.warning({
 					interaction: interaction,
 					author: 'Maintenance mode',
-					description: 'Maintenance mode, be back soon'
+					description: 'Maintenance mode, try again later'
 				})
 
 				return
@@ -43,7 +44,7 @@ export default class InteractionEvent extends NoirEvent {
 				return
 			}
 
-			if (command.settings.permissions && interaction.guild?.me?.permissions.has(command.settings.permissions) && !interaction.guild.me.permissions.has('Administrator')) {
+			if (command.settings.permissions && interaction.guild?.members?.me?.permissions.has(command.settings.permissions) && !interaction.guild?.members?.me?.permissions.has('Administrator')) {
 				await client.noirReply.warning({
 					interaction: interaction,
 					author: 'Permissions error',
@@ -53,7 +54,7 @@ export default class InteractionEvent extends NoirEvent {
 				return
 			}
 
-			if (command.settings.access == 'private' && owners.includes(interaction.user.id)) {
+			if (command.settings.access == 'private' && !owners.includes(interaction.user.id)) {
 				await client.noirReply.warning({
 					interaction: interaction,
 					author: 'Access denied',
@@ -63,23 +64,43 @@ export default class InteractionEvent extends NoirEvent {
 				return
 			}
 
-			// TODO Premium commands
-			// if (command.settings.access == 'premium') {
-			// 	await client.noirReply.warning({
-			// 		interaction: interaction,
-			// 		author: 'Permissions error',
-			// 		description: 'Command is premium only'
-			// 	})
-			//
-			// 	return
-			// }
+			if (command.settings.access == 'premium') {
+				const model = await PremiumModel.findOne({ user: interaction.user.id })
+
+				if (!model || model && model.get('status') == false) {
+					await client.noirReply.warning({
+						interaction: interaction,
+						author: 'Premium error',
+						description: 'Command is premium only'
+					})
+
+					return
+				}
+
+				if (model && model.get('status') == true) {
+					const expire = new Date(model.get('expire')).getTime()
+					const now = new Date().getTime()
+
+					if (expire < now) {
+						await PremiumModel.findOneAndDelete({ user: interaction.user.id })
+
+						await client.noirReply.warning({
+							interaction: interaction,
+							author: 'Premium error',
+							description: 'Premium has expired'
+						})
+
+						return
+					}
+				}
+			}
 
 			command.execute(client, interaction)
 		} catch (error: unknown | any) {
 			await client.noirReply.warning({
 				interaction: interaction,
 				author: 'Execution error',
-				description: 'Unspecified error occurred, please contact us about it, join our [support server](https://discord.gg/HQjUYN3MDM) for more information'
+				description: `Unspecified error occurred, please contact us about it, join our [support server](${invite}) for more information`
 			})
 
 			console.log(chalk.bgRed.white(`${client.noirUtils.capitalize(command.data.name)} command error: `), chalk.red(error.stack))

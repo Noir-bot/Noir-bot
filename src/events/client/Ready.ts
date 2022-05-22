@@ -5,7 +5,7 @@ import NoirClient from '../../libs/structures/Client'
 import NoirCommand from '../../libs/structures/Command'
 import NoirEvent from '../../libs/structures/Event'
 import { ActivityType, ApplicationCommandData, ChatInputApplicationCommandData } from 'discord.js'
-import { guild } from '../../config/config'
+import { activity, guild } from '../../config/config'
 
 export default class ReadyEvent extends NoirEvent {
 	constructor(client: NoirClient) {
@@ -15,8 +15,8 @@ export default class ReadyEvent extends NoirEvent {
 	public async execute(client: NoirClient) {
 		console.log(chalk.green.bold('Noir Ready'))
 		client?.user?.setActivity({
-			name: 'Loid',
-			type: ActivityType.Playing
+			name: `${activity}`,
+			type: ActivityType.Listening
 		})
 
 		await this.loadCommands(client, `${__dirname}/../../commands/**/**/*{.js,.ts}`)

@@ -1,6 +1,6 @@
 import NoirCommand from '../../../libs/structures/Command'
 import NoirClient from '../../../libs/structures/Client'
-import { ApplicationCommandType, CommandInteraction } from 'discord.js'
+import { ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js'
 
 export default class PingCommand extends NoirCommand {
 	constructor(client: NoirClient) {
@@ -9,7 +9,7 @@ export default class PingCommand extends NoirCommand {
 			{
 				permissions: 'SendMessages',
 				category: 'utility',
-				access: 'public',
+				access: 'premium',
 				type: 'private',
 				status: true
 			},
@@ -17,11 +17,12 @@ export default class PingCommand extends NoirCommand {
 				name: 'ping',
 				description: 'Ping command',
 				type: ApplicationCommandType.ChatInput
+
 			}
 		)
 	}
 
-	public async execute(client: NoirClient, interaction: CommandInteraction): Promise<void> {
+	public async execute(client: NoirClient, interaction: ChatInputCommandInteraction): Promise<void> {
 		await client.noirReply.success({
 			interaction: interaction,
 			content: '🏓 Pong'

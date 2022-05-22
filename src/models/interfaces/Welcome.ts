@@ -1,4 +1,4 @@
-export interface WelcomeSchemaInterface {
+export default interface WelcomeSchemaInterface {
 	guild: string
 	role: {
 		role: [string]

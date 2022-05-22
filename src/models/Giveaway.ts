@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose'
-import { GiveawaySchemaInterface } from './interfaces/Giveaway'
+import GiveawaySchemaInterface from './interfaces/Giveaway'
 
 const GiveawaySchema = new Schema<GiveawaySchemaInterface>({
 	guild: { type: String, required: true },

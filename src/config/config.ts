@@ -9,10 +9,12 @@ export const colorRegex = /^#[0-9A-F]{6}$/i
 export const token: string = process.env.ENVIROEMENT == 'DEVELOPMENT' ? process.env.DEV_TOKEN! : process.env.TOKEN!
 export const cluster: string = process.env.ENVIROEMENT == 'DEVELOPMENT' ? process.env.DEV_CLUSTER! : process.env.CLUSTER!
 export const guild: string = process.env.ENVIROEMENT == 'DEVELOPMENT' ? process.env.DEV_GUILD! : process.env.GUILD!
+export const invite: string = process.env.INVITE!
 export const owners: string[] = ['690728155052245072']
-export const invite: string = 'https://discord.gg/HQjUYN3MDM'
 export const founders: readonly string[] = ['690728155052245072']
 export const blacklist: readonly string[] = []
+export const activity = 'Loid'
+export const status = 'online'
 export const settings: ClientOptions = {
 	intents: [
 		'Guilds',
