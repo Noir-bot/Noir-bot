@@ -2,7 +2,7 @@ import NoirCommand from '../../../libs/structures/Command'
 import NoirClient from '../../../libs/structures/Client'
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
 import { ActivityType, ChatInputCommandInteraction } from 'discord.js'
-import { activity, status } from '../../../config/config'
+import { activity, status as defaultStatus } from '../../../config/config'
 
 export default class MaintenanceCommand extends NoirCommand {
 	constructor(client: NoirClient) {
@@ -43,8 +43,8 @@ export default class MaintenanceCommand extends NoirCommand {
 		})
 	}
 
-	public presence(client: NoirClient, _status: boolean) {
-		if (_status) {
+	public presence(client: NoirClient, status: boolean) {
+		if (status) {
 			client.user?.setActivity({
 				name: 'Maintenance mode',
 				type: ActivityType.Watching
@@ -58,7 +58,7 @@ export default class MaintenanceCommand extends NoirCommand {
 				type: ActivityType.Listening
 			})
 
-			client.user?.setStatus(status)
+			client.user?.setStatus(defaultStatus)
 			return
 		}
 	}

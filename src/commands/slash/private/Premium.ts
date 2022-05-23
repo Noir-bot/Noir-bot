@@ -23,7 +23,7 @@ export default class PremiumCommand extends NoirCommand {
 					{
 						name: 'user',
 						description: 'Premium user id',
-						type: ApplicationCommandOptionType.String,
+						type: ApplicationCommandOptionType.User,
 						required: true
 					},
 					{
@@ -67,11 +67,11 @@ export default class PremiumCommand extends NoirCommand {
 	}
 
 	public async execute(client: NoirClient, interaction: ChatInputCommandInteraction): Promise<void> {
-		const id = interaction.options.getString('user', true)
+		const user = interaction.options.getUser('user', true)
 		const duration = interaction.options.getString('duration', true)
 		const expirationDate = new Date(new Date().getTime() + parseInt(duration))
 
-		if (await PremiumModel.findOne({ user: id })) {
+		if (await PremiumModel.findOne({ user: user.id })) {
 			await client.noirReply.warning({
 				interaction: interaction,
 				author: 'Premium error',
@@ -83,14 +83,14 @@ export default class PremiumCommand extends NoirCommand {
 
 		await PremiumModel.create({
 			status: true,
-			user: id,
+			user: user.id,
 			expire: expirationDate
 		})
 
 		await client.noirReply.success({
 			interaction: interaction,
 			author: 'Premium success',
-			description: `${client.users.cache?.get(id)?.username ?? (await client.users?.fetch(id))?.username ?? 'Undefined user'} got premium for ${duration}`
+			description: `${user.username} got premium for ${duration}`
 		})
 	}
 }
