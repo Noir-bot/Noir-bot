@@ -65,7 +65,17 @@ export default class InteractionEvent extends NoirEvent {
 			}
 
 			if (command.settings.access == 'premium') {
-				const model = await PremiumModel.findOne({ user: interaction.user.id })
+				if (!interaction.guild) {
+					await client.noirReply.warning({
+						interaction: interaction,
+						author: 'Premium error',
+						description: 'Premium commands are guild only'
+					})
+
+					return
+				}
+
+				const model = await PremiumModel.findOne({ guild: interaction.guild.id })
 
 				if (!model || model && model.get('status') == false) {
 					await client.noirReply.warning({
@@ -82,7 +92,7 @@ export default class InteractionEvent extends NoirEvent {
 					const now = new Date().getTime()
 
 					if (expire < now) {
-						await PremiumModel.findOneAndDelete({ user: interaction.user.id })
+						await PremiumModel.findOneAndDelete({ guild: interaction.guild.id })
 
 						await client.noirReply.warning({
 							interaction: interaction,

@@ -3,7 +3,7 @@ import PremiumSchemaInterface from './interfaces/Premium'
 
 const PremiumSchema = new Schema<PremiumSchemaInterface>({
 	status: { type: Boolean, default: false },
-	user: { type: String, required: true },
+	guild: { type: String, required: true },
 	expire: { type: Date, required: true }
 }, {
 	timestamps: true

@@ -21,15 +21,16 @@ export default class PremiumCommand extends NoirCommand {
 				type: ApplicationCommandType.ChatInput,
 				options: [
 					{
-						name: 'user',
-						description: 'Premium user id',
-						type: ApplicationCommandOptionType.User,
+						name: 'guild',
+						description: 'Premium guild id',
+						type: ApplicationCommandOptionType.String,
 						required: true
 					},
 					{
 						name: 'duration',
 						description: 'Premium duration time',
 						type: ApplicationCommandOptionType.String,
+						required: true,
 						choices: [
 							{
 								name: 'test',
@@ -67,30 +68,39 @@ export default class PremiumCommand extends NoirCommand {
 	}
 
 	public async execute(client: NoirClient, interaction: ChatInputCommandInteraction): Promise<void> {
-		const user = interaction.options.getUser('user', true)
+		const guild = interaction.options.getString('guild', true)
 		const duration = interaction.options.getString('duration', true)
-		const expirationDate = new Date(new Date().getTime() + parseInt(duration))
 
-		if (await PremiumModel.findOne({ user: user.id })) {
+		if (!client.guilds.cache.get(guild)?.id || !(await client.guilds.fetch(guild))?.id) {
 			await client.noirReply.warning({
 				interaction: interaction,
 				author: 'Premium error',
-				description: 'User document already exists'
+				description: 'Guild doesn\'t exists'
+			})
+		}
+
+		if (await PremiumModel.findOne({ guild: guild })) {
+			await client.noirReply.warning({
+				interaction: interaction,
+				author: 'Premium error',
+				description: 'Guild document already exists'
 			})
 
 			return
 		}
 
+		const expirationDate = new Date(new Date().getTime() + parseInt(duration))
+
 		await PremiumModel.create({
 			status: true,
-			user: user.id,
+			guild: guild,
 			expire: expirationDate
 		})
 
 		await client.noirReply.success({
 			interaction: interaction,
 			author: 'Premium success',
-			description: `${user.username} got premium for ${duration}`
+			description: `${client.guilds.cache.get(guild)?.name ?? (await client.guilds?.fetch(guild)).name} got premium till <t:${expirationDate.getTime().toString().slice(0, -3)}:d>`
 		})
 	}
 }
