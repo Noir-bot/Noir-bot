@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import { CommandInteraction, Interaction } from 'discord.js'
 import NoirClient from '../../libs/structures/Client'
-import NoirCommand from '../../libs/structures/Command'
+import NoirCommand from '../../libs/structures/commands/Command'
 import NoirEvent from '../../libs/structures/Event'
 import { invite, owners } from '../../config/config'
 import { PremiumModel } from '../../models/Premium'

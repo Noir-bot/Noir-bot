@@ -1,10 +1,10 @@
-import NoirCommand from '../../../libs/structures/Command'
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
 import NoirClient from '../../../libs/structures/Client'
 import { ChatInputCommandInteraction } from 'discord.js'
 import { PremiumModel } from '../../../models/Premium'
+import NoirChatCommand from '../../../libs/structures/commands/ChatCommand'
 
-export default class PremiumCommand extends NoirCommand {
+export default class PremiumCommand extends NoirChatCommand {
 	constructor(client: NoirClient) {
 		super(
 			client,

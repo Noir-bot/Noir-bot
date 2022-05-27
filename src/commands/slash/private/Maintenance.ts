@@ -1,10 +1,10 @@
-import NoirCommand from '../../../libs/structures/Command'
 import NoirClient from '../../../libs/structures/Client'
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
 import { ActivityType, ChatInputCommandInteraction } from 'discord.js'
 import { activity, status as defaultStatus } from '../../../config/config'
+import NoirChatCommand from '../../../libs/structures/commands/ChatCommand'
 
-export default class MaintenanceCommand extends NoirCommand {
+export default class MaintenanceCommand extends NoirChatCommand {
 	constructor(client: NoirClient) {
 		super(
 			client,
