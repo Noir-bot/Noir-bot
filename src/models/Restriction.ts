@@ -6,7 +6,7 @@ const RestrictionSchema = new Schema<RestrictionSchemaInterface>({
 	user: { type: String, required: true },
 	moderator: { type: String, required: true },
 	reason: { type: String },
-	duration: { type: String },
+	duration: { type: Number },
 	reference: { type: String }
 }, {
 	timestamps: true
