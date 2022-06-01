@@ -1,0 +1,178 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DEV_CLUSTER")
+}
+
+model GiveawayMessage {
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  title    String     @default("Verify")
+  content  String     @default("Click to verify")
+  giveaway Giveaway[]
+}
+
+model Giveaway {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  host      String
+  guild     String
+  duration  String
+  users     String[]
+  message   GiveawayMessage @relation(fields: [messageId], references: [id])
+  messageId String          @db.ObjectId
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now())
+}
+
+model LogsStatus {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  overall     Boolean @default(false)
+  message     Boolean @default(false)
+  role        Boolean @default(false)
+  ban         Boolean @default(false)
+  kick        Boolean @default(false)
+  clear       Boolean @default(false)
+  warn        Boolean @default(false)
+  restriction Boolean @default(false)
+  logs        Logs[]
+}
+
+model Logs {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  guild     String
+  status    LogsStatus @relation(fields: [statusId], references: [id])
+  statusId  String     @db.ObjectId
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+}
+
+model Premium {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  status   Boolean  @default(false)
+  guild    String
+  expireAt DateTime @default(now())
+}
+
+model Restriction {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  guild     String
+  user      String
+  moderator String
+  duration  String
+  reason    String?
+  reference String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  updated   Boolean  @default(false)
+}
+
+model Warn {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  guild     String
+  user      String
+  moderator String
+  reason    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  updated   Boolean  @default(false)
+}
+
+model VerificationMessage {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  content      String?
+  title        String?        @default("Verification")
+  description  String?        @default("Click the button below to verify")
+  color        String?        @default("#7d52ff")
+  Verification Verification[]
+}
+
+model VerificationResponse {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  content      String?
+  title        String?        @default("Verified")
+  description  String?        @default("Successfully verified")
+  Verification Verification[]
+}
+
+model Verification {
+  id         String               @id @default(auto()) @map("_id") @db.ObjectId
+  guild      String
+  status     Boolean              @default(false)
+  button     String               @default("Verify")
+  message    VerificationMessage  @relation(fields: [messageId], references: [id])
+  messageId  String               @db.ObjectId
+  response   VerificationResponse @relation(fields: [responseId], references: [id])
+  responseId String               @db.ObjectId
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @default(now())
+  updated    Boolean              @default(false)
+}
+
+model WelcomeRole {
+  id      String    @id @default(auto()) @map("_id") @db.ObjectId
+  status  Boolean   @default(true)
+  role    String[]
+  Welcome Welcome[]
+}
+
+model WelcomeMessageGuildJoin {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  message     String?
+  color       String?
+  title       String?
+  description String?
+  thumbnail   String?
+  image       String?
+  footer      String?
+  timestamp   Boolean   @default(false)
+  Welcome     Welcome[]
+}
+
+model WelcomeMessageGuildLeft {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  message     String?
+  color       String?
+  title       String?
+  description String?
+  thumbnail   String?
+  image       String?
+  footer      String?
+  timestamp   Boolean   @default(false)
+  Welcome     Welcome[]
+}
+
+model WelcomeMessageDirectJoin {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  message     String?
+  color       String?
+  title       String?
+  description String?
+  thumbnail   String?
+  image       String?
+  footer      String?
+  timestamp   Boolean   @default(false)
+  Welcome     Welcome[]
+}
+
+model WelcomeMessage {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  channel String
+}
+
+model Welcome {
+  id                  String                   @id @default(auto()) @map("_id") @db.ObjectId
+  guild               String
+  role                WelcomeRole              @relation(fields: [roleId], references: [id])
+  roleId              String                   @db.ObjectId
+  guildJoinMessage    WelcomeMessageGuildJoin  @relation(fields: [guildJoinMessageId], references: [id])
+  guildJoinMessageId  String                   @db.ObjectId
+  guildLeftMessage    WelcomeMessageGuildLeft  @relation(fields: [guildLeftMessageId], references: [id])
+  guildLeftMessageId  String                   @db.ObjectId
+  directJoinMessage   WelcomeMessageDirectJoin @relation(fields: [directJoinMessageId], references: [id])
+  directJoinMessageId String                   @db.ObjectId
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @default(now())
+  updated             Boolean                  @default(false)
+}

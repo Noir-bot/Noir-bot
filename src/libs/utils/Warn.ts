@@ -13,11 +13,11 @@ import { colors } from '../../config/design'
 
 export default class NoirWarn {
 	static async get(id: string) {
-		return await WarnModel.findById(id) ?? null
+		return WarnModel.findById(id)
 	}
 
-	static async add(data: { guild: string, user: string, moderator: string, reason?: string, reference?: string }) {
-		return await WarnModel.create({
+	static add(data: { guild: string, user: string, moderator: string, reason?: string, reference?: string }) {
+		return WarnModel.create({
 			guild: data.guild,
 			user: data.user,
 			moderator: data.moderator,
@@ -25,16 +25,16 @@ export default class NoirWarn {
 		})
 	}
 
-	static async update(data: { id: string, reason: string }) {
-		return await WarnModel.findByIdAndUpdate(data.id, {
+	static update(data: { id: string, reason: string }) {
+		return WarnModel.findByIdAndUpdate(data.id, {
 			$set: {
 				reason: data?.reason
 			}
-		}) ?? null
+		})
 	}
 
-	static async remove(id: string) {
-		return await WarnModel.findByIdAndDelete(id) ?? null
+	static remove(id: string) {
+		return WarnModel.findByIdAndDelete(id)
 	}
 
 	static async logs(data: { id: string, guild: Guild, action: 'added' | 'deleted' | 'updated', reason?: string }) {
