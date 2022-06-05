@@ -7,7 +7,8 @@ import {
   ContextMenuCommandInteraction,
   EmbedBuilder,
   EmbedField,
-  JSONEncodable
+  JSONEncodable,
+  ModalSubmitInteraction
 } from 'discord.js'
 import NoirClient from '../structures/Client'
 
@@ -19,11 +20,11 @@ export default class NoirReply {
   }
 
   public async reply(properties: {
-    interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction,
+    interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction,
     components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
-    author: string,
+    author?: string,
     authorImage?: string,
-    description: string,
+    description?: string,
     color: ColorResolvable,
     fields?: EmbedField[],
     footer?: string,
@@ -58,9 +59,9 @@ export default class NoirReply {
 
   protected build(
     properties: {
-      author: string,
+      author?: string,
       authorImage?: string,
-      description: string,
+      description?: string,
       fields?: EmbedField[],
       color: ColorResolvable,
       footer?: string,
@@ -70,10 +71,10 @@ export default class NoirReply {
     }
   ): EmbedBuilder {
     const embed = new EmbedBuilder()
-      .setAuthor({ name: properties.author, iconURL: properties.authorImage })
-      .setDescription(properties.description)
       .setColor(properties.color)
 
+    if (properties.author) embed.setAuthor({ name: properties.author ?? '', iconURL: properties.authorImage })
+    if (properties.description) embed.setDescription(properties.description)
     if (properties.footer) embed.setFooter({ text: properties.footer, iconURL: properties.footerImage })
     if (properties.thumbnail) embed.setThumbnail(properties.thumbnail)
     if (properties.image) embed.setImage(properties.image)
@@ -84,7 +85,7 @@ export default class NoirReply {
 
   private async send(
     properties: {
-      interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction,
+      interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction,
       embed?: EmbedBuilder,
       components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
       ephemeral: boolean,
@@ -92,7 +93,21 @@ export default class NoirReply {
       fetch: boolean
     }
   ) {
-    if (properties.interaction.isButton()) {
+    if (properties.interaction.isModalSubmit()) {
+      return await properties.interaction.editReply({
+        embeds: properties.embed?.data ? [properties.embed.data] : [],
+        components: properties?.components ?? [],
+        content: properties?.content
+      }).catch(async () => {
+        return await properties.interaction.reply({
+          embeds: properties.embed?.data ? [properties.embed.data] : [],
+          components: properties?.components ?? [],
+          content: properties?.content,
+          ephemeral: properties?.ephemeral,
+          fetchReply: properties.fetch ?? false
+        })
+      })
+    } else if (properties.interaction.isButton()) {
       return await properties.interaction.update({
         embeds: properties.embed?.data ? [properties.embed.data] : [],
         components: properties?.components ?? [],

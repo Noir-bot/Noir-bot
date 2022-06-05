@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { ButtonInteraction, CommandInteraction, Interaction } from 'discord.js'
+import { ButtonInteraction, CommandInteraction, EmbedBuilder, Interaction, ModalSubmitInteraction, TextChannel } from 'discord.js'
 import HelpCommand from '../../commands/slash/information/Help'
 import { colors } from '../../libs/config/design'
 import { invite, owners } from '../../libs/config/settings'
@@ -15,6 +15,7 @@ export default class InteractionEvent extends NoirEvent {
   public async execute(client: NoirClient, interaction: Interaction): Promise<void> {
     if (interaction.isCommand()) await this.command(client, interaction)
     else if (interaction.isButton()) await this.button(client, interaction)
+    else if (interaction.isModalSubmit()) await this.modal(client, interaction)
 
     return
   }
@@ -136,5 +137,30 @@ export default class InteractionEvent extends NoirEvent {
     }
 
     return
+  }
+
+  protected async modal(client: NoirClient, interaction: ModalSubmitInteraction): Promise<void> {
+    const parts = interaction.customId.toLowerCase().split('-')
+
+    if (parts[0] == 'announcement') {
+      const title = interaction.fields.getTextInputValue('announcement-title')
+      const body = interaction.fields.getTextInputValue('announcement-body')
+      const avatar = interaction.user?.avatarURL() ? interaction.user.avatarURL() : undefined
+      const channel = (client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL!) ?? await client.channels.fetch(process.env.ANNOUNCEMENT_CHANNEL!)) as TextChannel
+
+      const embed = new EmbedBuilder()
+        .setAuthor({ name: title, iconURL: avatar == null ? undefined : avatar })
+        .setDescription(body)
+        .setColor(colors.Tertiary)
+
+      await channel.send({ embeds: [embed] })
+      await interaction.deferReply()
+      await client.noirReply.reply({
+        interaction: interaction,
+        color: colors.Success,
+        author: 'Successfully done',
+        description: 'Announcement was successfully sent'
+      })
+    }
   }
 }

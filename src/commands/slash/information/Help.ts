@@ -9,7 +9,7 @@ export default class HelpCommand extends NoirChatCommand {
     super(
       client,
       {
-        permissions: 'SendMessages',
+        permissions: ['SendMessages', 'EmbedLinks'],
         category: 'information',
         access: 'public',
         type: 'private',
@@ -34,7 +34,7 @@ export default class HelpCommand extends NoirChatCommand {
       color: colors.Primary,
       author: 'Help command',
       authorImage: avatar == null ? undefined : avatar,
-      description: `Hey there, if you get any problem dont hesitate, contact our moderators. Still not part of our community server, be sure to join [here](${invite})`,
+      description: `Hey there, if you get any problem don't hesitate, contact our moderators. Still not part of our community server, be sure to join [here](${invite})`,
       footer: 'Created with <3 by Loid',
       components: [buttons],
       fetch: true
@@ -50,9 +50,9 @@ export default class HelpCommand extends NoirChatCommand {
     await client.noirReply.reply({
       interaction: interaction,
       color: colors.Primary,
-      author: 'Noir FAQ',
+      author: 'Frequently asked questions',
       authorImage: avatar == null ? undefined : avatar,
-      description: 'Frequently asked questions',
+      // description: 'Frequently asked questions',
       fields: [
         {
           name: 'How to contribute ?',

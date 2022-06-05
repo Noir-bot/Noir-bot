@@ -10,11 +10,11 @@ export default class MaintenanceCommand extends NoirChatCommand {
     super(
       client,
       {
-        permissions: 'SendMessages',
+        permissions: ['SendMessages', 'EmbedLinks'],
         category: 'utility',
         access: 'private',
-        status: true,
-        type: 'private'
+        type: 'private',
+        status: true
       },
       {
         name: 'maintenance',

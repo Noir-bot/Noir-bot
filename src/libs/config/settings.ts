@@ -8,8 +8,7 @@ export const cluster: string = process.env.ENVIRONMENT == 'DEVELOPMENT' ? proces
 export const guild: string = process.env.ENVIRONMENT == 'DEVELOPMENT' ? process.env.DEV_GUILD! : process.env.GUILD!
 export const invite: string = process.env.INVITE!
 
-export const owners: string[] = ['690728155052245072']
-export const founders: readonly string[] = ['690728155052245072']
+export const owners: readonly string[] = ['690728155052245072', '912298055963918416']
 
 export const activity = 'Loid'
 export const status = 'online'
