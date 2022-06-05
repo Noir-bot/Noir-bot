@@ -52,8 +52,8 @@ export default class NoirReply {
       content: properties.content,
       embed: embed,
       components: properties.components,
-      ephemeral: properties.ephemeral ?? true,
-      fetch: properties.fetch ?? false
+      ephemeral: properties?.ephemeral,
+      fetch: properties?.fetch
     })
   }
 
@@ -88,9 +88,9 @@ export default class NoirReply {
       interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction,
       embed?: EmbedBuilder,
       components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
-      ephemeral: boolean,
+      ephemeral?: boolean,
       content?: string,
-      fetch: boolean
+      fetch?: boolean
     }
   ) {
     if (properties.interaction.isModalSubmit()) {
@@ -103,7 +103,7 @@ export default class NoirReply {
           embeds: properties.embed?.data ? [properties.embed.data] : [],
           components: properties?.components ?? [],
           content: properties?.content,
-          ephemeral: properties?.ephemeral,
+          ephemeral: properties?.ephemeral ?? true,
           fetchReply: properties.fetch ?? false
         })
       })
@@ -118,7 +118,7 @@ export default class NoirReply {
           embeds: properties.embed?.data ? [properties.embed.data] : [],
           components: properties?.components ?? [],
           content: properties?.content,
-          ephemeral: properties?.ephemeral,
+          ephemeral: properties?.ephemeral ?? true,
           fetchReply: properties.fetch ?? false
         })
       })
@@ -132,7 +132,7 @@ export default class NoirReply {
           embeds: properties.embed?.data ? [properties.embed.data] : [],
           components: properties?.components ?? [],
           content: properties?.content,
-          ephemeral: properties?.ephemeral,
+          ephemeral: properties?.ephemeral ?? true,
           fetchReply: properties.fetch ?? false
         })
       })

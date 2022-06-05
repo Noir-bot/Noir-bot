@@ -1,6 +1,8 @@
 import chalk from 'chalk'
-import { ButtonInteraction, CommandInteraction, EmbedBuilder, Interaction, ModalSubmitInteraction, TextChannel } from 'discord.js'
+import { ButtonInteraction, CommandInteraction, Interaction, ModalSubmitInteraction } from 'discord.js'
 import HelpCommand from '../../commands/slash/information/Help'
+import AnnouncementCommand from '../../commands/slash/private/Announcement'
+import MessageCommand from '../../commands/slash/private/Message'
 import { colors } from '../../libs/config/design'
 import { invite, owners } from '../../libs/config/settings'
 import NoirClient from '../../libs/structures/Client'
@@ -140,27 +142,10 @@ export default class InteractionEvent extends NoirEvent {
   }
 
   protected async modal(client: NoirClient, interaction: ModalSubmitInteraction): Promise<void> {
+    await interaction.deferReply()
     const parts = interaction.customId.toLowerCase().split('-')
 
-    if (parts[0] == 'announcement') {
-      const title = interaction.fields.getTextInputValue('announcement-title')
-      const body = interaction.fields.getTextInputValue('announcement-body')
-      const avatar = interaction.user?.avatarURL() ? interaction.user.avatarURL() : undefined
-      const channel = (client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL!) ?? await client.channels.fetch(process.env.ANNOUNCEMENT_CHANNEL!)) as TextChannel
-
-      const embed = new EmbedBuilder()
-        .setAuthor({ name: title, iconURL: avatar == null ? undefined : avatar })
-        .setDescription(body)
-        .setColor(colors.Tertiary)
-
-      await channel.send({ embeds: [embed] })
-      await interaction.deferReply()
-      await client.noirReply.reply({
-        interaction: interaction,
-        color: colors.Success,
-        author: 'Successfully done',
-        description: 'Announcement was successfully sent'
-      })
-    }
+    if (parts[0] == 'announcement') await new AnnouncementCommand(client).response(client, interaction)
+    else if (parts[0] == 'message') await new MessageCommand(client).response(client, interaction)
   }
 }

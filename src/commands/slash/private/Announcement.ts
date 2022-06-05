@@ -1,4 +1,5 @@
-import { ActionRowBuilder, ApplicationCommandType, ChatInputCommandInteraction, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js'
+import { ActionRowBuilder, ApplicationCommandType, ChatInputCommandInteraction, EmbedBuilder, ModalBuilder, ModalSubmitInteraction, TextChannel, TextInputBuilder, TextInputStyle } from 'discord.js'
+import { colors } from '../../../libs/config/design'
 import NoirClient from '../../../libs/structures/Client'
 import NoirChatCommand from '../../../libs/structures/command/ChatCommand'
 
@@ -41,5 +42,25 @@ export default class AnnouncementCommand extends NoirChatCommand {
       .addComponents([titleActionRow, bodyActionRow])
 
     await interaction.showModal(modal)
+  }
+
+  public async response(client: NoirClient, interaction: ModalSubmitInteraction) {
+    const title = interaction.fields.getTextInputValue('announcement-title')
+    const body = interaction.fields.getTextInputValue('announcement-body')
+    const avatar = interaction.user?.avatarURL() ? interaction.user.avatarURL() : undefined
+    const channel = (client.channels.cache.get(process.env.ANNOUNCEMENT_CHANNEL!) ?? await client.channels.fetch(process.env.ANNOUNCEMENT_CHANNEL!)) as TextChannel
+
+    const embed = new EmbedBuilder()
+      .setAuthor({ name: title, iconURL: avatar == null ? undefined : avatar })
+      .setDescription(body)
+      .setColor(colors.Tertiary)
+
+    await channel.send({ embeds: [embed] })
+    await client.noirReply.reply({
+      interaction: interaction,
+      color: colors.Success,
+      author: 'Successfully done',
+      description: 'Announcement was successfully sent'
+    })
   }
 }
