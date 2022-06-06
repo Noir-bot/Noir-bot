@@ -136,16 +136,16 @@ export default class InteractionEvent extends NoirEvent {
       } else {
         await new HelpCommand(client).execute(client, interaction)
       }
-    }
+    } else if (parts[0] == 'message') await new MessageCommand(client).buttonResponse(client, interaction)
 
     return
   }
 
   protected async modal(client: NoirClient, interaction: ModalSubmitInteraction): Promise<void> {
-    await interaction.deferReply()
+    // await interaction.deferReply({ ephemeral: true, fetchReply: true })
     const parts = interaction.customId.toLowerCase().split('-')
 
     if (parts[0] == 'announcement') await new AnnouncementCommand(client).response(client, interaction)
-    else if (parts[0] == 'message') await new MessageCommand(client).response(client, interaction)
+    else if (parts[0] == 'message') await new MessageCommand(client).modalResponse(client, interaction)
   }
 }

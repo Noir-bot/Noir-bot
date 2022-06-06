@@ -93,49 +93,36 @@ export default class NoirReply {
       fetch?: boolean
     }
   ) {
-    if (properties.interaction.isModalSubmit()) {
+    try {
+      if (properties.interaction.isButton()) {
+        return await properties.interaction.update({
+          embeds: properties.embed?.data ? [properties.embed.data] : [],
+          components: properties?.components ?? [],
+          content: properties?.content,
+          fetchReply: properties.fetch ?? false
+        }).catch(async () => {
+          return await properties.interaction.editReply({
+            embeds: properties.embed?.data ? [properties.embed.data] : [],
+            components: properties?.components ?? [],
+            content: properties?.content
+          })
+        })
+      }
+
       return await properties.interaction.editReply({
         embeds: properties.embed?.data ? [properties.embed.data] : [],
         components: properties?.components ?? [],
         content: properties?.content
-      }).catch(async () => {
-        return await properties.interaction.reply({
-          embeds: properties.embed?.data ? [properties.embed.data] : [],
-          components: properties?.components ?? [],
-          content: properties?.content,
-          ephemeral: properties?.ephemeral ?? true,
-          fetchReply: properties.fetch ?? false
-        })
       })
-    } else if (properties.interaction.isButton()) {
-      return await properties.interaction.update({
+    } catch (err) {
+      return await properties.interaction.reply({
         embeds: properties.embed?.data ? [properties.embed.data] : [],
         components: properties?.components ?? [],
         content: properties?.content,
+        ephemeral: properties?.ephemeral ?? true,
         fetchReply: properties.fetch ?? false
-      }).catch(async () => {
-        return await properties.interaction.reply({
-          embeds: properties.embed?.data ? [properties.embed.data] : [],
-          components: properties?.components ?? [],
-          content: properties?.content,
-          ephemeral: properties?.ephemeral ?? true,
-          fetchReply: properties.fetch ?? false
-        })
       })
-    } else if (properties.interaction.isCommand()) {
-      return await properties.interaction.editReply({
-        embeds: properties.embed?.data ? [properties.embed.data] : [],
-        components: properties?.components ?? [],
-        content: properties?.content
-      }).catch(async () => {
-        return await properties.interaction.reply({
-          embeds: properties.embed?.data ? [properties.embed.data] : [],
-          components: properties?.components ?? [],
-          content: properties?.content,
-          ephemeral: properties?.ephemeral ?? true,
-          fetchReply: properties.fetch ?? false
-        })
-      })
+      console.log(err)
     }
   }
 }
