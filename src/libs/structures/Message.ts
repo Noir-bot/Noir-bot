@@ -39,6 +39,7 @@ export default class NoirMessage {
       else if (this.properties.embed.authorImage == 'user' && userAvatar) embed.setAuthor({ name: this.properties.embed.author, iconURL: userAvatar == null ? undefined : userAvatar })
       else if (this.properties.embed.authorImage == 'server' && serverIcon) embed.setAuthor({ name: this.properties.embed.author, iconURL: serverIcon == null ? undefined : serverIcon })
     }
+
     if (this.properties.embed.footer) {
       this.properties.embed.footerImageRaw = this.properties.embed.footerImage
 
@@ -46,6 +47,7 @@ export default class NoirMessage {
       else if (this.properties.embed.footerImage == 'user' && userAvatar) embed.setFooter({ text: this.properties.embed.footer, iconURL: userAvatar == null ? undefined : userAvatar })
       else if (this.properties.embed.footerImage == 'server' && serverIcon) embed.setFooter({ text: this.properties.embed.footer, iconURL: serverIcon == null ? undefined : serverIcon })
     }
+
     if (this.properties.embed.image && urlRegex.test(this.properties.embed.image) || this.properties.embed.image == 'client' || this.properties.embed.image == 'user' || this.properties.embed.image == 'server') {
       this.properties.embed.imageRaw = this.properties.embed.image
 
@@ -54,6 +56,7 @@ export default class NoirMessage {
       else if (this.properties.embed.image == 'server' && serverIcon) embed.setImage(serverIcon)
       else embed.setImage(this.properties.embed.image)
     }
+
     if (this.properties.embed.thumbnail && urlRegex.test(this.properties.embed.thumbnail) || this.properties.embed.thumbnail == 'client' || this.properties.embed.thumbnail == 'user' || this.properties.embed.thumbnail == 'server') {
       this.properties.embed.thumbnailRaw = this.properties.embed.thumbnail
 
@@ -62,6 +65,7 @@ export default class NoirMessage {
       else if (this.properties.embed.thumbnail == 'server' && serverIcon) embed.setThumbnail(serverIcon)
       else embed.setThumbnail(this.properties.embed.thumbnail)
     }
+
     if (this.properties.embed.title) {
       embed.setTitle(this.properties.embed.title)
       if (this.properties.embed.titleURL) embed.setURL(this.properties.embed.titleURL)
@@ -134,7 +138,7 @@ export default class NoirMessage {
   public setAuthor(author: string, image?: string) {
     this.properties.embed.author = author
 
-    if (image && urlRegex.test(image)) {
+    if (image && urlRegex.test(image) || image == 'client' || image == 'user' || image == 'server') {
       this.properties.embed.authorImage = image
     }
 
