@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
+import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import { colors } from '../../../libs/config/design'
 import NoirClient from '../../../libs/structures/Client'
 import NoirChatCommand from '../../../libs/structures/command/ChatCommand'
@@ -30,31 +30,79 @@ export default class MessageCommand extends NoirChatCommand {
       client.noirMessages.set(id, new NoirMessage(id, client, interaction))
     }
 
-    await this.controlMessage(client, interaction, id)
+    await this.message(client, interaction, id)
   }
 
-  public async controlMessage(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction | ModalSubmitInteraction, id: string) {
+  public async message(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction | ModalMessageModalSubmitInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
-    const embed = message?.embed
+    const successStyle = ButtonStyle.Success
+    const unsuccessStyle = ButtonStyle.Secondary
+
+    const generateButton = (type: string): string => {
+      return `message-${id}-${type}-button`
+    }
+
+    const generateStyle = <type = boolean | string>(status: type): ButtonStyle => {
+      return status ? successStyle : unsuccessStyle
+    }
 
     const buttons = [
       [
-        new ButtonBuilder().setCustomId(`message-${id}-settings-button`).setLabel('Embed').setStyle(message?.embedStatus ? ButtonStyle.Success : ButtonStyle.Secondary),
-        new ButtonBuilder().setCustomId(`message-${id}-title-button`).setLabel('Title').setStyle(embed?.data.title ? ButtonStyle.Success : ButtonStyle.Secondary),
-        new ButtonBuilder().setCustomId(`message-${id}-author-button`).setLabel('Author').setStyle(embed?.data.author?.name ? ButtonStyle.Success : ButtonStyle.Secondary),
-        new ButtonBuilder().setCustomId(`message-${id}-footer-button`).setLabel('Footer').setStyle(embed?.data.footer?.text ? ButtonStyle.Success : ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setLabel('Embed settings')
+          .setCustomId(generateButton('embed'))
+          .setStyle(generateStyle(message?.status)),
+        new ButtonBuilder()
+          .setLabel('Embed author')
+          .setCustomId(generateButton('author'))
+          .setStyle(generateStyle(message?.author.text)),
+        new ButtonBuilder()
+          .setLabel('Embed title')
+          .setCustomId(generateButton('title'))
+          .setStyle(generateStyle(message?.title.text)),
+        new ButtonBuilder()
+          .setLabel('Embed footer')
+          .setCustomId(generateButton('footer'))
+          .setStyle(generateStyle(message?.footer.text))
       ],
       [
-        new ButtonBuilder().setCustomId(`message-${id}-reset-button`).setLabel('Reset').setStyle(ButtonStyle.Danger),
-        new ButtonBuilder().setCustomId(`message-${id}-cancel-button`).setLabel('Cancel').setStyle(ButtonStyle.Danger),
-        new ButtonBuilder().setCustomId(`message-${id}-send-button`).setLabel('Send').setStyle(ButtonStyle.Success),
-        new ButtonBuilder().setCustomId(`message-${id}-content-button`).setLabel('Message').setStyle(message?.content ? ButtonStyle.Success : ButtonStyle.Secondary)
+        new ButtonBuilder()
+          .setLabel('Add embed field')
+          .setCustomId(generateButton('fieldAdd'))
+          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setLabel('Remove embed fields')
+          .setCustomId(generateButton('fieldRemove'))
+          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setLabel('Edit embed fields')
+          .setCustomId(generateButton('fieldEdit'))
+          .setStyle(ButtonStyle.Secondary)
+      ],
+      [
+        new ButtonBuilder()
+          .setLabel('Reset')
+          .setCustomId(generateButton('reset'))
+          .setStyle(ButtonStyle.Danger),
+        new ButtonBuilder()
+          .setLabel('Cancel')
+          .setCustomId(generateButton('cancel'))
+          .setStyle(ButtonStyle.Danger),
+        new ButtonBuilder()
+          .setLabel('Send message')
+          .setCustomId(generateButton('send'))
+          .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
+          .setLabel('Message content')
+          .setCustomId(generateButton('content'))
+          .setStyle(generateStyle(message?.content))
       ]
     ]
 
     const actionRows = [
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[0]),
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[1]),
+      new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[2]),
     ]
 
     await client.noirReply.reply({
@@ -68,7 +116,7 @@ export default class MessageCommand extends NoirChatCommand {
     })
   }
 
-  public async buttonResponse(client: NoirClient, interaction: ButtonInteraction) {
+  public async buttonResponse(client: NoirClient, interaction: ButtonInteraction): Promise<void> {
     const parts = interaction.customId.toLowerCase().split('-')
     const type = parts[2]
     const id = parts[1]
@@ -88,11 +136,11 @@ export default class MessageCommand extends NoirChatCommand {
       client.noirMessages.delete(id)
       client.noirMessages.set(id, new NoirMessage(id, client, interaction))
 
-      await this.controlMessage(client, interaction, id)
+      await this.message(client, interaction, id)
     } else if (type == 'send') {
       const message = client.noirMessages.get(id)
       const embed = message?.embed.data
-      const status = message?.embedStatus
+      const status = message?.status
       const content = message?.content
 
       try {
@@ -103,7 +151,7 @@ export default class MessageCommand extends NoirChatCommand {
           console.log(content)
         }
 
-        this.controlMessage(client, interaction, id)
+        this.message(client, interaction, id)
       } catch (err) {
         await client.noirReply.reply({
           interaction: interaction,
@@ -113,241 +161,292 @@ export default class MessageCommand extends NoirChatCommand {
         })
       }
     } else if (type == 'content') await this.contentRequest(client, interaction, id)
-    else if (type == 'settings') await this.settingsRequest(client, interaction, id)
+    else if (type == 'embed') await this.embedRequest(client, interaction, id)
     else if (type == 'title') await this.titleRequest(client, interaction, id)
     else if (type == 'author') await this.authorRequest(client, interaction, id)
     else if (type == 'footer') await this.footerRequest(client, interaction, id)
+    else if (type == 'fieldAdd') await this.fieldAddRequest(client, interaction, id)
   }
 
-  public async modalResponse(client: NoirClient, interaction: ModalSubmitInteraction) {
+  public async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction): Promise<void> {
     const parts = interaction.customId.toLowerCase().split('-')
     const type = parts[2]
     const id = parts[1]
 
     if (type == 'content') await this.contentResponse(client, interaction, id)
-    else if (type == 'settings') await this.settingsResponse(client, interaction, id)
+    else if (type == 'embed') await this.embedResponse(client, interaction, id)
     else if (type == 'title') await this.titleResponse(client, interaction, id)
     else if (type == 'author') await this.authorResponse(client, interaction, id)
     else if (type == 'footer') await this.footerResponse(client, interaction, id)
+    else if (type == 'fieldAdd') await this.fieldAddResponse(client, interaction, id)
   }
 
-  public async contentRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
+  public generateInputId(id: string, type: string): string {
+    return `message-${id}-${type}-input`
+  }
+
+  public generateModalId(id: string, type: string): string {
+    return `message-${id}-${type}-modal`
+  }
+
+  public async contentRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
     const contentInput = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'content'))
       .setStyle(TextInputStyle.Paragraph)
-      .setCustomId(`message-${id}-content-input`)
       .setLabel('Message content')
-      .setRequired(true)
-      .setMaxLength(2000)
       .setValue(message?.content ?? '')
       .setPlaceholder('Enter message content here')
-    const contentActionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([contentInput])
+      .setRequired(true)
+      .setMaxLength(2000)
+
+    const contentActionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>()
+      .addComponents([contentInput])
 
     const modal = new ModalBuilder()
-      .addComponents([contentActionRow])
       .setCustomId(`message-${id}-content-modal`)
-      .setTitle('Message constructor')
+      .setTitle('Message content constructor')
+      .addComponents([contentActionRow])
+
     await interaction.showModal(modal)
   }
 
-  public async contentResponse(client: NoirClient, interaction: ModalSubmitInteraction, id: string) {
-    const content = interaction.fields.getTextInputValue(`message-${id}-content-input`)
+  public async contentResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+    const content = interaction.fields.getTextInputValue(this.generateInputId(id, 'content'))
+
     client.noirMessages.get(id)?.setContent(content)
 
-    await this.controlMessage(client, interaction, id)
+    await this.message(client, interaction, id)
   }
 
-  public async settingsRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
+  public async embedRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
-    const embed = message?.embed.data
-
-    const descriptionInput = new TextInputBuilder()
-      .setStyle(TextInputStyle.Paragraph)
-      .setCustomId(`message-${id}-description-input`)
-      .setLabel('Embed description')
-      .setValue(embed?.description ?? '')
-      .setPlaceholder('Enter embed description')
-      .setRequired(false)
     const colorInput = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'color'))
       .setStyle(TextInputStyle.Short)
-      .setCustomId(`message-${id}-color-input`)
       .setLabel('Embed color')
-      .setMaxLength(20)
       .setValue(message?.color ?? '')
       .setPlaceholder('Enter embed color (primary, secondary, tertiary, success, warning, embed)')
       .setRequired(false)
+      .setMaxLength(20)
+    const descriptionInput = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'description'))
+      .setStyle(TextInputStyle.Paragraph)
+      .setLabel('Embed description')
+      .setValue(message?.description ?? '')
+      .setPlaceholder('Enter embed description')
+      .setRequired(false)
+      .setMaxLength(2000)
     const imageInput = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'image'))
       .setStyle(TextInputStyle.Short)
-      .setCustomId(`message-${id}-image-input`)
       .setLabel('Embed image')
       .setValue(message?.image ?? '')
       .setPlaceholder('Enter embed image (server, user, client)')
       .setRequired(false)
+      .setMaxLength(2000)
     const thumbnailInput = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'thumbnail'))
       .setStyle(TextInputStyle.Short)
-      .setCustomId(`message-${id}-thumbnail-input`)
       .setLabel('Embed thumbnail')
       .setValue(message?.thumbnail ?? '')
       .setPlaceholder('Enter embed thumbnail (server, user, client)')
       .setRequired(false)
+      .setMaxLength(2000)
 
-    const contentActionRows = [
-      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([descriptionInput]),
+    const embedActionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([colorInput]),
+      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([descriptionInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([imageInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([thumbnailInput])
     ]
 
     const modal = new ModalBuilder()
-      .addComponents(contentActionRows)
-      .setCustomId(`message-${id}-settings-modal`)
-      .setTitle('Message constructor')
+      .setCustomId(this.generateModalId(id, 'embed'))
+      .setTitle('Embed constructor')
+      .addComponents(embedActionRows)
     await interaction.showModal(modal)
   }
 
-  public async settingsResponse(client: NoirClient, interaction: ModalSubmitInteraction, id: string) {
-    const description = interaction.fields.getTextInputValue(`message-${id}-description-input`) ?? undefined
-    const image = interaction.fields.getTextInputValue(`message-${id}-image-input`) ?? undefined
-    const thumbnail = interaction.fields.getTextInputValue(`message-${id}-thumbnail-input`) ?? undefined
-    const _color = interaction.fields.getTextInputValue(`message-${id}-color-input`) ?? undefined
+  public async embedResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+    const message = client.noirMessages.get(id)
+    const color = interaction.fields.getTextInputValue(this.generateInputId(id, 'color'))
+    const description = interaction.fields.getTextInputValue(this.generateInputId(id, 'description'))
+    const thumbnail = interaction.fields.getTextInputValue(this.generateInputId(id, 'thumbnail'))
+    const image = interaction.fields.getTextInputValue(this.generateInputId(id, 'image'))
 
-    if (_color) {
-      let color = 'secondary'
+    if (color) message?.setColor(color)
+    if (description) message?.setDescription(description)
+    if (thumbnail) message?.setThumbnail(thumbnail)
+    if (image) message?.setImage(image)
 
-      if (_color == 'primary') color = 'primary'
-      else if (_color == 'secondary') color = 'secondary'
-      else if (_color == 'tertiary') color = 'tertiary'
-      else if (_color == 'success') color = 'success'
-      else if (_color == 'warning') color = 'warning'
-      else if (_color == 'embed') color = 'embed'
-
-      client.noirMessages.get(id)?.setColor(color)
-    }
-
-    if (description) client.noirMessages.get(id)?.setDescription(description)
-    if (image) client.noirMessages.get(id)?.setImage(image)
-    if (thumbnail) client.noirMessages.get(id)?.setThumbnail(thumbnail)
-
-    await this.controlMessage(client, interaction, id)
+    await this.message(client, interaction, id)
   }
 
-  public async titleRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
+  public async titleRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
-    const embed = message?.embed.data
-
     const titleInput = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'title'))
       .setStyle(TextInputStyle.Short)
-      .setCustomId(`message-${id}-title-input`)
       .setLabel('Embed title')
-      .setValue(embed?.title ?? '')
+      .setValue(message?.title.text ?? '')
       .setPlaceholder('Enter embed title')
       .setRequired(true)
+      .setMaxLength(2000)
     const titleURLInput = new TextInputBuilder()
       .setStyle(TextInputStyle.Short)
-      .setCustomId(`message-${id}-titleURL-input`)
-      .setLabel('Embed title URL')
-      .setValue(embed?.url ?? '')
-      .setPlaceholder('Enter embed title URL')
+      .setCustomId(this.generateInputId(id, 'titleURL'))
+      .setLabel('Embed url')
+      .setValue(message?.url ?? '')
+      .setPlaceholder('Enter embed url')
       .setRequired(false)
+      .setMaxLength(2000)
 
-    const contentActionRows = [
+    const titleActionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([titleInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([titleURLInput]),
     ]
 
     const modal = new ModalBuilder()
-      .addComponents(contentActionRows)
-      .setCustomId(`message-${id}-title-modal`)
-      .setTitle('Message constructor')
+      .setCustomId(this.generateModalId(id, 'title'))
+      .setTitle('Title constructor')
+      .addComponents(titleActionRows)
     await interaction.showModal(modal)
   }
 
-  public async titleResponse(client: NoirClient, interaction: ModalSubmitInteraction, id: string) {
+  public async titleResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
     const title = interaction.fields.getTextInputValue(`message-${id}-title-input`)
     const titleURL = interaction.fields.getTextInputValue(`message-${id}-titleURL-input`) ?? undefined
 
     client.noirMessages.get(id)?.setTitle(title, titleURL)
 
-    await this.controlMessage(client, interaction, id)
+    await this.message(client, interaction, id)
   }
 
-  public async authorRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
+  public async authorRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
-    const embed = message?.embed.data
-
     const authorInput = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'author'))
       .setStyle(TextInputStyle.Short)
-      .setCustomId(`message-${id}-author-input`)
       .setLabel('Embed author')
-      .setValue(embed?.author?.name ?? '')
+      .setValue(message?.author?.text ?? '')
       .setPlaceholder('Enter embed author')
       .setRequired(true)
+      .setMaxLength(2000)
     const authorImageInput = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'authorImage'))
       .setStyle(TextInputStyle.Short)
-      .setCustomId(`message-${id}-authorImage-input`)
       .setLabel('Embed author image')
-      .setValue(embed?.author?.icon_url ?? '')
-      .setPlaceholder('Enter embed author image (client, user, server)')
+      .setValue(message?.author?.image ?? '')
+      .setPlaceholder('Enter embed author image url (client, user, server)')
       .setRequired(false)
+      .setMaxLength(2000)
 
-    const contentActionRows = [
+    const authorActionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([authorInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([authorImageInput])
     ]
 
     const modal = new ModalBuilder()
-      .addComponents(contentActionRows)
-      .setCustomId(`message-${id}-author-modal`)
-      .setTitle('Message constructor')
+      .setCustomId(this.generateModalId(id, 'author'))
+      .setTitle('Author constructor')
+      .addComponents(authorActionRows)
     await interaction.showModal(modal)
   }
 
-  public async authorResponse(client: NoirClient, interaction: ModalSubmitInteraction, id: string) {
-    const author = interaction.fields.getTextInputValue(`message-${id}-author-input`)
-    const authorImage = interaction.fields.getTextInputValue(`message-${id}-authorImage-input`) ?? undefined
+  public async authorResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+    const author = interaction.fields.getTextInputValue(this.generateInputId(id, 'author'))
+    const authorImage = interaction.fields.getTextInputValue(this.generateInputId(id, 'authorImage'))
 
     client.noirMessages.get(id)?.setAuthor(author, authorImage)
 
-    await this.controlMessage(client, interaction, id)
+    await this.message(client, interaction, id)
   }
 
-  public async footerRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
+  public async footerRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
-    const embed = message?.embed.data
-
     const footerInput = new TextInputBuilder()
       .setStyle(TextInputStyle.Short)
-      .setCustomId(`message-${id}-footer-input`)
+      .setCustomId(this.generateInputId(id, 'footer'))
       .setLabel('Embed author')
-      .setValue(embed?.footer?.text ?? '')
+      .setValue(message?.footer?.text ?? '')
       .setPlaceholder('Enter embed footer')
       .setRequired(true)
+      .setMaxLength(2000)
     const footerImageInput = new TextInputBuilder()
       .setStyle(TextInputStyle.Short)
-      .setCustomId(`message-${id}-footerImage-input`)
-      .setLabel('Embed author image')
-      .setValue(embed?.footer?.icon_url ?? '')
-      .setPlaceholder('Enter embed footer image (client, user, server)')
+      .setCustomId(this.generateInputId(id, 'footerImage'))
+      .setLabel('Embed author icon')
+      .setValue(message?.footer?.image ?? '')
+      .setPlaceholder('Enter embed footer icon url (client, user, server)')
       .setRequired(false)
+      .setMaxLength(2000)
 
-    const contentActionRows = [
+    const footerActionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([footerInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([footerImageInput])
     ]
 
     const modal = new ModalBuilder()
-      .addComponents(contentActionRows)
-      .setCustomId(`message-${id}-footer-modal`)
-      .setTitle('Message constructor')
+      .setCustomId(this.generateModalId(id, 'footer'))
+      .setTitle('Footer constructor')
+      .addComponents(footerActionRows)
     await interaction.showModal(modal)
   }
 
-  public async footerResponse(client: NoirClient, interaction: ModalSubmitInteraction, id: string) {
-    const footer = interaction.fields.getTextInputValue(`message-${id}-footer-input`)
-    const footerImage = interaction.fields.getTextInputValue(`message-${id}-footerImage-input`) ?? undefined
+  public async footerResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+    const footer = interaction.fields.getTextInputValue(this.generateInputId(id, 'footer'))
+    const footerImage = interaction.fields.getTextInputValue(this.generateInputId(id, 'footerImage'))
 
     client.noirMessages.get(id)?.setFooter(footer, footerImage)
 
-    await this.controlMessage(client, interaction, id)
+    await this.message(client, interaction, id)
+  }
+
+  public async fieldAddRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
+    const nameInput = new TextInputBuilder()
+      .setStyle(TextInputStyle.Short)
+      .setCustomId(this.generateInputId(id, 'fieldName'))
+      .setLabel('Field name')
+      .setPlaceholder('Enter field name')
+      .setRequired(true)
+      .setMaxLength(2000)
+    const valueInput = new TextInputBuilder()
+      .setStyle(TextInputStyle.Paragraph)
+      .setCustomId(this.generateInputId(id, 'fieldValue'))
+      .setLabel('Field value')
+      .setPlaceholder('Enter field value')
+      .setRequired(true)
+      .setMaxLength(2000)
+    const inlineInput = new TextInputBuilder()
+      .setStyle(TextInputStyle.Short)
+      .setCustomId(this.generateInputId(id, 'fieldInline'))
+      .setLabel('Field name')
+      .setPlaceholder('Enter field inline (true or false)')
+      .setMaxLength(5)
+
+    const fieldActionRows = [
+      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([nameInput]),
+      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([valueInput]),
+      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([inlineInput])
+    ]
+
+    const modal = new ModalBuilder()
+      .setCustomId(this.generateModalId(id, 'fieldAdd'))
+      .setTitle('Field constructor')
+      .addComponents(fieldActionRows)
+    await interaction.showModal(modal)
+  }
+
+  public async fieldAddResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+    const name = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldName'))
+    const value = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldValue'))
+    const inline = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldInline'))
+
+    if (name && value && inline == 'true' || name && value) {
+      client.noirMessages.get(id)?.addField({ name: name, value: value, inline: inline == 'true' ? true : false })
+    }
+
+    await this.message(client, interaction, id)
   }
 }

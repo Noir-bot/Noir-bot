@@ -1,7 +1,5 @@
 import chalk from 'chalk'
-import { ButtonInteraction, CommandInteraction, Interaction, ModalSubmitInteraction } from 'discord.js'
-import HelpCommand from '../../commands/slash/information/Help'
-import AnnouncementCommand from '../../commands/slash/private/Announcement'
+import { ButtonInteraction, CommandInteraction, Interaction, ModalMessageModalSubmitInteraction, ModalSubmitInteraction } from 'discord.js'
 import MessageCommand from '../../commands/slash/private/Message'
 import { colors } from '../../libs/config/design'
 import { invite, owners } from '../../libs/config/settings'
@@ -17,7 +15,7 @@ export default class InteractionEvent extends NoirEvent {
   public async execute(client: NoirClient, interaction: Interaction): Promise<void> {
     if (interaction.isCommand()) await this.command(client, interaction)
     else if (interaction.isButton()) await this.button(client, interaction)
-    else if (interaction.isModalSubmit()) await this.modal(client, interaction)
+    else if (interaction.isModalSubmit()) await this.messageModal(client, interaction)
 
     return
   }
@@ -130,22 +128,12 @@ export default class InteractionEvent extends NoirEvent {
   protected async button(client: NoirClient, interaction: ButtonInteraction): Promise<void> {
     const parts = interaction.customId.toLocaleLowerCase().split('-')
 
-    if (parts[0] == 'help') {
-      if (parts[1] == 'faq') {
-        await new HelpCommand(client).faq(client, interaction)
-      } else {
-        await new HelpCommand(client).execute(client, interaction)
-      }
-    } else if (parts[0] == 'message') await new MessageCommand(client).buttonResponse(client, interaction)
-
-    return
+    if (parts[0] == 'message') await new MessageCommand(client).buttonResponse(client, interaction)
   }
 
-  protected async modal(client: NoirClient, interaction: ModalSubmitInteraction): Promise<void> {
-    // await interaction.deferReply({ ephemeral: true, fetchReply: true })
+  protected async messageModal(client: NoirClient, interaction: ModalSubmitInteraction | ModalMessageModalSubmitInteraction): Promise<void> {
     const parts = interaction.customId.toLowerCase().split('-')
 
-    if (parts[0] == 'announcement') await new AnnouncementCommand(client).response(client, interaction)
-    else if (parts[0] == 'message') await new MessageCommand(client).modalResponse(client, interaction)
+    if (parts[0] == 'message') await new MessageCommand(client).modalResponse(client, interaction as ModalMessageModalSubmitInteraction)
   }
 }

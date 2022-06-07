@@ -8,6 +8,7 @@ import {
   EmbedBuilder,
   EmbedField,
   JSONEncodable,
+  ModalMessageModalSubmitInteraction,
   ModalSubmitInteraction
 } from 'discord.js'
 import NoirClient from '../structures/Client'
@@ -85,7 +86,7 @@ export default class NoirReply {
 
   private async send(
     properties: {
-      interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction,
+      interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction | ModalMessageModalSubmitInteraction,
       embed?: EmbedBuilder,
       components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
       ephemeral?: boolean,
@@ -94,7 +95,7 @@ export default class NoirReply {
     }
   ) {
     try {
-      if (properties.interaction.isButton()) {
+      if (properties.interaction.isButton() || properties.interaction.isModalSubmit() && properties.interaction.isFromMessage()) {
         return await properties.interaction.update({
           embeds: properties.embed?.data ? [properties.embed.data] : [],
           components: properties?.components ?? [],
@@ -114,6 +115,7 @@ export default class NoirReply {
         components: properties?.components ?? [],
         content: properties?.content
       })
+
     } catch (err) {
       return await properties.interaction.reply({
         embeds: properties.embed?.data ? [properties.embed.data] : [],
