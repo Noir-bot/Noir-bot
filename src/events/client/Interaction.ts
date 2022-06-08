@@ -1,6 +1,6 @@
 import chalk from 'chalk'
-import { ButtonInteraction, CommandInteraction, Interaction, ModalMessageModalSubmitInteraction, ModalSubmitInteraction } from 'discord.js'
-import MessageCommand from '../../commands/slash/private/Message'
+import { ButtonInteraction, CommandInteraction, Interaction, ModalMessageModalSubmitInteraction, ModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
+import MessageCommand from '../../commands/slash/utils/Message'
 import { colors } from '../../libs/config/design'
 import { invite, owners } from '../../libs/config/settings'
 import NoirClient from '../../libs/structures/Client'
@@ -16,6 +16,7 @@ export default class InteractionEvent extends NoirEvent {
     if (interaction.isCommand()) await this.command(client, interaction)
     else if (interaction.isButton()) await this.button(client, interaction)
     else if (interaction.isModalSubmit()) await this.messageModal(client, interaction)
+    else if (interaction.isSelectMenu()) await this.selectMenu(client, interaction)
 
     return
   }
@@ -135,5 +136,11 @@ export default class InteractionEvent extends NoirEvent {
     const parts = interaction.customId.toLowerCase().split('-')
 
     if (parts[0] == 'message') await new MessageCommand(client).modalResponse(client, interaction as ModalMessageModalSubmitInteraction)
+  }
+
+  protected async selectMenu(client: NoirClient, interaction: SelectMenuInteraction): Promise<void> {
+    const parts = interaction.customId.toLowerCase().split('-')
+
+    if (parts[0] == 'message') await new MessageCommand(client).selectResponse(client, interaction)
   }
 }

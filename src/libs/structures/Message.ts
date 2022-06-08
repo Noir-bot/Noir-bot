@@ -1,4 +1,4 @@
-import { ColorResolvable, EmbedBuilder, EmbedField, Interaction } from 'discord.js'
+import { Collection, ColorResolvable, EmbedBuilder, EmbedField, Interaction } from 'discord.js'
 import { colors } from '../config/design'
 import { urlRegex } from '../config/patterns'
 import NoirClient from './Client'
@@ -13,7 +13,23 @@ export default class NoirMessage {
     this._id = id
     this.client = client
     this.interaction = interaction
-    this.message = { embed: { status: false, timestamp: false } }
+    this.message = { embed: { status: false, timestamp: false, fields: new Collection([]) } }
+  }
+
+  private checkImage(image: string | undefined | null): string | undefined {
+    if (image && urlRegex.test(image) || image == 'client' || image == 'user' || image == 'server') {
+      const clientAvatar = this.client.user?.avatarURL()
+      const userAvatar = this.interaction.user.avatarURL()
+      const guildIcon = this.interaction.guild?.iconURL()
+
+      if (image == 'client' && clientAvatar) return clientAvatar
+      else if (image == 'user' && userAvatar) return userAvatar
+      else if (image == 'server' && guildIcon) return guildIcon
+      else if (image == 'none') return undefined
+      else return image
+    }
+
+    return
   }
 
   public get id() {
@@ -25,10 +41,15 @@ export default class NoirMessage {
 
     if (this.message.embed.description) embed.setDescription(this.message.embed.description)
     if (this.message.embed.thumbnail) embed.setThumbnail(this.message.embed.thumbnail)
-    if (this.message.embed.fields) embed.addFields(this.message.embed?.fields)
     if (this.message.embed.image) embed.setImage(this.message.embed.image)
     if (this.message.embed.color) embed.setColor(this.message.embed.color)
     if (this.message.embed.timestamp) embed.setTimestamp()
+
+    if (this.message.embed.fields) {
+      this.message.embed.fields.map(field => {
+        embed.addFields([field])
+      })
+    }
 
     if (this.message.embed.author) embed.setAuthor({ name: this.message.embed.author, iconURL: this.message.embed.authorImage })
     if (this.message.embed.footer) embed.setFooter({ text: this.message.embed.footer, iconURL: this.message.embed.footerImage })
@@ -86,6 +107,10 @@ export default class NoirMessage {
     return { text: this.message.embed.footer, image: this.message.embed.footerImageRaw }
   }
 
+  public get timestamp() {
+    return this.message.embed.timestamp
+  }
+
   public get fields() {
     return this.message.embed.fields
   }
@@ -111,10 +136,12 @@ export default class NoirMessage {
 
   public setDescription(description: string) {
     this.message.embed.description = description
+    this.message.embed.status = true
   }
 
   public setTitle(title: string, url?: string) {
     this.message.embed.title = title
+    this.message.embed.status = true
 
     if (url && urlRegex.test(url)) {
       this.message.embed.titleURL = url
@@ -125,78 +152,71 @@ export default class NoirMessage {
 
   public setAuthor(author: string, image?: string) {
     this.message.embed.author = author
-
-    if (image && urlRegex.test(image) || image == 'client' || image == 'user' || image == 'server') {
-      const clientAvatar = this.client.user?.avatarURL()
-      const userAvatar = this.interaction.user.avatarURL()
-      const guildIcon = this.interaction.guild?.iconURL()
-
-      this.message.embed.authorImageRaw = image
-
-      if (image == 'client' && clientAvatar) this.message.embed.authorImage = image
-      else if (image == 'user' && userAvatar) this.message.embed.authorImage = image
-      else if (image == 'server' && guildIcon) this.message.embed.authorImage = image
-      else this.message.embed.authorImage = image
-    }
+    this.message.embed.status = true
+    this.message.embed.authorImageRaw = image
+    this.message.embed.authorImage = this.checkImage(image)
 
     return this
   }
 
   public setImage(image: string) {
-    if (urlRegex.test(image) || image == 'client' || image == 'user' || image == 'server') {
-      const clientAvatar = this.client.user?.avatarURL()
-      const userAvatar = this.interaction.user.avatarURL()
-      const guildIcon = this.interaction.guild?.iconURL()
-
-      if (image == 'client' && clientAvatar) this.message.embed.image = image
-      else if (image == 'user' && userAvatar) this.message.embed.image = image
-      else if (image == 'server' && guildIcon) this.message.embed.image = image
-      else this.message.embed.image = image
-    }
+    this.message.embed.status = true
+    this.message.embed.imageRaw = image
+    this.message.embed.image = this.checkImage(image)
 
     return this
   }
 
   public setThumbnail(thumbnail: string) {
-    if (urlRegex.test(thumbnail) || thumbnail == 'client' || thumbnail == 'user' || thumbnail == 'server') {
-      const clientAvatar = this.client.user?.avatarURL()
-      const userAvatar = this.interaction.user.avatarURL()
-      const guildIcon = this.interaction.guild?.iconURL()
-
-      if (thumbnail == 'client' && clientAvatar) this.message.embed.thumbnail = thumbnail
-      else if (thumbnail == 'user' && userAvatar) this.message.embed.thumbnail = thumbnail
-      else if (thumbnail == 'server' && guildIcon) this.message.embed.thumbnail = thumbnail
-      else this.message.embed.thumbnail = thumbnail
-    }
+    this.message.embed.status = true
+    this.message.embed.thumbnailRaw = thumbnail
+    this.message.embed.thumbnail = this.checkImage(thumbnail)
 
     return this
   }
 
   public setFooter(footer: string, icon?: string) {
     this.message.embed.footer = footer
+    this.message.embed.footerImageRaw = icon
+    this.message.embed.footerImage = icon
 
-    if (icon && urlRegex.test(icon) || icon && icon == 'client' || icon && icon == 'user' || icon && icon == 'server') {
-      const clientAvatar = this.client.user?.avatarURL()
-      const userAvatar = this.interaction.user.avatarURL()
-      const guildIcon = this.interaction.guild?.iconURL()
+    return this
+  }
 
-      this.message.embed.footerImageRaw = icon
-
-      if (icon == 'client' && clientAvatar) this.message.embed.footerImage = icon
-      else if (icon == 'user' && userAvatar) this.message.embed.footerImage = icon
-      else if (icon == 'server' && guildIcon) this.message.embed.footerImage = icon
-      else this.message.embed.footerImage = icon
-    }
+  public setTimestamp(status: boolean): this {
+    this.message.embed.timestamp = status
 
     return this
   }
 
   public addField(field: EmbedField): this {
-    if (this.message.embed.fields && this.message.embed.fields?.length >= 20) {
+    if (this.message.embed.fields && this.message.embed.fields?.size >= 25) {
       return this
     }
 
-    this.message.embed.fields?.push(field)
+    this.message.embed.fields?.set(`${(field.name + '-' + field.value).replaceAll('-', '')}`, field)
+    this.message.embed.status = true
+
+    console.log(this.message.embed.fields)
+
+    return this
+  }
+
+  public editField(name: string, field: EmbedField): this {
+    if (this.message.embed.fields && this.message.embed.fields?.size > 0) {
+      this.message.embed.fields.set(`${(field.name + '-' + field.value).replaceAll('-', '')}`, field)
+      this.message.embed.fields.delete(name)
+    }
+
+    return this
+  }
+
+  public removeField(name: string): this {
+    try {
+      this.message.embed.fields?.delete(name)
+    } catch (err) {
+      return this
+    }
 
     return this
   }
@@ -221,7 +241,7 @@ interface NoirMessageProperties {
     imageRaw?: string
     thumbnail?: string
     thumbnailRaw?: string
-    fields?: EmbedField[]
+    fields?: Collection<string, EmbedField>
     timestamp: boolean
   }
 }

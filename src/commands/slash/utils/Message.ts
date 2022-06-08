@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
+import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, SelectMenuBuilder, SelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import { colors } from '../../../libs/config/design'
 import NoirClient from '../../../libs/structures/Client'
 import NoirChatCommand from '../../../libs/structures/command/ChatCommand'
@@ -33,7 +33,7 @@ export default class MessageCommand extends NoirChatCommand {
     await this.message(client, interaction, id)
   }
 
-  public async message(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction | ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+  public async message(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction | ModalMessageModalSubmitInteraction | SelectMenuInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
     const successStyle = ButtonStyle.Success
     const unsuccessStyle = ButtonStyle.Secondary
@@ -73,11 +73,13 @@ export default class MessageCommand extends NoirChatCommand {
         new ButtonBuilder()
           .setLabel('Remove embed fields')
           .setCustomId(generateButton('fieldRemove'))
-          .setStyle(ButtonStyle.Secondary),
+          .setStyle(ButtonStyle.Secondary)
+          .setDisabled(message?.fields ? false : true),
         new ButtonBuilder()
           .setLabel('Edit embed fields')
-          .setCustomId(generateButton('fieldEdit'))
+          .setCustomId(generateButton('fieldEditList'))
           .setStyle(ButtonStyle.Secondary)
+          .setDisabled(message?.fields ? false : true)
       ],
       [
         new ButtonBuilder()
@@ -165,7 +167,9 @@ export default class MessageCommand extends NoirChatCommand {
     else if (type == 'title') await this.titleRequest(client, interaction, id)
     else if (type == 'author') await this.authorRequest(client, interaction, id)
     else if (type == 'footer') await this.footerRequest(client, interaction, id)
-    else if (type == 'fieldAdd') await this.fieldAddRequest(client, interaction, id)
+    else if (type == 'fieldadd') await this.fieldAddRequest(client, interaction, id)
+    else if (type == 'fieldremove') await this.fieldRemoveRequest(client, interaction, id)
+    else if (type == 'fieldeditlist') await this.fieldEditListRequest(client, interaction, id)
   }
 
   public async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction): Promise<void> {
@@ -178,7 +182,17 @@ export default class MessageCommand extends NoirChatCommand {
     else if (type == 'title') await this.titleResponse(client, interaction, id)
     else if (type == 'author') await this.authorResponse(client, interaction, id)
     else if (type == 'footer') await this.footerResponse(client, interaction, id)
-    else if (type == 'fieldAdd') await this.fieldAddResponse(client, interaction, id)
+    else if (type == 'fieldadd') await this.fieldAddResponse(client, interaction, id)
+    else if (type == 'fieldedit') await this.fieldEditResponse(client, interaction, id, `${parts[parts.length - 2]}-${parts[parts.length - 1]}`)
+  }
+
+  public async selectResponse(client: NoirClient, interaction: SelectMenuInteraction): Promise<void> {
+    const parts = interaction.customId.toLowerCase().split('-')
+    const type = parts[2]
+    const id = parts[1]
+
+    if (type == 'fieldremove') await this.fieldRemoveResponse(client, interaction, id)
+    else if (type == 'fieldeditlist') await this.fieldEditRequest(client, interaction, id, interaction.values[0])
   }
 
   public generateInputId(id: string, type: string): string {
@@ -187,6 +201,10 @@ export default class MessageCommand extends NoirChatCommand {
 
   public generateModalId(id: string, type: string): string {
     return `message-${id}-${type}-modal`
+  }
+
+  public generateSelectId(id: string, type: string): string {
+    return `message-${id}-${type}-select`
   }
 
   public async contentRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
@@ -200,13 +218,13 @@ export default class MessageCommand extends NoirChatCommand {
       .setRequired(true)
       .setMaxLength(2000)
 
-    const contentActionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>()
+    const actionRows = new ActionRowBuilder<ModalActionRowComponentBuilder>()
       .addComponents([contentInput])
 
     const modal = new ModalBuilder()
       .setCustomId(`message-${id}-content-modal`)
       .setTitle('Message content constructor')
-      .addComponents([contentActionRow])
+      .addComponents([actionRows])
 
     await interaction.showModal(modal)
   }
@@ -242,7 +260,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed image')
       .setValue(message?.image ?? '')
-      .setPlaceholder('Enter embed image (server, user, client)')
+      .setPlaceholder('Enter embed image (server, user, client, none)')
       .setRequired(false)
       .setMaxLength(2000)
     const thumbnailInput = new TextInputBuilder()
@@ -250,21 +268,30 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed thumbnail')
       .setValue(message?.thumbnail ?? '')
-      .setPlaceholder('Enter embed thumbnail (server, user, client)')
+      .setPlaceholder('Enter embed thumbnail (server, user, client, none)')
       .setRequired(false)
       .setMaxLength(2000)
+    const timestampInput = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'timestamp'))
+      .setStyle(TextInputStyle.Short)
+      .setLabel('Embed timestamp')
+      .setValue(message?.timestamp ? 'true' : 'false' ?? '')
+      .setPlaceholder('Enter embed timestamp (true or false)')
+      .setRequired(false)
+      .setMaxLength(5)
 
-    const embedActionRows = [
+    const actionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([colorInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([descriptionInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([imageInput]),
-      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([thumbnailInput])
+      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([thumbnailInput]),
+      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([timestampInput])
     ]
 
     const modal = new ModalBuilder()
       .setCustomId(this.generateModalId(id, 'embed'))
       .setTitle('Embed constructor')
-      .addComponents(embedActionRows)
+      .addComponents(actionRows)
     await interaction.showModal(modal)
   }
 
@@ -274,11 +301,13 @@ export default class MessageCommand extends NoirChatCommand {
     const description = interaction.fields.getTextInputValue(this.generateInputId(id, 'description'))
     const thumbnail = interaction.fields.getTextInputValue(this.generateInputId(id, 'thumbnail'))
     const image = interaction.fields.getTextInputValue(this.generateInputId(id, 'image'))
+    const timestamp = interaction.fields.getTextInputValue(this.generateInputId(id, 'timestamp'))
 
     if (color) message?.setColor(color)
     if (description) message?.setDescription(description)
     if (thumbnail) message?.setThumbnail(thumbnail)
     if (image) message?.setImage(image)
+    if (timestamp) message?.setTimestamp(timestamp == 'true' ? true : false)
 
     await this.message(client, interaction, id)
   }
@@ -302,7 +331,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setRequired(false)
       .setMaxLength(2000)
 
-    const titleActionRows = [
+    const actionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([titleInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([titleURLInput]),
     ]
@@ -310,7 +339,7 @@ export default class MessageCommand extends NoirChatCommand {
     const modal = new ModalBuilder()
       .setCustomId(this.generateModalId(id, 'title'))
       .setTitle('Title constructor')
-      .addComponents(titleActionRows)
+      .addComponents(actionRows)
     await interaction.showModal(modal)
   }
 
@@ -338,11 +367,11 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed author image')
       .setValue(message?.author?.image ?? '')
-      .setPlaceholder('Enter embed author image url (client, user, server)')
+      .setPlaceholder('Enter embed author image url (client, user, server, none)')
       .setRequired(false)
       .setMaxLength(2000)
 
-    const authorActionRows = [
+    const actionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([authorInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([authorImageInput])
     ]
@@ -350,7 +379,7 @@ export default class MessageCommand extends NoirChatCommand {
     const modal = new ModalBuilder()
       .setCustomId(this.generateModalId(id, 'author'))
       .setTitle('Author constructor')
-      .addComponents(authorActionRows)
+      .addComponents(actionRows)
     await interaction.showModal(modal)
   }
 
@@ -366,23 +395,23 @@ export default class MessageCommand extends NoirChatCommand {
   public async footerRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
     const footerInput = new TextInputBuilder()
-      .setStyle(TextInputStyle.Short)
       .setCustomId(this.generateInputId(id, 'footer'))
+      .setStyle(TextInputStyle.Short)
       .setLabel('Embed author')
       .setValue(message?.footer?.text ?? '')
       .setPlaceholder('Enter embed footer')
       .setRequired(true)
       .setMaxLength(2000)
     const footerImageInput = new TextInputBuilder()
-      .setStyle(TextInputStyle.Short)
       .setCustomId(this.generateInputId(id, 'footerImage'))
+      .setStyle(TextInputStyle.Short)
       .setLabel('Embed author icon')
       .setValue(message?.footer?.image ?? '')
-      .setPlaceholder('Enter embed footer icon url (client, user, server)')
+      .setPlaceholder('Enter embed footer icon url (client, user, server, none)')
       .setRequired(false)
       .setMaxLength(2000)
 
-    const footerActionRows = [
+    const actionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([footerInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([footerImageInput])
     ]
@@ -390,7 +419,7 @@ export default class MessageCommand extends NoirChatCommand {
     const modal = new ModalBuilder()
       .setCustomId(this.generateModalId(id, 'footer'))
       .setTitle('Footer constructor')
-      .addComponents(footerActionRows)
+      .addComponents(actionRows)
     await interaction.showModal(modal)
   }
 
@@ -405,27 +434,27 @@ export default class MessageCommand extends NoirChatCommand {
 
   public async fieldAddRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const nameInput = new TextInputBuilder()
-      .setStyle(TextInputStyle.Short)
       .setCustomId(this.generateInputId(id, 'fieldName'))
+      .setStyle(TextInputStyle.Short)
       .setLabel('Field name')
       .setPlaceholder('Enter field name')
       .setRequired(true)
       .setMaxLength(2000)
     const valueInput = new TextInputBuilder()
-      .setStyle(TextInputStyle.Paragraph)
       .setCustomId(this.generateInputId(id, 'fieldValue'))
+      .setStyle(TextInputStyle.Paragraph)
       .setLabel('Field value')
       .setPlaceholder('Enter field value')
       .setRequired(true)
       .setMaxLength(2000)
     const inlineInput = new TextInputBuilder()
-      .setStyle(TextInputStyle.Short)
       .setCustomId(this.generateInputId(id, 'fieldInline'))
+      .setStyle(TextInputStyle.Short)
       .setLabel('Field name')
       .setPlaceholder('Enter field inline (true or false)')
       .setMaxLength(5)
 
-    const fieldActionRows = [
+    const actionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([nameInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([valueInput]),
       new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([inlineInput])
@@ -434,8 +463,8 @@ export default class MessageCommand extends NoirChatCommand {
     const modal = new ModalBuilder()
       .setCustomId(this.generateModalId(id, 'fieldAdd'))
       .setTitle('Field constructor')
-      .addComponents(fieldActionRows)
-    await interaction.showModal(modal)
+      .addComponents(actionRows)
+    await interaction.showModal(modal).catch(err => console.log(err))
   }
 
   public async fieldAddResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
@@ -443,8 +472,144 @@ export default class MessageCommand extends NoirChatCommand {
     const value = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldValue'))
     const inline = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldInline'))
 
-    if (name && value && inline == 'true' || name && value) {
+    if (name && value && inline == 'true' || name && value && inline == 'false') {
       client.noirMessages.get(id)?.addField({ name: name, value: value, inline: inline == 'true' ? true : false })
+    }
+
+    await this.message(client, interaction, id)
+  }
+
+  public async fieldRemoveRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
+    const message = client.noirMessages.get(id)
+
+    if (!message?.fields) return
+
+    const selectMenu = new SelectMenuBuilder()
+      .setCustomId(this.generateSelectId(id, 'fieldRemove'))
+      .setPlaceholder('Choose one to delete')
+      .setMaxValues(message.fields.size)
+      .setMinValues(1)
+
+    message?.fields?.map(field => {
+      selectMenu.addOptions([
+        {
+          label: field.name,
+          description: 'Select to remove',
+          value: `${(field.name + '-' + field.value).replaceAll('-', '')}`
+        }
+      ])
+    })
+
+    const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
+      .addComponents(selectMenu)
+
+    try {
+      await client.noirReply.reply({
+        interaction: interaction,
+        author: 'Remove fields',
+        description: 'Select fields to remove',
+        color: colors.Primary,
+        components: [actionRow]
+      })
+    } catch {
+      return
+    }
+  }
+
+  public async fieldRemoveResponse(client: NoirClient, interaction: SelectMenuInteraction, id: string): Promise<void> {
+    const fields = interaction.values
+
+    fields.map(field => {
+      client.noirMessages.get(id)?.removeField(field)
+    })
+
+    await this.message(client, interaction, id)
+  }
+
+  public async fieldEditListRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
+    const message = client.noirMessages.get(id)
+
+    if (!message?.fields) return
+
+    const selectMenu = new SelectMenuBuilder()
+      .setCustomId(this.generateSelectId(id, 'fieldEditList'))
+      .setPlaceholder('Choose one to edit')
+      .setMaxValues(message.fields.size)
+      .setMinValues(1)
+
+    message?.fields?.map(field => {
+      selectMenu.addOptions([
+        {
+          label: field.name,
+          description: 'Select to edit',
+          value: `${(field.name + '-' + field.value).replaceAll('-', '')}`
+        }
+      ])
+    })
+
+    const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
+      .addComponents(selectMenu)
+
+    try {
+      await client.noirReply.reply({
+        interaction: interaction,
+        author: 'Edit fields',
+        description: 'Select field to edit',
+        color: colors.Primary,
+        components: [actionRow]
+      })
+    } catch {
+      return
+    }
+  }
+
+  public async fieldEditRequest(client: NoirClient, interaction: SelectMenuInteraction, id: string, fieldId: string): Promise<void> {
+    const message = client.noirMessages.get(id)
+    const fieldName = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'fieldName'))
+      .setStyle(TextInputStyle.Short)
+      .setLabel('Field name')
+      .setValue(message?.fields?.get(fieldId)?.name ?? '')
+      .setPlaceholder('Enter field name')
+      .setRequired(false)
+      .setMaxLength(2000)
+    const fieldValue = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'fieldValue'))
+      .setStyle(TextInputStyle.Paragraph)
+      .setLabel('Field value')
+      .setValue(message?.fields?.get(fieldId)?.value ?? '')
+      .setPlaceholder('Enter field value')
+      .setRequired(false)
+      .setMaxLength(2000)
+    const fieldInline = new TextInputBuilder()
+      .setCustomId(this.generateInputId(id, 'fieldInline'))
+      .setStyle(TextInputStyle.Short)
+      .setLabel('Field inline')
+      .setValue(message?.fields?.get(fieldId)?.inline ? 'true' : 'false' ?? '')
+      .setPlaceholder('Enter field inline (true or false)')
+      .setRequired(false)
+      .setMaxLength(2000)
+
+    const actionRows = [
+      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([fieldName]),
+      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([fieldValue]),
+      new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([fieldInline])
+    ]
+
+    const modal = new ModalBuilder()
+      .setCustomId(this.generateModalId(id, 'fieldEdit') + `-${(message?.fields?.get(fieldId)?.name + '-' + message?.fields?.get(fieldId)?.value).replaceAll('-', '')}`)
+      .setTitle('Field constructor')
+      .addComponents(actionRows)
+    await interaction.showModal(modal)
+  }
+
+  public async fieldEditResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, oldId: string) {
+    const name = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldName'))
+    const value = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldValue'))
+    const inline = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldInline'))
+
+    if (name && value && inline == 'true' || name && value && inline == 'false') {
+      client.noirMessages.get(id)?.editField(oldId, { name: name, value: value, inline: inline == 'true' ? true : false })
     }
 
     await this.message(client, interaction, id)
