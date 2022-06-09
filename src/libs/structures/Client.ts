@@ -8,11 +8,13 @@ import NoirUtils from '../utils/Utils'
 import NoirCommand from './command/Command'
 import NoirEvent from './event/Event'
 import NoirMessage from './Message'
+import NoirPremium from './Premium'
 
 export default class NoirClient extends Client {
   public noirCommands = new Collection<string, NoirCommand>()
   public noirEvents = new Collection<string, NoirEvent>()
   public noirMessages = new Collection<string, NoirMessage>()
+  public noirPremiums = new Collection<string, NoirPremium>()
   public noirPrisma = new PrismaClient()
   public noirUtils = new NoirUtils(this)
   public noirReply = new NoirReply(this)

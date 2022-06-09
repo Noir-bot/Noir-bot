@@ -4,10 +4,10 @@ import { urlRegex } from '../config/patterns'
 import NoirClient from './Client'
 
 export default class NoirMessage {
-  public _id: string
-  public client: NoirClient
-  public interaction: Interaction
-  public message: NoirMessageProperties
+  private _id: string
+  private client: NoirClient
+  private interaction: Interaction
+  private message: NoirMessageProperties
 
   constructor(id: string, client: NoirClient, interaction: Interaction) {
     this._id = id
@@ -30,6 +30,10 @@ export default class NoirMessage {
     }
 
     return
+  }
+
+  private editId(string: string) {
+    return string.replaceAll('-', '').replaceAll(' ', '')
   }
 
   public get id() {
@@ -178,7 +182,7 @@ export default class NoirMessage {
   public setFooter(footer: string, icon?: string) {
     this.message.embed.footer = footer
     this.message.embed.footerImageRaw = icon
-    this.message.embed.footerImage = icon
+    this.message.embed.footerImage = this.checkImage(icon)
 
     return this
   }
@@ -194,7 +198,7 @@ export default class NoirMessage {
       return this
     }
 
-    this.message.embed.fields?.set(`${(field.name + '-' + field.value).replaceAll('-', '')}`, field)
+    this.message.embed.fields?.set(`${this.editId(field.name)}-${this.editId(field.value)}`, field)
     this.message.embed.status = true
 
     console.log(this.message.embed.fields)
@@ -204,8 +208,9 @@ export default class NoirMessage {
 
   public editField(name: string, field: EmbedField): this {
     if (this.message.embed.fields && this.message.embed.fields?.size > 0) {
-      this.message.embed.fields.set(`${(field.name + '-' + field.value).replaceAll('-', '')}`, field)
+      console.log(name)
       this.message.embed.fields.delete(name)
+      this.message.embed.fields.set(`${this.editId(field.name)}-${this.editId(field.value)}`, field)
     }
 
     return this

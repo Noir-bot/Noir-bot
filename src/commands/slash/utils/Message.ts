@@ -177,6 +177,8 @@ export default class MessageCommand extends NoirChatCommand {
     const type = parts[2]
     const id = parts[1]
 
+    console.log(parts)
+
     if (type == 'content') await this.contentResponse(client, interaction, id)
     else if (type == 'embed') await this.embedResponse(client, interaction, id)
     else if (type == 'title') await this.titleResponse(client, interaction, id)
@@ -190,6 +192,8 @@ export default class MessageCommand extends NoirChatCommand {
     const parts = interaction.customId.toLowerCase().split('-')
     const type = parts[2]
     const id = parts[1]
+
+    console.log(interaction.values[0])
 
     if (type == 'fieldremove') await this.fieldRemoveResponse(client, interaction, id)
     else if (type == 'fieldeditlist') await this.fieldEditRequest(client, interaction, id, interaction.values[0])
@@ -205,6 +209,10 @@ export default class MessageCommand extends NoirChatCommand {
 
   public generateSelectId(id: string, type: string): string {
     return `message-${id}-${type}-select`
+  }
+
+  private editId(string?: string) {
+    return string?.replaceAll('-', '').replaceAll(' ', '') ?? ''
   }
 
   public async contentRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
@@ -276,7 +284,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed timestamp')
       .setValue(message?.timestamp ? 'true' : 'false' ?? '')
-      .setPlaceholder('Enter embed timestamp (true or false)')
+      .setPlaceholder('Enter embed timestamp (true or leave blank)')
       .setRequired(false)
       .setMaxLength(5)
 
@@ -451,7 +459,8 @@ export default class MessageCommand extends NoirChatCommand {
       .setCustomId(this.generateInputId(id, 'fieldInline'))
       .setStyle(TextInputStyle.Short)
       .setLabel('Field name')
-      .setPlaceholder('Enter field inline (true or false)')
+      .setPlaceholder('Enter field inline (true or leave blank)')
+      .setRequired(false)
       .setMaxLength(5)
 
     const actionRows = [
@@ -472,7 +481,7 @@ export default class MessageCommand extends NoirChatCommand {
     const value = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldValue'))
     const inline = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldInline'))
 
-    if (name && value && inline == 'true' || name && value && inline == 'false') {
+    if (name && value && inline == 'true' || name && value) {
       client.noirMessages.get(id)?.addField({ name: name, value: value, inline: inline == 'true' ? true : false })
     }
 
@@ -536,13 +545,14 @@ export default class MessageCommand extends NoirChatCommand {
       .setPlaceholder('Choose one to edit')
       .setMaxValues(message.fields.size)
       .setMinValues(1)
+      .setMaxValues(1)
 
     message?.fields?.map(field => {
       selectMenu.addOptions([
         {
           label: field.name,
           description: 'Select to edit',
-          value: `${(field.name + '-' + field.value).replaceAll('-', '')}`
+          value: `${this.editId(field.name)}-${this.editId(field.value)}`
         }
       ])
     })
@@ -597,7 +607,7 @@ export default class MessageCommand extends NoirChatCommand {
     ]
 
     const modal = new ModalBuilder()
-      .setCustomId(this.generateModalId(id, 'fieldEdit') + `-${(message?.fields?.get(fieldId)?.name + '-' + message?.fields?.get(fieldId)?.value).replaceAll('-', '')}`)
+      .setCustomId(this.generateModalId(id, 'fieldEdit') + `-${this.editId(message?.fields?.get(fieldId)?.name)}-${this.editId(message?.fields?.get(fieldId)?.value)}`)
       .setTitle('Field constructor')
       .addComponents(actionRows)
     await interaction.showModal(modal)
@@ -607,6 +617,8 @@ export default class MessageCommand extends NoirChatCommand {
     const name = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldName'))
     const value = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldValue'))
     const inline = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldInline'))
+
+    console.log(oldId)
 
     if (name && value && inline == 'true' || name && value && inline == 'false') {
       client.noirMessages.get(id)?.editField(oldId, { name: name, value: value, inline: inline == 'true' ? true : false })
