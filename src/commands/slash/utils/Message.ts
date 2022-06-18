@@ -12,15 +12,26 @@ export default class MessageCommand extends NoirChatCommand {
         permissions: ['SendMessages', 'EmbedLinks'],
         category: 'information',
         access: 'premium',
-        type: 'private',
+        type: 'public',
         status: true
       },
       {
         name: 'message',
         description: 'Send message from bot',
-        type: ApplicationCommandType.ChatInput
+        nameLocalizations: { 'ru': 'сообщение' },
+        descriptionLocalizations: { 'ru': 'Отправить сообшения от имени бота' },
+        defaultMemberPermissions: ['ManageMessages', 'EmbedLinks'],
+        type: ApplicationCommandType.ChatInput,
+        dmPermission: false,
       }
     )
+  }
+
+  private backButton(id: string) {
+    return new ButtonBuilder()
+      .setLabel('Back')
+      .setCustomId(this.generateButtonId(id, 'back'))
+      .setStyle(ButtonStyle.Secondary)
   }
 
   public async execute(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {
@@ -33,71 +44,88 @@ export default class MessageCommand extends NoirChatCommand {
     await this.message(client, interaction, id)
   }
 
-  public async message(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction | ModalMessageModalSubmitInteraction | SelectMenuInteraction, id: string): Promise<void> {
-    const message = client.noirMessages.get(id)
+  private generateInputId(id: string, type: string): string {
+    return `message-${id}-${type}-input`
+  }
+
+  private generateModalId(id: string, type: string): string {
+    return `message-${id}-${type}-modal`
+  }
+
+  private generateSelectId(id: string, type: string): string {
+    return `message-${id}-${type}-select`
+  }
+
+  private generateButtonId(id: string, type: string): string {
+    return `message-${id}-${type}-button`
+  }
+
+  private generateButtonStyle(status?: boolean | string): ButtonStyle {
     const successStyle = ButtonStyle.Success
     const unsuccessStyle = ButtonStyle.Secondary
 
-    const generateButton = (type: string): string => {
-      return `message-${id}-${type}-button`
-    }
+    return status ? successStyle : unsuccessStyle
+  }
 
-    const generateStyle = <type = boolean | string>(status: type): ButtonStyle => {
-      return status ? successStyle : unsuccessStyle
-    }
+  private editId(string?: string) {
+    return string?.replaceAll('-', '').replaceAll(' ', '') ?? ''
+  }
+
+  public async message(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction | ModalMessageModalSubmitInteraction | SelectMenuInteraction, id: string): Promise<void> {
+    const message = client.noirMessages.get(id)
 
     const buttons = [
       [
         new ButtonBuilder()
           .setLabel('Embed settings')
-          .setCustomId(generateButton('embed'))
-          .setStyle(generateStyle(message?.status)),
+          .setCustomId(this.generateButtonId(id, 'embed'))
+          .setStyle(this.generateButtonStyle(message?.status)),
         new ButtonBuilder()
           .setLabel('Embed author')
-          .setCustomId(generateButton('author'))
-          .setStyle(generateStyle(message?.author.text)),
+          .setCustomId(this.generateButtonId(id, 'author'))
+          .setStyle(this.generateButtonStyle(message?.author.text)),
         new ButtonBuilder()
           .setLabel('Embed title')
-          .setCustomId(generateButton('title'))
-          .setStyle(generateStyle(message?.title.text)),
+          .setCustomId(this.generateButtonId(id, 'title'))
+          .setStyle(this.generateButtonStyle(message?.title.text)),
         new ButtonBuilder()
           .setLabel('Embed footer')
-          .setCustomId(generateButton('footer'))
-          .setStyle(generateStyle(message?.footer.text))
+          .setCustomId(this.generateButtonId(id, 'footer'))
+          .setStyle(this.generateButtonStyle(message?.footer.text))
       ],
       [
         new ButtonBuilder()
           .setLabel('Add embed field')
-          .setCustomId(generateButton('fieldAdd'))
+          .setCustomId(this.generateButtonId(id, 'fieldAdd'))
           .setStyle(ButtonStyle.Secondary),
         new ButtonBuilder()
           .setLabel('Remove embed fields')
-          .setCustomId(generateButton('fieldRemove'))
+          .setCustomId(this.generateButtonId(id, 'fieldRemove'))
           .setStyle(ButtonStyle.Secondary)
-          .setDisabled(message?.fields ? false : true),
+          .setDisabled(message?.fields?.first() ? false : true),
         new ButtonBuilder()
           .setLabel('Edit embed fields')
-          .setCustomId(generateButton('fieldEditList'))
+          .setCustomId(this.generateButtonId(id, 'fieldEditList'))
           .setStyle(ButtonStyle.Secondary)
-          .setDisabled(message?.fields ? false : true)
+          .setDisabled(message?.fields?.first() ? false : true)
       ],
       [
         new ButtonBuilder()
           .setLabel('Reset')
-          .setCustomId(generateButton('reset'))
+          .setCustomId(this.generateButtonId(id, 'reset'))
           .setStyle(ButtonStyle.Danger),
         new ButtonBuilder()
           .setLabel('Cancel')
-          .setCustomId(generateButton('cancel'))
+          .setCustomId(this.generateButtonId(id, 'cancel'))
           .setStyle(ButtonStyle.Danger),
         new ButtonBuilder()
           .setLabel('Send message')
-          .setCustomId(generateButton('send'))
+          .setCustomId(this.generateButtonId(id, 'send'))
           .setStyle(ButtonStyle.Success),
         new ButtonBuilder()
           .setLabel('Message content')
-          .setCustomId(generateButton('content'))
-          .setStyle(generateStyle(message?.content))
+          .setCustomId(this.generateButtonId(id, 'content'))
+          .setStyle(this.generateButtonStyle(message?.content))
       ]
     ]
 
@@ -123,7 +151,8 @@ export default class MessageCommand extends NoirChatCommand {
     const type = parts[2]
     const id = parts[1]
 
-    if (type == 'cancel') {
+    if (type == 'back') await this.message(client, interaction, id)
+    else if (type == 'cancel') {
       client.noirMessages.delete(id)
 
       await client.noirReply.reply({
@@ -199,23 +228,7 @@ export default class MessageCommand extends NoirChatCommand {
     else if (type == 'fieldeditlist') await this.fieldEditRequest(client, interaction, id, interaction.values[0])
   }
 
-  public generateInputId(id: string, type: string): string {
-    return `message-${id}-${type}-input`
-  }
-
-  public generateModalId(id: string, type: string): string {
-    return `message-${id}-${type}-modal`
-  }
-
-  public generateSelectId(id: string, type: string): string {
-    return `message-${id}-${type}-select`
-  }
-
-  private editId(string?: string) {
-    return string?.replaceAll('-', '').replaceAll(' ', '') ?? ''
-  }
-
-  public async contentRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
+  private async contentRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
     const contentInput = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'content'))
@@ -237,7 +250,7 @@ export default class MessageCommand extends NoirChatCommand {
     await interaction.showModal(modal)
   }
 
-  public async contentResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+  private async contentResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
     const content = interaction.fields.getTextInputValue(this.generateInputId(id, 'content'))
 
     client.noirMessages.get(id)?.setContent(content)
@@ -245,16 +258,16 @@ export default class MessageCommand extends NoirChatCommand {
     await this.message(client, interaction, id)
   }
 
-  public async embedRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
+  private async embedRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
     const colorInput = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'color'))
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed color')
       .setValue(message?.color ?? '')
-      .setPlaceholder('Enter embed color (primary, secondary, tertiary, success, warning, embed)')
+      .setPlaceholder('primary, secondary, tertiary, success, warning, embed')
       .setRequired(false)
-      .setMaxLength(20)
+      .setMaxLength(10)
     const descriptionInput = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'description'))
       .setStyle(TextInputStyle.Paragraph)
@@ -268,7 +281,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed image')
       .setValue(message?.image ?? '')
-      .setPlaceholder('Enter embed image (server, user, client, none)')
+      .setPlaceholder('url, server, user, client, none')
       .setRequired(false)
       .setMaxLength(2000)
     const thumbnailInput = new TextInputBuilder()
@@ -276,7 +289,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed thumbnail')
       .setValue(message?.thumbnail ?? '')
-      .setPlaceholder('Enter embed thumbnail (server, user, client, none)')
+      .setPlaceholder('url, server, user, client, none')
       .setRequired(false)
       .setMaxLength(2000)
     const timestampInput = new TextInputBuilder()
@@ -284,7 +297,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed timestamp')
       .setValue(message?.timestamp ? 'true' : 'false' ?? '')
-      .setPlaceholder('Enter embed timestamp (true or leave blank)')
+      .setPlaceholder('true or leave blank')
       .setRequired(false)
       .setMaxLength(5)
 
@@ -303,7 +316,7 @@ export default class MessageCommand extends NoirChatCommand {
     await interaction.showModal(modal)
   }
 
-  public async embedResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+  private async embedResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
     const color = interaction.fields.getTextInputValue(this.generateInputId(id, 'color'))
     const description = interaction.fields.getTextInputValue(this.generateInputId(id, 'description'))
@@ -320,7 +333,7 @@ export default class MessageCommand extends NoirChatCommand {
     await this.message(client, interaction, id)
   }
 
-  public async titleRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
+  private async titleRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
     const titleInput = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'title'))
@@ -351,7 +364,7 @@ export default class MessageCommand extends NoirChatCommand {
     await interaction.showModal(modal)
   }
 
-  public async titleResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+  private async titleResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
     const title = interaction.fields.getTextInputValue(`message-${id}-title-input`)
     const titleURL = interaction.fields.getTextInputValue(`message-${id}-titleURL-input`) ?? undefined
 
@@ -360,7 +373,7 @@ export default class MessageCommand extends NoirChatCommand {
     await this.message(client, interaction, id)
   }
 
-  public async authorRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
+  private async authorRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
     const authorInput = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'author'))
@@ -375,7 +388,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed author image')
       .setValue(message?.author?.image ?? '')
-      .setPlaceholder('Enter embed author image url (client, user, server, none)')
+      .setPlaceholder('url, client, user, server, none')
       .setRequired(false)
       .setMaxLength(2000)
 
@@ -391,7 +404,7 @@ export default class MessageCommand extends NoirChatCommand {
     await interaction.showModal(modal)
   }
 
-  public async authorResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+  private async authorResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
     const author = interaction.fields.getTextInputValue(this.generateInputId(id, 'author'))
     const authorImage = interaction.fields.getTextInputValue(this.generateInputId(id, 'authorImage'))
 
@@ -400,7 +413,7 @@ export default class MessageCommand extends NoirChatCommand {
     await this.message(client, interaction, id)
   }
 
-  public async footerRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
+  private async footerRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
     const footerInput = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'footer'))
@@ -415,7 +428,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed author icon')
       .setValue(message?.footer?.image ?? '')
-      .setPlaceholder('Enter embed footer icon url (client, user, server, none)')
+      .setPlaceholder('url, client, user, server, none')
       .setRequired(false)
       .setMaxLength(2000)
 
@@ -431,7 +444,7 @@ export default class MessageCommand extends NoirChatCommand {
     await interaction.showModal(modal)
   }
 
-  public async footerResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+  private async footerResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
     const footer = interaction.fields.getTextInputValue(this.generateInputId(id, 'footer'))
     const footerImage = interaction.fields.getTextInputValue(this.generateInputId(id, 'footerImage'))
 
@@ -440,7 +453,7 @@ export default class MessageCommand extends NoirChatCommand {
     await this.message(client, interaction, id)
   }
 
-  public async fieldAddRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
+  private async fieldAddRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const nameInput = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'fieldName'))
       .setStyle(TextInputStyle.Short)
@@ -458,8 +471,8 @@ export default class MessageCommand extends NoirChatCommand {
     const inlineInput = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'fieldInline'))
       .setStyle(TextInputStyle.Short)
-      .setLabel('Field name')
-      .setPlaceholder('Enter field inline (true or leave blank)')
+      .setLabel('Field inline')
+      .setPlaceholder('true or leave blank')
       .setRequired(false)
       .setMaxLength(5)
 
@@ -476,7 +489,7 @@ export default class MessageCommand extends NoirChatCommand {
     await interaction.showModal(modal).catch(err => console.log(err))
   }
 
-  public async fieldAddResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
+  private async fieldAddResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
     const name = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldName'))
     const value = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldValue'))
     const inline = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldInline'))
@@ -488,7 +501,7 @@ export default class MessageCommand extends NoirChatCommand {
     await this.message(client, interaction, id)
   }
 
-  public async fieldRemoveRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
+  private async fieldRemoveRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
 
     if (!message?.fields) return
@@ -504,13 +517,15 @@ export default class MessageCommand extends NoirChatCommand {
         {
           label: field.name,
           description: 'Select to remove',
-          value: `${(field.name + '-' + field.value).replaceAll('-', '')}`
+          value: `${this.editId(field.name) + '-' + this.editId(field.value)}`
         }
       ])
     })
 
-    const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
-      .addComponents(selectMenu)
+    const actionRows = [
+      new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(selectMenu),
+      new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(this.backButton(id))
+    ]
 
     try {
       await client.noirReply.reply({
@@ -518,14 +533,14 @@ export default class MessageCommand extends NoirChatCommand {
         author: 'Remove fields',
         description: 'Select fields to remove',
         color: colors.Primary,
-        components: [actionRow]
+        components: actionRows
       })
     } catch {
       return
     }
   }
 
-  public async fieldRemoveResponse(client: NoirClient, interaction: SelectMenuInteraction, id: string): Promise<void> {
+  private async fieldRemoveResponse(client: NoirClient, interaction: SelectMenuInteraction, id: string): Promise<void> {
     const fields = interaction.values
 
     fields.map(field => {
@@ -535,7 +550,7 @@ export default class MessageCommand extends NoirChatCommand {
     await this.message(client, interaction, id)
   }
 
-  public async fieldEditListRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
+  private async fieldEditListRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
 
     if (!message?.fields) return
@@ -551,14 +566,16 @@ export default class MessageCommand extends NoirChatCommand {
       selectMenu.addOptions([
         {
           label: field.name,
-          description: 'Select to edit',
+          description: 'Select one to edit',
           value: `${this.editId(field.name)}-${this.editId(field.value)}`
         }
       ])
     })
 
-    const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
-      .addComponents(selectMenu)
+    const actionRows = [
+      new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(selectMenu),
+      new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(this.backButton(id))
+    ]
 
     try {
       await client.noirReply.reply({
@@ -566,14 +583,14 @@ export default class MessageCommand extends NoirChatCommand {
         author: 'Edit fields',
         description: 'Select field to edit',
         color: colors.Primary,
-        components: [actionRow]
+        components: actionRows
       })
     } catch {
       return
     }
   }
 
-  public async fieldEditRequest(client: NoirClient, interaction: SelectMenuInteraction, id: string, fieldId: string): Promise<void> {
+  private async fieldEditRequest(client: NoirClient, interaction: SelectMenuInteraction, id: string, fieldId: string): Promise<void> {
     const message = client.noirMessages.get(id)
     const fieldName = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'fieldName'))
@@ -596,7 +613,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Field inline')
       .setValue(message?.fields?.get(fieldId)?.inline ? 'true' : 'false' ?? '')
-      .setPlaceholder('Enter field inline (true or false)')
+      .setPlaceholder('true or leave blank')
       .setRequired(false)
       .setMaxLength(2000)
 
@@ -613,7 +630,7 @@ export default class MessageCommand extends NoirChatCommand {
     await interaction.showModal(modal)
   }
 
-  public async fieldEditResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, oldId: string) {
+  private async fieldEditResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, oldId: string): Promise<void> {
     const name = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldName'))
     const value = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldValue'))
     const inline = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldInline'))
