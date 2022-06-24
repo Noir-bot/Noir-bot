@@ -7,10 +7,12 @@ import {
   ContextMenuCommandInteraction,
   EmbedBuilder,
   EmbedField,
+  InteractionType,
   JSONEncodable,
   ModalMessageModalSubmitInteraction,
   ModalSubmitInteraction, SelectMenuInteraction
 } from 'discord.js'
+import { colors } from '../config/design'
 import NoirClient from '../structures/Client'
 
 export default class NoirReply {
@@ -26,7 +28,7 @@ export default class NoirReply {
     author?: string,
     authorImage?: string,
     description?: string,
-    color: ColorResolvable,
+    color?: ColorResolvable,
     fields?: EmbedField[],
     footer?: string,
     footerImage?: string,
@@ -64,7 +66,7 @@ export default class NoirReply {
       authorImage?: string,
       description?: string,
       fields?: EmbedField[],
-      color: ColorResolvable,
+      color?: ColorResolvable,
       footer?: string,
       footerImage?: string,
       thumbnail?: string
@@ -72,8 +74,9 @@ export default class NoirReply {
     }
   ): EmbedBuilder {
     const embed = new EmbedBuilder()
-      .setColor(properties.color)
+      .setColor(colors.Secondary)
 
+    if (properties.color) embed.setColor(properties.color)
     if (properties.author) embed.setAuthor({ name: properties.author ?? '', iconURL: properties.authorImage })
     if (properties.description) embed.setDescription(properties.description)
     if (properties.footer) embed.setFooter({ text: properties.footer, iconURL: properties.footerImage })
@@ -95,7 +98,7 @@ export default class NoirReply {
     }
   ) {
     try {
-      if (properties.interaction.isButton() || properties.interaction.isSelectMenu() || properties.interaction.isModalSubmit() && properties.interaction.isFromMessage()) {
+      if (properties.interaction.isButton() || properties.interaction.isSelectMenu() || properties.interaction.type == InteractionType.ModalSubmit && properties.interaction.isFromMessage()) {
         return await properties.interaction.update({
           embeds: properties.embed?.data ? [properties.embed.data] : [],
           components: properties?.components ?? [],

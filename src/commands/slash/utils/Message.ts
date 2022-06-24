@@ -177,10 +177,7 @@ export default class MessageCommand extends NoirChatCommand {
       try {
         if (status && embed && content) await interaction.channel?.send({ embeds: [embed], content: content })
         else if (status && embed && !content) await interaction.channel?.send({ embeds: [embed] })
-        else if (!status && content) {
-          await interaction.channel?.send({ content: content })
-          console.log(content)
-        }
+        else if (!status && content) await interaction.channel?.send({ content: content })
 
         this.message(client, interaction, id)
       } catch (err) {
@@ -206,8 +203,6 @@ export default class MessageCommand extends NoirChatCommand {
     const type = parts[2]
     const id = parts[1]
 
-    console.log(parts)
-
     if (type == 'content') await this.contentResponse(client, interaction, id)
     else if (type == 'embed') await this.embedResponse(client, interaction, id)
     else if (type == 'title') await this.titleResponse(client, interaction, id)
@@ -221,8 +216,6 @@ export default class MessageCommand extends NoirChatCommand {
     const parts = interaction.customId.toLowerCase().split('-')
     const type = parts[2]
     const id = parts[1]
-
-    console.log(interaction.values[0])
 
     if (type == 'fieldremove') await this.fieldRemoveResponse(client, interaction, id)
     else if (type == 'fieldeditlist') await this.fieldEditRequest(client, interaction, id, interaction.values[0])
@@ -634,8 +627,6 @@ export default class MessageCommand extends NoirChatCommand {
     const name = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldName'))
     const value = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldValue'))
     const inline = interaction.fields.getTextInputValue(this.generateInputId(id, 'fieldInline'))
-
-    console.log(oldId)
 
     if (name && value && inline == 'true' || name && value && inline == 'false') {
       client.noirMessages.get(id)?.editField(oldId, { name: name, value: value, inline: inline == 'true' ? true : false })

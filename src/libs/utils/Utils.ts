@@ -1,6 +1,5 @@
-import ms from 'ms'
+import { Duration } from '@sapphire/time-utilities'
 import { promisify } from 'util'
-import { durationRegex } from '../config/patterns'
 import NoirClient from '../structures/Client'
 
 export default class NoirUtils {
@@ -18,12 +17,15 @@ export default class NoirUtils {
     return seconds >= 60 ? seconds >= 3600 ? seconds / 3600 + ' hours' : seconds / 60 + ' minutes' : seconds + ' seconds'
   }
 
-  public async wait(duration: string) {
-    const durationParams = durationRegex.exec(duration)
+  public async wait(pattern: string): Promise<Duration | undefined> {
+    const duration = new Duration(pattern)
     const wait = promisify(setTimeout)
 
-    if (durationParams && durationParams[1] != duration && ms(duration.replace(durationParams[1], '')) + ms(durationParams[1]) <= 604800000) return await wait(ms(duration.replace(durationParams[1], '')) + ms(durationParams[1]))
-    else if (durationParams != null && durationParams[1] == duration && ms(duration) <= 604800000) return await wait(ms(duration))
-    else return
+    if (Number.isNaN(duration.offset)) {
+      return undefined
+    }
+
+    await wait(duration.fromNow.getTime() - new Date().getTime())
+    return duration
   }
 }

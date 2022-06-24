@@ -12,13 +12,17 @@ export default class HelpCommand extends NoirChatCommand {
         permissions: ['SendMessages', 'EmbedLinks'],
         category: 'information',
         access: 'public',
-        type: 'private',
+        type: 'public',
         status: true
       },
       {
         name: 'help',
         description: 'Help command',
-        type: ApplicationCommandType.ChatInput
+        nameLocalizations: { 'ru': 'помощ' },
+        descriptionLocalizations: { 'ru': 'Команда помощи' },
+        defaultMemberPermissions: 'SendMessages',
+        type: ApplicationCommandType.ChatInput,
+        dmPermission: false,
       }
     )
   }

@@ -64,7 +64,7 @@ export default class NoirMessage {
       if (this.message.embed.titleURL) embed.setURL(this.message.embed.titleURL)
     }
 
-    if (embed.data.description || embed.data.title || embed.data.author || embed.data.image || embed.data.thumbnail || embed.data.fields) {
+    if (embed.data.color || embed.data.description || embed.data.title || embed.data.author || embed.data.image || embed.data.thumbnail || embed.data.fields) {
       this.message.embed.status = true
     }
 
