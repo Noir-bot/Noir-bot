@@ -27,10 +27,21 @@ export default class HelpCommand extends NoirChatCommand {
     )
   }
 
+  private backButton() {
+    return new ButtonBuilder()
+      .setLabel('Back')
+      .setCustomId(this.generateButtonId('back'))
+      .setStyle(ButtonStyle.Secondary)
+  }
+
+  private generateButtonId(type: string): string {
+    return `help-${type}-button`
+  }
+
   public async execute(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {
     const avatar = client.user?.avatarURL() ? client.user.avatarURL() : undefined
     const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents([
-      new ButtonBuilder().setCustomId('help-faq').setLabel('FAQ').setStyle(ButtonStyle.Secondary)
+      new ButtonBuilder().setCustomId(this.generateButtonId('faq')).setLabel('FAQ').setStyle(ButtonStyle.Secondary)
     ])
 
     await client.noirReply.reply({
@@ -45,10 +56,18 @@ export default class HelpCommand extends NoirChatCommand {
     })
   }
 
-  public async faq(client: NoirClient, interaction: ButtonInteraction): Promise<void> {
+  public async buttonResponse(client: NoirClient, interaction: ButtonInteraction): Promise<void> {
+    const parts = interaction.customId.toLowerCase().split('-')
+    const type = parts[1]
+
+    if (type == 'faq') await this.faqResponse(client, interaction)
+    else await this.execute(client, interaction)
+  }
+
+  public async faqResponse(client: NoirClient, interaction: ButtonInteraction): Promise<void> {
     const avatar = client.user?.avatarURL() ? client.user.avatarURL() : undefined
     const buttons = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents([
-      new ButtonBuilder().setCustomId('help').setLabel('Back').setStyle(ButtonStyle.Secondary)
+      this.backButton()
     ])
 
     await client.noirReply.reply({
@@ -56,21 +75,20 @@ export default class HelpCommand extends NoirChatCommand {
       color: colors.Primary,
       author: 'Frequently asked questions',
       authorImage: avatar == null ? undefined : avatar,
-      // description: 'Frequently asked questions',
       fields: [
         {
           name: 'How to contribute ?',
-          value: 'Noir is and will be open source always, you can contribute anytime you want',
+          value: 'Noir bot will always be open source, feel free to contribute whenever you want',
           inline: false
         },
         {
           name: 'How to become moderator ?',
-          value: 'It is unavailable to become moderator now, but we will let you know when it will be available',
+          value: 'Currently, there is requirements for moderators, but we will let you know if we need',
           inline: false
         },
         {
           name: 'How can I setup Noir in my server ?',
-          value: 'Very simple, just use one command `setup`, and you will get very easy and understandable menu with setup buttons. If you get any questions about setup menu, be sure to ask it in our support server',
+          value: 'Very simple, use one command `settings` and get advanced interface with setup features. If you get any questions about interface, be sure to ask it in our support server',
           inline: false
         }
       ],

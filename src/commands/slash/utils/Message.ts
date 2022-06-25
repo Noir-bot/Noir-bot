@@ -27,17 +27,6 @@ export default class MessageCommand extends NoirChatCommand {
     )
   }
 
-  private backButton(id: string) {
-    return new ButtonBuilder()
-      .setLabel('Back')
-      .setCustomId(this.generateButtonId(id, 'back'))
-      .setStyle(ButtonStyle.Secondary)
-  }
-
-  private editId(id?: string) {
-    return id?.replaceAll('-', '').replaceAll(' ', '') ?? ''
-  }
-
   private generateInputId(id: string, type: string): string {
     return `message-${id}-${type}-input`
   }
@@ -59,6 +48,17 @@ export default class MessageCommand extends NoirChatCommand {
     const unsuccessStyle = ButtonStyle.Secondary
 
     return status ? successStyle : unsuccessStyle
+  }
+
+  private backButton(id: string) {
+    return new ButtonBuilder()
+      .setLabel('Back')
+      .setCustomId(this.generateButtonId(id, 'back'))
+      .setStyle(ButtonStyle.Secondary)
+  }
+
+  private editId(id?: string) {
+    return id?.replaceAll('-', '').replaceAll(' ', '') ?? ''
   }
 
   public async execute(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {

@@ -1,5 +1,6 @@
 import chalk from 'chalk'
 import { ButtonInteraction, CommandInteraction, Interaction, InteractionType, ModalMessageModalSubmitInteraction, ModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
+import HelpCommand from '../../commands/slash/information/Help'
 import MessageCommand from '../../commands/slash/utils/Message'
 import { colors } from '../../libs/config/design'
 import { invite, owners } from '../../libs/config/settings'
@@ -143,6 +144,7 @@ export default class InteractionEvent extends NoirEvent {
     const parts = interaction.customId.toLocaleLowerCase().split('-')
 
     if (parts[0] == 'message') await new MessageCommand(client).buttonResponse(client, interaction)
+    else if (parts[0] == 'help') await new HelpCommand(client).buttonResponse(client, interaction)
   }
 
   protected async messageModal(client: NoirClient, interaction: ModalSubmitInteraction | ModalMessageModalSubmitInteraction): Promise<void> {
