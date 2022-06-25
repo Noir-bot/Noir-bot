@@ -14,12 +14,40 @@ export default class InteractionEvent extends NoirEvent {
   }
 
   public async execute(client: NoirClient, interaction: Interaction): Promise<void> {
-    if (interaction.isChatInputCommand()) await this.command(client, interaction)
-    else if (interaction.isButton()) await this.button(client, interaction)
-    else if (interaction.type == InteractionType.ModalSubmit) await this.messageModal(client, interaction as ModalMessageModalSubmitInteraction | ModalSubmitInteraction)
-    else if (interaction.isSelectMenu()) await this.selectMenu(client, interaction)
+    if (interaction.guild) {
+      let guildPremium = client.noirPremiums.get(interaction.guild.id)
 
-    return
+      if (!guildPremium) {
+        let premium = await client.noirPrisma.premium.findFirst({ where: { guild: interaction.guild.id } })
+
+        if (!premium) {
+          premium = await client.noirPrisma.premium.create({
+            data: {
+              guild: interaction.guild.id,
+              expireAt: new Date(),
+              status: false
+            }
+          })
+        }
+
+        guildPremium = new NoirPremium(interaction.guild.id, premium?.expireAt ?? new Date(), premium?.status ?? false)
+        client.noirPremiums.set(interaction.guild.id, guildPremium)
+      }
+
+      if (guildPremium.expired() && guildPremium.status == true) {
+        await client.noirPrisma.premium.updateMany({
+          where: { guild: interaction.guild.id },
+          data: { status: false }
+        })
+
+        guildPremium.status = false
+      }
+    }
+
+    if (interaction.type == InteractionType.ApplicationCommand) await this.command(client, interaction)
+    else if (interaction.type == InteractionType.ModalSubmit) await this.messageModal(client, interaction as ModalMessageModalSubmitInteraction | ModalSubmitInteraction)
+    else if (interaction.isButton()) await this.button(client, interaction)
+    else if (interaction.isSelectMenu()) await this.selectMenu(client, interaction)
   }
 
   protected async command(client: NoirClient, interaction: CommandInteraction): Promise<void> {
@@ -71,59 +99,36 @@ export default class InteractionEvent extends NoirEvent {
       }
 
       if (command.settings.access == 'premium') {
-        if (!interaction.guild?.id) return
+        if (interaction.guild?.id) {
+          const guildPremium = client.noirPremiums.get(interaction.guild.id)
 
-        if (!client.noirPremiums.get(interaction.guild?.id)) {
-          const premium = await client.noirPrisma.premium.findFirst({ where: { guild: interaction.guild?.id } })
-
-          if (!premium) {
-            await client.noirPrisma.premium.create({
-              data: {
-                guild: interaction.guild.id,
-                expireAt: new Date(),
-                status: false
-              }
+          if (!guildPremium || !guildPremium?.status) {
+            await client.noirReply.reply({
+              interaction: interaction,
+              color: colors.Warning,
+              author: 'Premium error',
+              description: 'Command premium only'
             })
+
+            return
           }
 
-          client.noirPremiums.set(interaction.guild.id, new NoirPremium(interaction.guild.id, premium?.expireAt ?? new Date(), premium?.status ?? false))
-        }
+          if (guildPremium.expired()) {
+            await client.noirReply.reply({
+              interaction: interaction,
+              color: colors.Warning,
+              author: 'Premium error',
+              description: 'Premium has expired'
+            })
 
-        const guildPremium = client.noirPremiums.get(interaction.guild.id)
-
-        if (!guildPremium || !guildPremium?.valid()) {
-          await client.noirReply.reply({
-            interaction: interaction,
-            color: colors.Warning,
-            author: 'Premium error',
-            description: 'Command premium only'
-          })
-
-          return
-        }
-
-        if (guildPremium.expired()) {
-          await client.noirReply.reply({
-            interaction: interaction,
-            color: colors.Warning,
-            author: 'Premium error',
-            description: 'Premium has expired'
-          })
-
-          await client.noirPrisma.premium.updateMany({
-            where: { guild: interaction.guild.id },
-            data: { status: false }
-          })
-
-          guildPremium.status = false
-
-          return
+            return
+          }
         }
       }
 
       command.execute(client, interaction)
     } catch (error: any) {
-      await client.noirReply.reply({
+      client.noirReply.reply({
         interaction: interaction,
         color: colors.Warning,
         author: 'Execution error',
