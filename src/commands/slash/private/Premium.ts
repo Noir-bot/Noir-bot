@@ -98,7 +98,7 @@ export default class PremiumCommand extends NoirChatCommand {
       interaction: interaction,
       color: colors.Success,
       author: 'Premium success',
-      description: `${client.guilds.cache.get(guild)?.name} \`${guild}\` guild got premium for \`${durationString}\``
+      description: `**${client.guilds.cache.get(guild)?.name}** has got premium for \`${durationString}\``
     })
   }
 }

@@ -42,6 +42,8 @@ export default class NoirMessage {
 
   public get embed() {
     const embed = new EmbedBuilder()
+    const guildId = this.interaction.guild?.id
+    const premium = guildId ? this.client.noirPremiums.get(guildId)?.status ?? false : false
 
     if (this.message.embed.description) embed.setDescription(this.message.embed.description)
     if (this.message.embed.thumbnail) embed.setThumbnail(this.message.embed.thumbnail)
@@ -49,14 +51,14 @@ export default class NoirMessage {
     if (this.message.embed.color) embed.setColor(this.message.embed.color)
     if (this.message.embed.timestamp) embed.setTimestamp()
 
-    if (this.message.embed.fields) {
+    if (this.message.embed.fields && premium) {
       this.message.embed.fields.map(field => {
         embed.addFields([field])
       })
     }
 
     if (this.message.embed.author) embed.setAuthor({ name: this.message.embed.author, iconURL: this.message.embed.authorImage })
-    if (this.message.embed.footer) embed.setFooter({ text: this.message.embed.footer, iconURL: this.message.embed.footerImage })
+    if (this.message.embed.footer && premium) embed.setFooter({ text: this.message.embed.footer, iconURL: this.message.embed.footerImage })
 
     if (this.message.embed.title) {
       embed.setTitle(this.message.embed.title)

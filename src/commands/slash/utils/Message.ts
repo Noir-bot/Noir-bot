@@ -11,7 +11,7 @@ export default class MessageCommand extends NoirChatCommand {
       {
         permissions: ['SendMessages', 'EmbedLinks'],
         category: 'information',
-        access: 'premium',
+        access: 'public',
         type: 'public',
         status: true
       },
@@ -34,14 +34,8 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(ButtonStyle.Secondary)
   }
 
-  public async execute(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {
-    const id = `${interaction.user.id}${interaction.guild?.id}`
-
-    if (!client.noirMessages.get(id)) {
-      client.noirMessages.set(id, new NoirMessage(id, client, interaction))
-    }
-
-    await this.message(client, interaction, id)
+  private editId(id?: string) {
+    return id?.replaceAll('-', '').replaceAll(' ', '') ?? ''
   }
 
   private generateInputId(id: string, type: string): string {
@@ -67,12 +61,19 @@ export default class MessageCommand extends NoirChatCommand {
     return status ? successStyle : unsuccessStyle
   }
 
-  private editId(string?: string) {
-    return string?.replaceAll('-', '').replaceAll(' ', '') ?? ''
+  public async execute(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {
+    const id = `${interaction.user.id}${interaction.guild?.id}`
+
+    if (!client.noirMessages.get(id)) {
+      client.noirMessages.set(id, new NoirMessage(id, client, interaction))
+    }
+
+    await this.message(client, interaction, id)
   }
 
   public async message(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction | ModalMessageModalSubmitInteraction | SelectMenuInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
+    const premium = client.noirPremiums.get(interaction.guild!.id)?.status ?? false
 
     const buttons = [
       [
@@ -92,22 +93,24 @@ export default class MessageCommand extends NoirChatCommand {
           .setLabel('Embed footer')
           .setCustomId(this.generateButtonId(id, 'footer'))
           .setStyle(this.generateButtonStyle(message?.footer.text))
+          .setDisabled(!premium),
       ],
       [
         new ButtonBuilder()
           .setLabel('Add embed field')
           .setCustomId(this.generateButtonId(id, 'fieldAdd'))
-          .setStyle(ButtonStyle.Secondary),
+          .setStyle(ButtonStyle.Secondary)
+          .setDisabled(!premium),
         new ButtonBuilder()
           .setLabel('Remove embed fields')
           .setCustomId(this.generateButtonId(id, 'fieldRemove'))
           .setStyle(ButtonStyle.Secondary)
-          .setDisabled(message?.fields?.first() ? false : true),
+          .setDisabled(message?.fields?.first() && !premium ? false : true),
         new ButtonBuilder()
           .setLabel('Edit embed fields')
           .setCustomId(this.generateButtonId(id, 'fieldEditList'))
           .setStyle(ButtonStyle.Secondary)
-          .setDisabled(message?.fields?.first() ? false : true)
+          .setDisabled(message?.fields?.first() && !premium ? false : true)
       ],
       [
         new ButtonBuilder()

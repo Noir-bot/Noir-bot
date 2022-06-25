@@ -17,14 +17,6 @@ export default class NoirPremium {
     this._status = status
   }
 
-  public valid(): boolean {
-    if (!this.status) {
-      return false
-    }
-
-    return true
-  }
-
   public expired(): boolean {
     if (new Date().getTime() >= this.expireAt.getTime()) {
       return true
