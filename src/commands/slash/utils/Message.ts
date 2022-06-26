@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, SelectMenuBuilder, SelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import { colors } from '../../../libs/config/design'
+import { owners } from '../../../libs/config/settings'
 import NoirClient from '../../../libs/structures/Client'
 import NoirChatCommand from '../../../libs/structures/command/ChatCommand'
 import NoirMessage from '../../../libs/structures/Message'
@@ -73,7 +74,10 @@ export default class MessageCommand extends NoirChatCommand {
 
   public async message(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction | ModalMessageModalSubmitInteraction | SelectMenuInteraction, id: string): Promise<void> {
     const message = client.noirMessages.get(id)
-    const premium = client.noirPremiums.get(interaction.guild!.id)?.status ?? false
+    const premium = interaction.guild?.id ? client.noirPremiums.get(interaction.guild.id)?.status ?? false : false
+    const fieldsLength = message?.fields ? message.fields?.entries.length : 0
+    const ownerAvatar = (await client.users.fetch(owners[0])).avatarURL()
+    const clientAvatar = client.user?.avatarURL()
 
     const buttons = [
       [
@@ -93,24 +97,28 @@ export default class MessageCommand extends NoirChatCommand {
           .setLabel('Embed footer')
           .setCustomId(this.generateButtonId(id, 'footer'))
           .setStyle(this.generateButtonStyle(message?.footer.text))
-          .setDisabled(!premium),
+          .setEmoji('🌟')
+          .setDisabled(fieldsLength > 25 || !premium),
       ],
       [
         new ButtonBuilder()
           .setLabel('Add embed field')
           .setCustomId(this.generateButtonId(id, 'fieldAdd'))
           .setStyle(ButtonStyle.Secondary)
-          .setDisabled(!premium),
+          .setEmoji('🌟')
+          .setDisabled(fieldsLength > 25 || !premium),
         new ButtonBuilder()
-          .setLabel('Remove embed fields')
+          .setLabel('Remove embed field')
           .setCustomId(this.generateButtonId(id, 'fieldRemove'))
           .setStyle(ButtonStyle.Secondary)
-          .setDisabled(message?.fields?.first() && !premium ? false : true),
+          .setEmoji('🌟')
+          .setDisabled(fieldsLength > 25 || !premium),
         new ButtonBuilder()
-          .setLabel('Edit embed fields')
+          .setLabel('Edit embed field')
           .setCustomId(this.generateButtonId(id, 'fieldEditList'))
           .setStyle(ButtonStyle.Secondary)
-          .setDisabled(message?.fields?.first() && !premium ? false : true)
+          .setEmoji('🌟')
+          .setDisabled(fieldsLength > 25 || !premium)
       ],
       [
         new ButtonBuilder()
@@ -122,9 +130,13 @@ export default class MessageCommand extends NoirChatCommand {
           .setCustomId(this.generateButtonId(id, 'cancel'))
           .setStyle(ButtonStyle.Danger),
         new ButtonBuilder()
+          .setLabel('Show example')
+          .setCustomId(this.generateButtonId(id, 'example'))
+          .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
           .setLabel('Send message')
           .setCustomId(this.generateButtonId(id, 'send'))
-          .setStyle(ButtonStyle.Success),
+          .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
           .setLabel('Message content')
           .setCustomId(this.generateButtonId(id, 'content'))
@@ -141,10 +153,16 @@ export default class MessageCommand extends NoirChatCommand {
     await client.noirReply.reply({
       interaction: interaction,
       color: colors.Primary,
-      author: 'Message constructor',
-      description: 'Use buttons bellow to setup the message content',
+      description: 'Create your **custom, cool and beautiful** embed message with our advanced embed message builder. Create various type of embed messages like **rules, instructions, announcements** and share with your awesome community!',
+      fields: [
+        { name: 'Premium features', value: 'Some features are premium only, but you can unlock them anytime you want and support us', inline: false },
+        { name: 'Input variables', value: `Enter \`${message?.removeValue}\` to delete value of the input. Some inputs require variables, such as embed color, embed image etc`, inline: false }
+      ],
+      author: 'Message builder',
+      authorImage: clientAvatar ? clientAvatar : undefined,
+      footer: 'Created with 💚 by Loid',
+      footerImage: ownerAvatar ? ownerAvatar : undefined,
       components: actionRows,
-      footer: 'Created by Loid',
       fetch: true,
     })
   }
@@ -191,6 +209,25 @@ export default class MessageCommand extends NoirChatCommand {
           color: colors.Warning
         })
       }
+    } else if (type == 'example') {
+      const message = client.noirMessages.get(id)
+      const embed = message?.embed.data
+      const status = message?.status
+      const content = message?.content
+      const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(this.backButton(id))
+
+      try {
+        if (status && embed && content) await interaction.update({ embeds: [embed], content: content, components: [actionRow] })
+        else if (status && embed && !content) await interaction.update({ embeds: [embed], content: content, components: [actionRow] })
+        else if (!status && content) await interaction.update({ content: content, components: [actionRow] })
+      } catch (err) {
+        await client.noirReply.reply({
+          interaction: interaction,
+          author: 'Unexpected error',
+          description: 'Can\'t show empty message',
+          color: colors.Warning
+        })
+      }
     } else if (type == 'content') await this.contentRequest(client, interaction, id)
     else if (type == 'embed') await this.embedRequest(client, interaction, id)
     else if (type == 'title') await this.titleRequest(client, interaction, id)
@@ -231,7 +268,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Paragraph)
       .setLabel('Message content')
       .setValue(message?.content ?? '')
-      .setPlaceholder('Enter message content here')
+      .setPlaceholder('Enter message content')
       .setRequired(true)
       .setMaxLength(2000)
 
@@ -240,7 +277,7 @@ export default class MessageCommand extends NoirChatCommand {
 
     const modal = new ModalBuilder()
       .setCustomId(`message-${id}-content-modal`)
-      .setTitle('Message content constructor')
+      .setTitle('Message content builder')
       .addComponents([actionRows])
 
     await interaction.showModal(modal)
@@ -261,7 +298,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed color')
       .setValue(message?.color ?? '')
-      .setPlaceholder('primary, secondary, tertiary, success, warning, embed')
+      .setPlaceholder('Primary, secondary, tertiary, success, warning, embed')
       .setRequired(false)
       .setMaxLength(10)
     const descriptionInput = new TextInputBuilder()
@@ -269,7 +306,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Paragraph)
       .setLabel('Embed description')
       .setValue(message?.description ?? '')
-      .setPlaceholder('Enter embed description')
+      .setPlaceholder('Enter the description')
       .setRequired(false)
       .setMaxLength(2000)
     const imageInput = new TextInputBuilder()
@@ -277,7 +314,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed image')
       .setValue(message?.image ?? '')
-      .setPlaceholder('url, server, user, client, none')
+      .setPlaceholder('Url, server, user, client or leave blank')
       .setRequired(false)
       .setMaxLength(2000)
     const thumbnailInput = new TextInputBuilder()
@@ -285,7 +322,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed thumbnail')
       .setValue(message?.thumbnail ?? '')
-      .setPlaceholder('url, server, user, client, none')
+      .setPlaceholder('Url, server, user, client or leave blank')
       .setRequired(false)
       .setMaxLength(2000)
     const timestampInput = new TextInputBuilder()
@@ -293,7 +330,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed timestamp')
       .setValue(message?.timestamp ? 'true' : 'false' ?? '')
-      .setPlaceholder('true or leave blank')
+      .setPlaceholder('True or leave blank')
       .setRequired(false)
       .setMaxLength(5)
 
@@ -307,7 +344,7 @@ export default class MessageCommand extends NoirChatCommand {
 
     const modal = new ModalBuilder()
       .setCustomId(this.generateModalId(id, 'embed'))
-      .setTitle('Embed constructor')
+      .setTitle('Embed settings')
       .addComponents(actionRows)
     await interaction.showModal(modal)
   }
@@ -336,7 +373,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed title')
       .setValue(message?.title.text ?? '')
-      .setPlaceholder('Enter embed title')
+      .setPlaceholder('Enter title text')
       .setRequired(true)
       .setMaxLength(2000)
     const titleURLInput = new TextInputBuilder()
@@ -344,7 +381,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setCustomId(this.generateInputId(id, 'titleURL'))
       .setLabel('Embed url')
       .setValue(message?.url ?? '')
-      .setPlaceholder('Enter embed url')
+      .setPlaceholder('Enter title url')
       .setRequired(false)
       .setMaxLength(2000)
 
@@ -355,7 +392,7 @@ export default class MessageCommand extends NoirChatCommand {
 
     const modal = new ModalBuilder()
       .setCustomId(this.generateModalId(id, 'title'))
-      .setTitle('Title constructor')
+      .setTitle('Embed title builder')
       .addComponents(actionRows)
     await interaction.showModal(modal)
   }
@@ -376,7 +413,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed author')
       .setValue(message?.author?.text ?? '')
-      .setPlaceholder('Enter embed author')
+      .setPlaceholder('Enter author name')
       .setRequired(true)
       .setMaxLength(2000)
     const authorImageInput = new TextInputBuilder()
@@ -384,7 +421,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed author image')
       .setValue(message?.author?.image ?? '')
-      .setPlaceholder('url, client, user, server, none')
+      .setPlaceholder('Url, client, user, server or leave blank')
       .setRequired(false)
       .setMaxLength(2000)
 
@@ -395,7 +432,7 @@ export default class MessageCommand extends NoirChatCommand {
 
     const modal = new ModalBuilder()
       .setCustomId(this.generateModalId(id, 'author'))
-      .setTitle('Author constructor')
+      .setTitle('Embed author builder')
       .addComponents(actionRows)
     await interaction.showModal(modal)
   }
@@ -416,7 +453,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed author')
       .setValue(message?.footer?.text ?? '')
-      .setPlaceholder('Enter embed footer')
+      .setPlaceholder('Enter author text')
       .setRequired(true)
       .setMaxLength(2000)
     const footerImageInput = new TextInputBuilder()
@@ -424,7 +461,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Embed author icon')
       .setValue(message?.footer?.image ?? '')
-      .setPlaceholder('url, client, user, server, none')
+      .setPlaceholder('url, client, user, server or leave blank')
       .setRequired(false)
       .setMaxLength(2000)
 
@@ -435,7 +472,7 @@ export default class MessageCommand extends NoirChatCommand {
 
     const modal = new ModalBuilder()
       .setCustomId(this.generateModalId(id, 'footer'))
-      .setTitle('Footer constructor')
+      .setTitle('Embed footer builder')
       .addComponents(actionRows)
     await interaction.showModal(modal)
   }
@@ -453,22 +490,22 @@ export default class MessageCommand extends NoirChatCommand {
     const nameInput = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'fieldName'))
       .setStyle(TextInputStyle.Short)
-      .setLabel('Field name')
+      .setLabel('Embed field name')
       .setPlaceholder('Enter field name')
       .setRequired(true)
       .setMaxLength(2000)
     const valueInput = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'fieldValue'))
       .setStyle(TextInputStyle.Paragraph)
-      .setLabel('Field value')
+      .setLabel('Embed field value')
       .setPlaceholder('Enter field value')
       .setRequired(true)
       .setMaxLength(2000)
     const inlineInput = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'fieldInline'))
       .setStyle(TextInputStyle.Short)
-      .setLabel('Field inline')
-      .setPlaceholder('true or leave blank')
+      .setLabel('Embed field inline')
+      .setPlaceholder('True or leave blank')
       .setRequired(false)
       .setMaxLength(5)
 
@@ -480,7 +517,7 @@ export default class MessageCommand extends NoirChatCommand {
 
     const modal = new ModalBuilder()
       .setCustomId(this.generateModalId(id, 'fieldAdd'))
-      .setTitle('Field constructor')
+      .setTitle('Embed field builder')
       .addComponents(actionRows)
     await interaction.showModal(modal).catch(err => console.log(err))
   }
@@ -504,7 +541,7 @@ export default class MessageCommand extends NoirChatCommand {
 
     const selectMenu = new SelectMenuBuilder()
       .setCustomId(this.generateSelectId(id, 'fieldRemove'))
-      .setPlaceholder('Choose one to delete')
+      .setPlaceholder('Choose field(s) to remove')
       .setMaxValues(message.fields.size)
       .setMinValues(1)
 
@@ -526,8 +563,8 @@ export default class MessageCommand extends NoirChatCommand {
     try {
       await client.noirReply.reply({
         interaction: interaction,
-        author: 'Remove fields',
-        description: 'Select fields to remove',
+        author: 'Embed field editor',
+        description: 'Select field(s) to remove',
         color: colors.Primary,
         components: actionRows
       })
@@ -553,7 +590,7 @@ export default class MessageCommand extends NoirChatCommand {
 
     const selectMenu = new SelectMenuBuilder()
       .setCustomId(this.generateSelectId(id, 'fieldEditList'))
-      .setPlaceholder('Choose one to edit')
+      .setPlaceholder('Choose field to edit')
       .setMaxValues(message.fields.size)
       .setMinValues(1)
       .setMaxValues(1)
@@ -562,7 +599,7 @@ export default class MessageCommand extends NoirChatCommand {
       selectMenu.addOptions([
         {
           label: field.name,
-          description: 'Select one to edit',
+          description: 'Select to edit',
           value: `${this.editId(field.name)}-${this.editId(field.value)}`
         }
       ])
@@ -576,8 +613,8 @@ export default class MessageCommand extends NoirChatCommand {
     try {
       await client.noirReply.reply({
         interaction: interaction,
-        author: 'Edit fields',
-        description: 'Select field to edit',
+        author: 'Embed fields edit',
+        description: 'Select field(s) to edit',
         color: colors.Primary,
         components: actionRows
       })
@@ -591,7 +628,7 @@ export default class MessageCommand extends NoirChatCommand {
     const fieldName = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'fieldName'))
       .setStyle(TextInputStyle.Short)
-      .setLabel('Field name')
+      .setLabel('Embed field name')
       .setValue(message?.fields?.get(fieldId)?.name ?? '')
       .setPlaceholder('Enter field name')
       .setRequired(false)
@@ -599,7 +636,7 @@ export default class MessageCommand extends NoirChatCommand {
     const fieldValue = new TextInputBuilder()
       .setCustomId(this.generateInputId(id, 'fieldValue'))
       .setStyle(TextInputStyle.Paragraph)
-      .setLabel('Field value')
+      .setLabel('Embed field value')
       .setValue(message?.fields?.get(fieldId)?.value ?? '')
       .setPlaceholder('Enter field value')
       .setRequired(false)
@@ -609,7 +646,7 @@ export default class MessageCommand extends NoirChatCommand {
       .setStyle(TextInputStyle.Short)
       .setLabel('Field inline')
       .setValue(message?.fields?.get(fieldId)?.inline ? 'true' : 'false' ?? '')
-      .setPlaceholder('true or leave blank')
+      .setPlaceholder('True or leave blank')
       .setRequired(false)
       .setMaxLength(2000)
 
@@ -621,7 +658,7 @@ export default class MessageCommand extends NoirChatCommand {
 
     const modal = new ModalBuilder()
       .setCustomId(this.generateModalId(id, 'fieldEdit') + `-${this.editId(message?.fields?.get(fieldId)?.name)}-${this.editId(message?.fields?.get(fieldId)?.value)}`)
-      .setTitle('Field constructor')
+      .setTitle('Embed field editor')
       .addComponents(actionRows)
     await interaction.showModal(modal)
   }

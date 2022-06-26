@@ -44,6 +44,8 @@ export default class PremiumCommand extends NoirChatCommand {
     const durationString = interaction.options.getString('duration', true)
     const duration = new Duration(durationString).fromNow
 
+
+
     try {
       if (!client.guilds.cache.get(guild)) {
         await client.noirReply.reply({

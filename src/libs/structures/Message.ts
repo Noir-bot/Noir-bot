@@ -16,6 +16,8 @@ export default class NoirMessage {
     this.message = { embed: { status: false, timestamp: false, fields: new Collection([]) } }
   }
 
+  public removeValue = '{{none}}'
+
   private checkImage(image: string | undefined | null): string | undefined {
     if (image && urlRegex.test(image) || image == 'client' || image == 'user' || image == 'server') {
       const clientAvatar = this.client.user?.avatarURL()
@@ -25,12 +27,13 @@ export default class NoirMessage {
       if (image == 'client' && clientAvatar) return clientAvatar
       else if (image == 'user' && userAvatar) return userAvatar
       else if (image == 'server' && guildIcon) return guildIcon
-      else if (image == 'none') return undefined
+      else if (image == this.removeValue) return undefined
       else return image
     }
 
     return
   }
+
 
   private editId(string: string) {
     return string.replaceAll('-', '').replaceAll(' ', '')
@@ -39,6 +42,7 @@ export default class NoirMessage {
   public get id() {
     return this._id
   }
+
 
   public get embed() {
     const embed = new EmbedBuilder()
@@ -122,7 +126,8 @@ export default class NoirMessage {
   }
 
   public setContent(content: string) {
-    this.message.content = content
+    if (content == this.removeValue) this.message.content = undefined
+    else this.message.content = content
 
     return this
   }
@@ -136,17 +141,20 @@ export default class NoirMessage {
     else if (color == 'success') this.message.embed.color = colors.Success
     else if (color == 'warning') this.message.embed.color = colors.Warning
     else if (color == 'embed') this.message.embed.color = colors.Embed
+    else if (color == this.removeValue) this.message.embed.color = undefined
 
     return this
   }
 
   public setDescription(description: string) {
-    this.message.embed.description = description
+    if (description == this.removeValue) this.message.embed.description = undefined
+    else this.message.embed.description = description
     this.message.embed.status = true
   }
 
   public setTitle(title: string, url?: string) {
-    this.message.embed.title = title
+    if (title == this.removeValue) this.message.embed.title = undefined
+    else this.message.embed.title = title
     this.message.embed.status = true
 
     if (url && urlRegex.test(url)) {
@@ -157,7 +165,8 @@ export default class NoirMessage {
   }
 
   public setAuthor(author: string, image?: string) {
-    this.message.embed.author = author
+    if (author == this.removeValue) this.message.embed.author = undefined
+    else this.message.embed.author = author
     this.message.embed.status = true
     this.message.embed.authorImageRaw = image
     this.message.embed.authorImage = this.checkImage(image)
@@ -182,7 +191,8 @@ export default class NoirMessage {
   }
 
   public setFooter(footer: string, icon?: string) {
-    this.message.embed.footer = footer
+    if (footer == this.removeValue) this.message.embed.footer = undefined
+    else this.message.embed.footer = footer
     this.message.embed.footerImageRaw = icon
     this.message.embed.footerImage = this.checkImage(icon)
 
@@ -202,8 +212,6 @@ export default class NoirMessage {
 
     this.message.embed.fields?.set(`${this.editId(field.name)}-${this.editId(field.value)}`, field)
     this.message.embed.status = true
-
-    console.log(this.message.embed.fields)
 
     return this
   }
