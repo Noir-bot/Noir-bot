@@ -17,8 +17,13 @@ export default class NoirMessage {
   }
 
   public removeValue = '{{none}}'
+  private fieldsLimit = 25
 
-  private checkImage(image: string | undefined | null): string | undefined {
+  private editId = (string: string) => string.replaceAll('-', '').replaceAll(' ', '')
+  private checkContent = (content: string | undefined): string | undefined => content == this.removeValue ? undefined : content
+  private modifyBoolean = (content: string | undefined): boolean => content?.toLowerCase() == 'true' ? true : false
+
+  private modifyImage(image: string | undefined | null): string | undefined {
     if (image && urlRegex.test(image) || image == 'client' || image == 'user' || image == 'server') {
       const clientAvatar = this.client.user?.avatarURL()
       const userAvatar = this.interaction.user.avatarURL()
@@ -31,28 +36,34 @@ export default class NoirMessage {
       else return image
     }
 
-    return
+    return undefined
   }
 
-
-  private editId(string: string) {
-    return string.replaceAll('-', '').replaceAll(' ', '')
+  private modifyColor(color: string) {
+    if (color == 'primary') return colors.Primary
+    else if (color == 'secondary') return colors.Secondary
+    else if (color == 'tertiary') return colors.Tertiary
+    else if (color == 'success') return colors.Success
+    else if (color == 'warning') return colors.Warning
+    else if (color == 'embed') return colors.Embed
+    else if (color == this.removeValue) return undefined
   }
 
   public get id() {
     return this._id
   }
 
-
   public get embed() {
     const embed = new EmbedBuilder()
     const guildId = this.interaction.guild?.id
     const premium = guildId ? this.client.noirPremiums.get(guildId)?.status ?? false : false
 
+    if (this.message.embed.color) embed.setColor(this.message.embed.color)
+    if (this.message.embed.author) embed.setAuthor({ name: this.message.embed.author, iconURL: this.message.embed.authorImage })
     if (this.message.embed.description) embed.setDescription(this.message.embed.description)
     if (this.message.embed.thumbnail) embed.setThumbnail(this.message.embed.thumbnail)
     if (this.message.embed.image) embed.setImage(this.message.embed.image)
-    if (this.message.embed.color) embed.setColor(this.message.embed.color)
+    if (this.message.embed.footer && premium) embed.setFooter({ text: this.message.embed.footer, iconURL: this.message.embed.footerImage })
     if (this.message.embed.timestamp) embed.setTimestamp()
 
     if (this.message.embed.fields && premium) {
@@ -61,16 +72,13 @@ export default class NoirMessage {
       })
     }
 
-    if (this.message.embed.author) embed.setAuthor({ name: this.message.embed.author, iconURL: this.message.embed.authorImage })
-    if (this.message.embed.footer && premium) embed.setFooter({ text: this.message.embed.footer, iconURL: this.message.embed.footerImage })
-
     if (this.message.embed.title) {
       embed.setTitle(this.message.embed.title)
 
       if (this.message.embed.titleURL) embed.setURL(this.message.embed.titleURL)
     }
 
-    if (embed.data.color || embed.data.description || embed.data.title || embed.data.author || embed.data.image || embed.data.thumbnail || embed.data.fields) {
+    if (embed.data.color || embed.data.description || embed.data.title || embed.data.author || embed.data.image || embed.data.thumbnail || embed.data.fields || embed.data.timestamp) {
       this.message.embed.status = true
     }
 
@@ -126,87 +134,74 @@ export default class NoirMessage {
   }
 
   public setContent(content: string) {
-    if (content == this.removeValue) this.message.content = undefined
-    else this.message.content = content
+    this.message.content = this.checkContent(content)
 
     return this
   }
 
   public setColor(color: string) {
-    this.message.embed.colorRaw = color
-
-    if (color == 'primary') this.message.embed.color = colors.Primary
-    else if (color == 'secondary') this.message.embed.color = colors.Secondary
-    else if (color == 'tertiary') this.message.embed.color = colors.Tertiary
-    else if (color == 'success') this.message.embed.color = colors.Success
-    else if (color == 'warning') this.message.embed.color = colors.Warning
-    else if (color == 'embed') this.message.embed.color = colors.Embed
-    else if (color == this.removeValue) this.message.embed.color = undefined
+    this.message.embed.colorRaw = this.checkContent(color)
+    this.message.embed.color = this.modifyColor(color)
 
     return this
   }
 
   public setDescription(description: string) {
-    if (description == this.removeValue) this.message.embed.description = undefined
-    else this.message.embed.description = description
+    this.message.embed.description = this.checkContent(description)
     this.message.embed.status = true
+
+    return this
   }
 
   public setTitle(title: string, url?: string) {
-    if (title == this.removeValue) this.message.embed.title = undefined
-    else this.message.embed.title = title
+    this.message.embed.title = this.checkContent(title)
+    this.message.embed.titleURL = this.modifyImage(url)
     this.message.embed.status = true
-
-    if (url && urlRegex.test(url)) {
-      this.message.embed.titleURL = url
-    }
 
     return this
   }
 
   public setAuthor(author: string, image?: string) {
-    if (author == this.removeValue) this.message.embed.author = undefined
-    else this.message.embed.author = author
+    this.message.embed.author = this.checkContent(author)
+    this.message.embed.authorImageRaw = this.checkContent(image)
+    this.message.embed.authorImage = this.modifyImage(image)
     this.message.embed.status = true
-    this.message.embed.authorImageRaw = image
-    this.message.embed.authorImage = this.checkImage(image)
 
     return this
   }
 
   public setImage(image: string) {
+    this.message.embed.imageRaw = this.checkContent(image)
+    this.message.embed.image = this.modifyImage(image)
     this.message.embed.status = true
-    this.message.embed.imageRaw = image
-    this.message.embed.image = this.checkImage(image)
 
     return this
   }
 
   public setThumbnail(thumbnail: string) {
+    this.message.embed.thumbnailRaw = this.checkContent(thumbnail)
+    this.message.embed.thumbnail = this.modifyImage(thumbnail)
     this.message.embed.status = true
-    this.message.embed.thumbnailRaw = thumbnail
-    this.message.embed.thumbnail = this.checkImage(thumbnail)
 
     return this
   }
 
   public setFooter(footer: string, icon?: string) {
-    if (footer == this.removeValue) this.message.embed.footer = undefined
-    else this.message.embed.footer = footer
+    this.message.embed.footer = this.checkContent(footer)
+    this.message.embed.footerImage = this.modifyImage(icon)
     this.message.embed.footerImageRaw = icon
-    this.message.embed.footerImage = this.checkImage(icon)
 
     return this
   }
 
-  public setTimestamp(status: boolean): this {
-    this.message.embed.timestamp = status
+  public setTimestamp(status: string): this {
+    this.message.embed.timestamp = this.modifyBoolean(status)
 
     return this
   }
 
   public addField(field: EmbedField): this {
-    if (this.message.embed.fields && this.message.embed.fields?.size >= 25) {
+    if (this.message.embed.fields && this.message.embed.fields?.size >= this.fieldsLimit) {
       return this
     }
 
@@ -218,7 +213,6 @@ export default class NoirMessage {
 
   public editField(name: string, field: EmbedField): this {
     if (this.message.embed.fields && this.message.embed.fields?.size > 0) {
-      console.log(name)
       this.message.embed.fields.delete(name)
       this.message.embed.fields.set(`${this.editId(field.name)}-${this.editId(field.value)}`, field)
     }
@@ -227,10 +221,12 @@ export default class NoirMessage {
   }
 
   public removeField(name: string): this {
-    try {
-      this.message.embed.fields?.delete(name)
-    } catch (err) {
-      return this
+    if (this.message.embed.fields && this.message.embed.fields.size > 0) {
+      try {
+        this.message.embed.fields?.delete(name)
+      } catch (err) {
+        return this
+      }
     }
 
     return this

@@ -47,8 +47,8 @@ export default class InteractionEvent extends NoirEvent {
 
     if (interaction.type == InteractionType.ApplicationCommand) await this.command(client, interaction)
     else if (interaction.type == InteractionType.ModalSubmit) await this.messageModal(client, interaction as ModalMessageModalSubmitInteraction | ModalSubmitInteraction)
-    else if (interaction.isButton()) await this.button(client, interaction)
-    else if (interaction.isSelectMenu()) await this.selectMenu(client, interaction)
+    else if (interaction.type == InteractionType.MessageComponent && interaction.isButton()) await this.button(client, interaction)
+    else if (interaction.type == InteractionType.MessageComponent && interaction.isSelectMenu()) await this.selectMenu(client, interaction)
   }
 
   protected async command(client: NoirClient, interaction: CommandInteraction): Promise<void> {
