@@ -1,16 +1,15 @@
 import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder } from 'discord.js'
-import { colors } from '../../../libs/config/design'
-import { invite } from '../../../libs/config/settings'
-import NoirClient from '../../../libs/structures/Client'
-import NoirChatCommand from '../../../libs/structures/command/ChatCommand'
+import Colors from '../../../constants/Colors'
+import NoirClient from '../../../structures/Client'
+import ChatCommand from '../../../structures/command/ChatCommand'
+import Options from './../../../constants/Options'
 
-export default class HelpCommand extends NoirChatCommand {
+export default class HelpCommand extends ChatCommand {
   constructor(client: NoirClient,) {
     super(
       client,
       {
         permissions: ['SendMessages', 'EmbedLinks'],
-        category: 'information',
         access: 'public',
         type: 'public',
         status: true
@@ -44,12 +43,12 @@ export default class HelpCommand extends NoirChatCommand {
       new ButtonBuilder().setCustomId(this.generateButtonId('faq')).setLabel('FAQ').setStyle(ButtonStyle.Secondary)
     ])
 
-    await client.noirReply.reply({
+    await client.reply.reply({
       interaction: interaction,
-      color: colors.Primary,
+      color: Colors.primary,
       author: 'Help command',
       authorImage: avatar == null ? undefined : avatar,
-      description: `Hey there, if you get any problem don't hesitate, contact our moderators. Still not part of our community server, be sure to join [here](${invite})`,
+      description: `Hey there, if you get any problem don't hesitate, contact our moderators. Still not part of our community server, be sure to join [here](${Options.guildInvite})`,
       footer: 'Created with <3 by Loid',
       components: [buttons],
       fetch: true
@@ -70,9 +69,9 @@ export default class HelpCommand extends NoirChatCommand {
       this.backButton()
     ])
 
-    await client.noirReply.reply({
+    await client.reply.reply({
       interaction: interaction,
-      color: colors.Primary,
+      color: Colors.primary,
       author: 'Frequently asked questions',
       authorImage: avatar == null ? undefined : avatar,
       fields: [

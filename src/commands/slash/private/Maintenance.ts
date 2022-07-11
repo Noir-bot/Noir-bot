@@ -1,17 +1,16 @@
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
 import { ActivityType, ChatInputCommandInteraction } from 'discord.js'
-import { colors } from '../../../libs/config/design'
-import { activity, status as defaultStatus } from '../../../libs/config/settings'
-import NoirClient from '../../../libs/structures/Client'
-import NoirChatCommand from '../../../libs/structures/command/ChatCommand'
+import Colors from '../../../constants/Colors'
+import Options from '../../../constants/Options'
+import NoirClient from '../../../structures/Client'
+import ChatCommand from '../../../structures/command/ChatCommand'
 
-export default class MaintenanceCommand extends NoirChatCommand {
+export default class MaintenanceCommand extends ChatCommand {
   constructor(client: NoirClient) {
     super(
       client,
       {
         permissions: ['SendMessages', 'EmbedLinks'],
-        category: 'utility',
         access: 'private',
         type: 'private',
         status: true
@@ -34,12 +33,12 @@ export default class MaintenanceCommand extends NoirChatCommand {
 
   public async execute(client: NoirClient, interaction: ChatInputCommandInteraction) {
     const status = interaction.options.getBoolean('status', true)
-    client.noirMaintenance = status
+    Options.maintenance = status
     this.presence(client, status)
 
-    await client.noirReply.reply({
+    await client.reply.reply({
       interaction: interaction,
-      color: colors.Success,
+      color: Colors.success,
       author: 'Maintenance mode',
       description: `Maintenance mode ${status ? 'enabled' : 'disabled'}`
     })
@@ -56,11 +55,11 @@ export default class MaintenanceCommand extends NoirChatCommand {
       return
     } else {
       client.user?.setActivity({
-        name: activity,
+        name: Options.activity,
         type: ActivityType.Listening
       })
 
-      client.user?.setStatus(defaultStatus)
+      client.user?.setStatus(Options.status)
       return
     }
   }

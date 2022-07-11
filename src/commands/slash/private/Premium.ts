@@ -1,18 +1,18 @@
+
 import { Duration } from '@sapphire/time-utilities'
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
 import { ChatInputCommandInteraction } from 'discord.js'
-import { colors } from '../../../libs/config/design'
-import NoirClient from '../../../libs/structures/Client'
-import NoirChatCommand from '../../../libs/structures/command/ChatCommand'
-import NoirPremium from '../../../libs/structures/Premium'
+import Premium from '../../../collections/Premium'
+import Colors from '../../../constants/Colors'
+import NoirClient from '../../../structures/Client'
+import ChatCommand from '../../../structures/command/ChatCommand'
 
-export default class PremiumCommand extends NoirChatCommand {
+export default class PremiumCommand extends ChatCommand {
   constructor(client: NoirClient) {
     super(
       client,
       {
         permissions: ['SendMessages', 'EmbedLinks'],
-        category: 'utility',
         access: 'private',
         type: 'private',
         status: true
@@ -48,9 +48,9 @@ export default class PremiumCommand extends NoirChatCommand {
 
     try {
       if (!client.guilds.cache.get(guild)) {
-        await client.noirReply.reply({
+        await client.reply.reply({
           interaction: interaction,
-          color: colors.Warning,
+          color: Colors.warning,
           author: 'Server error',
           description: 'Can\'t find server by provided id'
         })
@@ -58,8 +58,8 @@ export default class PremiumCommand extends NoirChatCommand {
         return
       }
 
-      if (client.noirPremiums.has(guild)) {
-        await client.noirPrisma.premium.updateMany({
+      if (client.premium.has(guild)) {
+        await client.prisma.premium.updateMany({
           where: { guild: guild },
           data: {
             expireAt: duration,
@@ -67,13 +67,13 @@ export default class PremiumCommand extends NoirChatCommand {
           }
         })
 
-        client.noirPremiums.delete(guild)
-        client.noirPremiums.set(guild, new NoirPremium(guild, duration, true))
+        client.premium.delete(guild)
+        client.premium.set(guild, new Premium(duration, true))
       } else {
-        const premium = await client.noirPrisma.premium.findFirst({ where: { guild: guild } })
+        const premium = await client.prisma.premium.findFirst({ where: { guild: guild } })
 
         if (!premium) {
-          await client.noirPrisma.premium.create({
+          await client.prisma.premium.create({
             data: {
               guild: guild,
               expireAt: duration,
@@ -81,9 +81,9 @@ export default class PremiumCommand extends NoirChatCommand {
             }
           })
 
-          client.noirPremiums.set(guild, new NoirPremium(guild, duration, true))
+          client.premium.set(guild, new Premium(duration, true))
         } else {
-          await client.noirPrisma.premium.updateMany({
+          await client.prisma.premium.updateMany({
             where: { guild: guild },
             data: {
               expireAt: duration,
@@ -96,9 +96,9 @@ export default class PremiumCommand extends NoirChatCommand {
       console.log(err)
     }
 
-    await client.noirReply.reply({
+    await client.reply.reply({
       interaction: interaction,
-      color: colors.Success,
+      color: Colors.success,
       author: 'Premium success',
       description: `**${client.guilds.cache.get(guild)?.name}** has got premium for \`${durationString}\``
     })

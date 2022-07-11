@@ -1,10 +1,8 @@
-export default class NoirPremium {
-  private guild: string
+export default class Premium {
   private expireAt: Date
   private _status: boolean
 
-  constructor(guild: string, expireAt: Date, status: boolean) {
-    this.guild = guild
+  constructor(expireAt: Date, status: boolean) {
     this.expireAt = expireAt
     this._status = status
   }
@@ -17,7 +15,7 @@ export default class NoirPremium {
     this._status = status
   }
 
-  public expired(): boolean {
+  public expired() {
     if (new Date().getTime() >= this.expireAt.getTime()) {
       return true
     }

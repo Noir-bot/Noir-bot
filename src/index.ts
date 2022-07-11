@@ -15,6 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Noir Bot.  If not, see <http://www.gnu.org/licenses/>.
 
-import NoirClient from './libs/structures/Client'
+import NoirClient from './structures/Client'
 
 new NoirClient().start()

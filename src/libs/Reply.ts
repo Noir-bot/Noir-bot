@@ -1,21 +1,8 @@
-import {
-  APIActionRowComponent,
-  APIMessageActionRowComponent,
-  ButtonInteraction,
-  ColorResolvable,
-  CommandInteraction,
-  ContextMenuCommandInteraction,
-  EmbedBuilder,
-  EmbedField,
-  InteractionType,
-  JSONEncodable,
-  ModalMessageModalSubmitInteraction,
-  ModalSubmitInteraction, SelectMenuInteraction
-} from 'discord.js'
-import { colors } from '../config/design'
+import { APIActionRowComponent, APIMessageActionRowComponent, ButtonInteraction, ColorResolvable, CommandInteraction, ContextMenuCommandInteraction, EmbedBuilder, EmbedField, InteractionType, JSONEncodable, ModalMessageModalSubmitInteraction, ModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
+import Colors from '../constants/Colors'
 import NoirClient from '../structures/Client'
 
-export default class NoirReply {
+export default class Reply {
   public client: NoirClient
 
   constructor(client: NoirClient) {
@@ -74,7 +61,7 @@ export default class NoirReply {
     }
   ): EmbedBuilder {
     const embed = new EmbedBuilder()
-      .setColor(colors.Secondary)
+      .setColor(Colors.secondary)
 
     if (properties.color) embed.setColor(properties.color)
     if (properties.author) embed.setAuthor({ name: properties.author ?? '', iconURL: properties.authorImage })

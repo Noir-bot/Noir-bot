@@ -2,20 +2,20 @@ import chalk from 'chalk'
 import { ActivityType } from 'discord.js'
 import glob from 'glob'
 import { promisify } from 'util'
-import { activity, guild } from '../../libs/config/settings'
-import NoirClient from '../../libs/structures/Client'
-import NoirCommand from '../../libs/structures/command/Command'
-import NoirEvent from '../../libs/structures/event/Event'
+import Options from '../../constants/Options'
+import NoirClient from '../../structures/Client'
+import Command from '../../structures/command/Command'
+import Event from '../../structures/Event'
 
-export default class ReadyEvent extends NoirEvent {
+export default class ReadyEvent extends Event {
   constructor(client: NoirClient) {
     super(client, 'ready', true)
   }
 
   public async execute(client: NoirClient) {
-    console.log(chalk.green.bold('Noir Ready'))
+    console.log(chalk.green.bold('Noir Ready!'))
     client?.user?.setActivity({
-      name: `${activity}`,
+      name: `${Options.activity}`,
       type: ActivityType.Listening
     })
 
@@ -30,17 +30,17 @@ export default class ReadyEvent extends NoirEvent {
     // client.guilds.cache.get(guild)?.commands.set([])
 
     commandsFiles.map(async (commandFile: string) => {
-      const command = new (await import(commandFile)).default(client) as NoirCommand
+      const command = new (await import(commandFile)).default(client) as Command
 
-      if (command.settings.type == 'private') {
-        client.guilds.cache.get(guild)?.commands.create(command.data)
+      if (command.options.type == 'private') {
+        client.guilds.cache.get(Options.guildId)?.commands.create(command.data)
       }
 
-      if (command.settings.type == 'public') {
+      if (command.options.type == 'public') {
         client.application?.commands.create(command.data)
       }
 
-      client.noirCommands.set(command.data.name, command)
+      client.commands.set(command.data.name, command)
     })
   }
-}
+} 

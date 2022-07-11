@@ -1,7 +1,7 @@
 import { ClientEvents } from 'discord.js'
-import NoirClient from '../Client'
+import NoirClient from './Client'
 
-export default abstract class NoirEvent {
+export default abstract class Event {
   public client: NoirClient
   public name: keyof ClientEvents
   public once: boolean

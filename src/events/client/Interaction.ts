@@ -1,28 +1,38 @@
 import chalk from 'chalk'
 import { ButtonInteraction, CommandInteraction, Interaction, InteractionType, ModalMessageModalSubmitInteraction, ModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
-import HelpCommand from '../../commands/slash/information/Help'
-import MessageCommand from '../../commands/slash/utils/Message'
-import { colors } from '../../libs/config/design'
-import { invite, owners } from '../../libs/config/settings'
-import NoirClient from '../../libs/structures/Client'
-import NoirCommand from '../../libs/structures/command/Command'
-import NoirEvent from '../../libs/structures/event/Event'
-import NoirPremium from '../../libs/structures/Premium'
+import Premium from '../../collections/Premium'
+import MaintenanceCommand from '../../commands/slash/private/Maintenance'
+import HelpCommand from '../../commands/slash/utilities/Help'
+import MessageCommand from '../../commands/slash/utilities/Message'
+import Colors from '../../constants/Colors'
+import Options from '../../constants/Options'
+import NoirClient from '../../structures/Client'
+import Command from '../../structures/command/Command'
+import Event from '../../structures/Event'
 
-export default class InteractionEvent extends NoirEvent {
+export default class InteractionEvent extends Event {
   constructor(client: NoirClient) {
     super(client, 'interactionCreate', false)
   }
 
   public async execute(client: NoirClient, interaction: Interaction): Promise<void> {
+    await this.premiumCache(client, interaction)
+
+    if (interaction.type == InteractionType.ApplicationCommand && (interaction.isChatInputCommand() || interaction.isContextMenuCommand())) await this.command(client, interaction)
+    else if (interaction.type == InteractionType.ModalSubmit) await this.messageModal(client, interaction as ModalMessageModalSubmitInteraction | ModalSubmitInteraction)
+    else if (interaction.type == InteractionType.MessageComponent && interaction.isButton()) await this.button(client, interaction)
+    else if (interaction.type == InteractionType.MessageComponent && interaction.isSelectMenu()) await this.selectMenu(client, interaction)
+  }
+
+  private async premiumCache(client: NoirClient, interaction: Interaction) {
     if (interaction.guild) {
-      let guildPremium = client.noirPremiums.get(interaction.guild.id)
+      let guildPremium = client.premium.get(interaction.guild.id)
 
       if (!guildPremium) {
-        let premium = await client.noirPrisma.premium.findFirst({ where: { guild: interaction.guild.id } })
+        let premium = await client.prisma.premium.findFirst({ where: { guild: interaction.guild.id } })
 
         if (!premium) {
-          premium = await client.noirPrisma.premium.create({
+          premium = await client.prisma.premium.create({
             data: {
               guild: interaction.guild.id,
               expireAt: new Date(),
@@ -31,12 +41,12 @@ export default class InteractionEvent extends NoirEvent {
           })
         }
 
-        guildPremium = new NoirPremium(interaction.guild.id, premium?.expireAt ?? new Date(), premium?.status ?? false)
-        client.noirPremiums.set(interaction.guild.id, guildPremium)
+        guildPremium = new Premium(premium?.expireAt ?? new Date(), premium?.status ?? false)
+        client.premium.set(interaction.guild.id, guildPremium)
       }
 
       if (guildPremium.expired() && guildPremium.status == true) {
-        await client.noirPrisma.premium.updateMany({
+        await client.prisma.premium.updateMany({
           where: { guild: interaction.guild.id },
           data: { status: false }
         })
@@ -44,21 +54,17 @@ export default class InteractionEvent extends NoirEvent {
         guildPremium.status = false
       }
     }
-
-    if (interaction.type == InteractionType.ApplicationCommand) await this.command(client, interaction)
-    else if (interaction.type == InteractionType.ModalSubmit) await this.messageModal(client, interaction as ModalMessageModalSubmitInteraction | ModalSubmitInteraction)
-    else if (interaction.type == InteractionType.MessageComponent && interaction.isButton()) await this.button(client, interaction)
-    else if (interaction.type == InteractionType.MessageComponent && interaction.isSelectMenu()) await this.selectMenu(client, interaction)
   }
 
-  protected async command(client: NoirClient, interaction: CommandInteraction): Promise<void> {
-    const command = client.noirCommands.get(interaction.commandName) as NoirCommand
+  private async command(client: NoirClient, interaction: CommandInteraction): Promise<void> {
+    const command = client.commands.get(interaction.commandName) as Command
 
     try {
-      if (client.noirMaintenance && command.data.name != 'maintenance') {
-        await client.noirReply.reply({
+
+      if (Options.maintenance && command.data.name != new MaintenanceCommand(client).data.name) {
+        await client.reply.reply({
           interaction: interaction,
-          color: colors.Warning,
+          color: Colors.warning,
           author: 'Maintenance mode',
           description: 'Maintenance mode, try again later'
         })
@@ -66,10 +72,10 @@ export default class InteractionEvent extends NoirEvent {
         return
       }
 
-      if (!command.settings.status) {
-        await client.noirReply.reply({
+      if (!command.options.status) {
+        await client.reply.reply({
           interaction: interaction,
-          color: colors.Warning,
+          color: Colors.warning,
           author: 'Command error',
           description: 'Command is currently unavailable'
         })
@@ -77,10 +83,10 @@ export default class InteractionEvent extends NoirEvent {
         return
       }
 
-      if (command.settings.permissions && interaction.guild?.members?.me?.permissions.has(command.settings.permissions) && !interaction.guild?.members?.me?.permissions.has('Administrator')) {
-        await client.noirReply.reply({
+      if (command.options.permissions && interaction.guild?.members?.me?.permissions.has(command.options.permissions) && !interaction.guild?.members?.me?.permissions.has('Administrator')) {
+        await client.reply.reply({
           interaction: interaction,
-          color: colors.Warning,
+          color: Colors.warning,
           author: 'Permissions error',
           description: 'I don\'t have enough permissions'
         })
@@ -88,10 +94,10 @@ export default class InteractionEvent extends NoirEvent {
         return
       }
 
-      if (command.settings.access == 'private' && !owners.includes(interaction.user.id)) {
-        await client.noirReply.reply({
+      if (command.options.access == 'private' && !Options.owners.includes(interaction.user.id)) {
+        await client.reply.reply({
           interaction: interaction,
-          color: colors.Warning,
+          color: Colors.warning,
           author: 'Access denied',
           description: 'Command is restricted'
         })
@@ -99,14 +105,14 @@ export default class InteractionEvent extends NoirEvent {
         return
       }
 
-      if (command.settings.access == 'premium') {
+      if (command.options.access == 'premium') {
         if (interaction.guild?.id) {
-          const guildPremium = client.noirPremiums.get(interaction.guild.id)
+          const guildPremium = client.premium.get(interaction.guild.id)
 
           if (!guildPremium || !guildPremium?.status) {
-            await client.noirReply.reply({
+            await client.reply.reply({
               interaction: interaction,
-              color: colors.Warning,
+              color: Colors.warning,
               author: 'Premium error',
               description: 'Command premium only'
             })
@@ -115,9 +121,9 @@ export default class InteractionEvent extends NoirEvent {
           }
 
           if (guildPremium.expired()) {
-            await client.noirReply.reply({
+            await client.reply.reply({
               interaction: interaction,
-              color: colors.Warning,
+              color: Colors.warning,
               author: 'Premium error',
               description: 'Premium has expired'
             })
@@ -129,34 +135,34 @@ export default class InteractionEvent extends NoirEvent {
 
       command.execute(client, interaction)
     } catch (error: any) {
-      client.noirReply.reply({
+      client.reply.reply({
         interaction: interaction,
-        color: colors.Warning,
+        color: Colors.warning,
         author: 'Execution error',
-        description: `Unspecified error occurred, please contact us about it, join our [support server](${invite}) for more information`
+        description: `Unspecified error occurred, please contact us about it, join our [support server](${Options.guildInvite}) for more information`
       })
 
-      throw new Error(chalk.bgRed.white(`${client.noirUtils.capitalize(command.data.name)} command error: `) + '\n' + chalk.red(error.stack))
+      throw new Error(chalk.bgRed.white(`${client.utils.capitalize(command.data.name)} command error: `) + '\n' + chalk.red(error.stack))
     }
   }
 
-  protected async button(client: NoirClient, interaction: ButtonInteraction): Promise<void> {
-    const parts = interaction.customId.toLocaleLowerCase().split('-')
+  private async button(client: NoirClient, interaction: ButtonInteraction): Promise<void> {
+    const parts = interaction.customId.toLowerCase().split('-')
 
     if (parts[0] == 'message') await new MessageCommand(client).buttonResponse(client, interaction)
     else if (parts[0] == 'help') await new HelpCommand(client).buttonResponse(client, interaction)
   }
 
-  protected async messageModal(client: NoirClient, interaction: ModalSubmitInteraction | ModalMessageModalSubmitInteraction): Promise<void> {
+  private async messageModal(client: NoirClient, interaction: ModalSubmitInteraction | ModalMessageModalSubmitInteraction): Promise<void> {
     const parts = interaction.customId.toLowerCase().split('-')
 
     if (parts[0] == 'message') await new MessageCommand(client).modalResponse(client, interaction as ModalMessageModalSubmitInteraction)
+    // else if (parts[0] == 'restriction') await new RestrictionCommand(client).modalResponse(client, interaction as ModalMessageModalSubmitInteraction)
   }
 
-  protected async selectMenu(client: NoirClient, interaction: SelectMenuInteraction): Promise<void> {
+  private async selectMenu(client: NoirClient, interaction: SelectMenuInteraction): Promise<void> {
     const parts = interaction.customId.toLowerCase().split('-')
 
     if (parts[0] == 'message') await new MessageCommand(client).selectResponse(client, interaction)
   }
-
 }
