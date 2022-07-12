@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, SelectMenuBuilder, SelectMenuComponentOptionData, SelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
-import NoirMessage from '../../../collections/MessageConstructor'
+import NoirMessage from '../../../collections/EmbedConstructor'
 import Colors from '../../../constants/Colors'
 import Options from '../../../constants/Options'
 import NoirClient from '../../../structures/Client'
