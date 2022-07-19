@@ -14,103 +14,80 @@ model Premium {
   expireAt DateTime @default(now())
 }
 
-model Logs {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  guild     String
-  status    LogsStatus
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
+model Client {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  guild          String
+  primaryColor   String
+  removeVariable String
+  premiumEmoji   Boolean @default(true)
 }
 
-type LogsStatus {
-  status      Boolean @default(false)
-  restriction Boolean @default(false)
-  warn        Boolean @default(false)
-  kick        Boolean @default(false)
-  ban         Boolean @default(false)
-  role        Boolean @default(false)
-  message     Boolean @default(false)
+model Logging {
+  id     String        @id @default(auto()) @map("_id") @db.ObjectId
+  guild  String
+  status Boolean       @default(false)
+  events LoggingEvents
 }
 
-model Case {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  guild      String
-  target     String
-  moderator  String
-  reason     String?
-  expiration DateTime @db.Timestamp()
+type LoggingEvents {
+  status        Boolean @default(false)
+  restriction   Boolean @default(true)
+  warning       Boolean @default(true)
+  kick          Boolean @default(true)
+  ban           Boolean @default(true)
+  createRole    Boolean @default(true)
+  deleteRole    Boolean @default(true)
+  updateMessage Boolean @default(true)
+  deleteMessage Boolean @default(true)
 }
 
-// model Welcome {
-//   id                  String                   @id @default(auto()) @map("_id") @db.ObjectId
-//   guild               String
-//   role                WelcomeRoleType
-//   roleId              String                   @db.ObjectId
-//   guildJoinMessage    WelcomeMessageGuildJoin  @relation(fields: [guildJoinMessageId], references: [id])
-//   guildLeftMessage    WelcomeMessageGuildLeft  @relation(fields: [guildLeftMessageId], references: [id])
-//   directJoinMessage   WelcomeMessageDirectJoin @relation(fields: [directJoinMessageId], references: [id])
-//   guildJoinMessageId  String                   @db.ObjectId
-//   guildLeftMessageId  String                   @db.ObjectId
-//   directJoinMessageId String                   @db.ObjectId
-//   createdAt           DateTime                 @default(now())
-//   updatedAt           DateTime                 @default(now())
-//   Settings            Settings[]
-//   WelcomeRole         WelcomeRole?             @relation(fields: [welcomeRoleId], references: [id])
-//   welcomeRoleId       String?                  @db.ObjectId
-// }
+model Welcome {
+  id       String          @id @default(auto()) @map("_id") @db.ObjectId
+  guild    String
+  channel  String?
+  status   Boolean         @default(false)
+  messages WelcomeMessages
+}
 
-// type WelcomeRoleType {
-//   status Boolean  @default(true)
-//   role   String[]
-// }
+type WelcomeMessages {
+  guild  WelcomeGuildMessages
+  direct WelcomeDirectMessages
+}
 
-// model WelcomeRole {
-//   id      String    @id @default(auto()) @map("_id") @db.ObjectId
-//   status  Boolean   @default(true)
-//   role    String[]
-//   Welcome Welcome[]
-// }
+type WelcomeDirectMessages {
+  status Boolean            @default(false)
+  join   WelcomeMessageData
+}
 
-// model WelcomeMessageGuildJoin {
-//   id          String    @id @default(auto()) @map("_id") @db.ObjectId
-//   message     String?
-//   color       String?
-//   title       String?
-//   description String?
-//   thumbnail   String?
-//   image       String?
-//   footer      String?
-//   timestamp   Boolean   @default(false)
-//   Welcome     Welcome[]
-// }
+type WelcomeGuildMessages {
+  status Boolean            @default(false)
+  join   WelcomeMessageData
+  leave  WelcomeMessageData
+}
 
-// model WelcomeMessageGuildLeft {
-//   id          String    @id @default(auto()) @map("_id") @db.ObjectId
-//   message     String?
-//   color       String?
-//   title       String?
-//   description String?
-//   thumbnail   String?
-//   image       String?
-//   footer      String?
-//   timestamp   Boolean   @default(false)
-//   Welcome     Welcome[]
-// }
+type WelcomeMessageData {
+  message String?
+  embed   WelcomeMessageEmbedData
+}
 
-// model WelcomeMessageDirectJoin {
-//   id          String    @id @default(auto()) @map("_id") @db.ObjectId
-//   message     String?
-//   color       String?
-//   title       String?
-//   description String?
-//   thumbnail   String?
-//   image       String?
-//   footer      String?
-//   timestamp   Boolean   @default(false)
-//   Welcome     Welcome[]
-// }
+type WelcomeMessageEmbedData {
+  url         String?
+  color       String?
+  title       String?
+  author      String?
+  footer      String?
+  authorImage String?
+  footerImage String?
+  description String?
+  thumbnail   String?
+  image       String?
+  fields      WelcomeMessageEmbedFieldData[]
+  timestamp   Boolean                        @default(false)
+}
 
-// model WelcomeMessage {
-//   id      String @id @default(auto()) @map("_id") @db.ObjectId
-//   channel String
-// }
+type WelcomeMessageEmbedFieldData {
+  id     String
+  name   String
+  value  String
+  inline Boolean @default(false)
+}
