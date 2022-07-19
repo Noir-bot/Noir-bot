@@ -44,15 +44,13 @@ export default class PremiumCommand extends ChatCommand {
     const durationString = interaction.options.getString('duration', true)
     const duration = new Duration(durationString).fromNow
 
-
-
     try {
       if (!client.guilds.cache.get(guild)) {
         await client.reply.reply({
           interaction: interaction,
           color: Colors.warning,
-          author: 'Server error',
-          description: 'Can\'t find server by provided id'
+          author: 'Guild error',
+          description: 'Undefined provided guild Id'
         })
 
         return
@@ -61,10 +59,7 @@ export default class PremiumCommand extends ChatCommand {
       if (client.premium.has(guild)) {
         await client.prisma.premium.updateMany({
           where: { guild: guild },
-          data: {
-            expireAt: duration,
-            status: true
-          }
+          data: { expireAt: duration, status: true }
         })
 
         client.premium.delete(guild)
@@ -85,22 +80,21 @@ export default class PremiumCommand extends ChatCommand {
         } else {
           await client.prisma.premium.updateMany({
             where: { guild: guild },
-            data: {
-              expireAt: duration,
-              status: true
-            }
+            data: { expireAt: duration, status: true }
           })
         }
       }
     } catch (err) {
-      console.log(err)
+      return
     }
+
+    const durationMs = duration.getTime().toString().slice(0, -3)
 
     await client.reply.reply({
       interaction: interaction,
       color: Colors.success,
       author: 'Premium success',
-      description: `**${client.guilds.cache.get(guild)?.name}** has got premium for \`${durationString}\``
+      description: `${client.guilds.cache.get(guild)?.name} has got premium till <d:${durationMs}:R>`
     })
   }
 }
