@@ -17,12 +17,17 @@ export default class MaintenanceCommand extends ChatCommand {
       },
       {
         name: 'maintenance',
-        description: 'Enable premium features for user',
+        description: 'Noir maintenance mode',
+        nameLocalizations: { 'ru': 'техобслуживание' },
+        descriptionLocalizations: { 'ru': 'Техобслуживание Noir' },
         type: ApplicationCommandType.ChatInput,
+        dmPermission: true,
         options: [
           {
             name: 'status',
-            description: 'Maintenance mode status',
+            description: 'Current status',
+            nameLocalizations: { 'ru': 'статус' },
+            descriptionLocalizations: { 'ru': 'Текущий статус' },
             type: ApplicationCommandOptionType.Boolean,
             required: true
           }
@@ -33,18 +38,19 @@ export default class MaintenanceCommand extends ChatCommand {
 
   public async execute(client: NoirClient, interaction: ChatInputCommandInteraction) {
     const status = interaction.options.getBoolean('status', true)
+
     Options.maintenance = status
-    this.presence(client, status)
+    this.changePresence(client, status)
 
     await client.reply.reply({
       interaction: interaction,
       color: Colors.success,
       author: 'Maintenance mode',
-      description: `Maintenance mode ${status ? 'enabled' : 'disabled'}`
+      description: `${status ? 'Enabling' : 'Disabling'} maintenance mode`
     })
   }
 
-  public presence(client: NoirClient, status: boolean) {
+  public changePresence(client: NoirClient, status: boolean) {
     if (status) {
       client.user?.setActivity({
         name: 'Maintenance mode',
@@ -52,7 +58,6 @@ export default class MaintenanceCommand extends ChatCommand {
       })
 
       client.user?.setStatus('idle')
-      return
     } else {
       client.user?.setActivity({
         name: Options.activity,
@@ -60,7 +65,6 @@ export default class MaintenanceCommand extends ChatCommand {
       })
 
       client.user?.setStatus(Options.status)
-      return
     }
   }
 }
