@@ -27,20 +27,28 @@ export default class ReadyEvent extends Event {
     const commandsFiles = await globPromise(path)
 
     // Reset guild commands
-    // client.guilds.cache.get(guild)?.commands.set([])
+    // client.guilds.cache.get(Options.guildId)?.commands.set([])
+    // client.application?.commands.set([])
 
     commandsFiles.map(async (commandFile: string) => {
-      const command = new (await import(commandFile)).default(client) as Command
+      try {
+        const file = await import(commandFile)
+        const command = new file.default(client) as Command
 
-      if (command.options.type == 'private') {
-        client.guilds.cache.get(Options.guildId)?.commands.create(command.data)
+        if (!command.execute) return
+
+        if (command.options.type == 'private') {
+          client.guilds.cache.get(Options.guildId)?.commands.create(command.data)
+        }
+
+        if (command.options.type == 'public') {
+          client.application?.commands.create(command.data)
+        }
+
+        client.commands.set(command.data.name, command)
+      } catch {
+        return
       }
-
-      if (command.options.type == 'public') {
-        client.application?.commands.create(command.data)
-      }
-
-      client.commands.set(command.data.name, command)
     })
   }
 } 

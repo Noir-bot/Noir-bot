@@ -2,21 +2,25 @@ import { PrismaClient } from '@prisma/client'
 import { Client, Collection } from 'discord.js'
 import glob from 'glob'
 import { promisify } from 'util'
-import MessageConstructor from '../collections/EmbedConstructor'
 import Premium from '../collections/Premium'
-import NoirRestriction from '../collections/Restriction'
+import ClientSettings from '../collections/settings/ClientSettings'
+import LoggingSettings from '../collections/settings/LoggingSettings'
+import WelcomeSettings from '../collections/settings/WelcomeSettings'
+import EmbedConstructor from '../commands/slash/utilities/embed/collection/EmbedConstructor'
 import Options from '../constants/Options'
 import Reply from '../libs/Reply'
 import Utils from '../libs/Utils'
 import Command from './command/Command'
-import { default as Event, default as NoirEvent } from './Event'
+import Event from './Event'
 
 export default class NoirClient extends Client {
   public commands = new Collection<string, Command>()
-  public events = new Collection<string, NoirEvent>()
+  public events = new Collection<string, Event>()
   public premium = new Collection<string, Premium>()
-  public messages = new Collection<string, MessageConstructor>()
-  public restrictions = new Collection<string, NoirRestriction>()
+  public embeds = new Collection<string, EmbedConstructor>()
+  public clientSettings = new Collection<string, ClientSettings>()
+  public welcomeSettings = new Collection<string, WelcomeSettings>()
+  public loggingSettings = new Collection<string, LoggingSettings>()
 
   public prisma = new PrismaClient()
   public utils = new Utils(this)
@@ -38,13 +42,21 @@ export default class NoirClient extends Client {
     const eventFiles = await globPromisify(path)
 
     eventFiles.map(async (eventFile: string) => {
-      const event = new (await import(eventFile)).default(this) as Event
-      this.events.set(event.name, event)
+      try {
+        const file = await import(eventFile)
+        const event = new (file).default(this) as Event
 
-      if (event.once) {
-        this.once(event.name, (...args) => event.execute(this, ...args))
-      } else {
-        this.on(event.name, (...args) => event.execute(this, ...args))
+        if (!event.execute) return
+
+        this.events.set(event.name, event)
+
+        if (event.once) {
+          this.once(event.name, (...args) => event.execute(this, ...args))
+        } else {
+          this.on(event.name, (...args) => event.execute(this, ...args))
+        }
+      } catch {
+        return
       }
     })
   }
