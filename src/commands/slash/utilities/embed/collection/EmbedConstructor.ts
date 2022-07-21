@@ -32,7 +32,7 @@ export default class EmbedConstructor {
 
     if (channel?.type != ChannelType.GuildText) return undefined
 
-    if (!this._webhook) {
+    if (!this._webhook || !this._webhook.channelId) {
       const webhook = await channel.createWebhook({
         name: `${interaction.guild?.name}`,
         avatar: interaction.guild?.iconURL() ?? Options.clientAvatar

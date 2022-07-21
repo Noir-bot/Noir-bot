@@ -1,7 +1,7 @@
 import { Welcome } from '@prisma/client'
-import { ChannelType } from 'discord.js'
-import Colors from '../../constants/Colors'
-import NoirClient from '../../structures/Client'
+import { ChannelType, TextChannel } from 'discord.js'
+import Colors from '../../../../../constants/Colors'
+import NoirClient from '../../../../../structures/Client'
 
 type WelcomeSettingsData = Omit<Welcome, 'id'>
 
@@ -14,6 +14,7 @@ export default class WelcomeSettings {
     this._data = {
       guild: this._id,
       status: false,
+      webhook: null,
       channel: null,
       messages: {
         guild: {
@@ -23,7 +24,7 @@ export default class WelcomeSettings {
               author: 'Welcome',
               authorImage: null,
               color: Colors.primaryHex,
-              description: '{{user}} welcome to {{guild}}',
+              description: '{{user}} join {{guild}}',
               footer: null,
               footerImage: null,
               image: null,
@@ -40,7 +41,7 @@ export default class WelcomeSettings {
               author: 'Goodbye',
               authorImage: null,
               color: Colors.secondaryHex,
-              description: '{{user}} left the guild',
+              description: '{{user}} left {{guild}}',
               footer: null,
               footerImage: null,
               image: null,
@@ -85,16 +86,64 @@ export default class WelcomeSettings {
     return this._data
   }
 
-  public setChannel(client: NoirClient, channelId: string): void {
+  public async getWebhook(client: NoirClient, channelId: string): Promise<void> {
     const channel = client.channels.cache.get(channelId.trim())
+    const currentChannelId = this.data.channel
 
     if (!channel) return
     if (!(channel.type == ChannelType.GuildText)) return
 
-    this.data.channel = channel.id
+    const webhookId = this.data.webhook
+
+    if (!webhookId) {
+      const webhook = await channel.createWebhook({
+        name: 'Noir Welcome',
+        avatar: channel.guild.iconURL()
+      })
+
+      this.data.webhook = webhook.id
+      this.data.channel = webhook.channelId
+
+      return
+    }
+
+    const webhooks = await channel.fetchWebhooks()
+    const webhook = webhooks.get(webhookId)
+
+    if (!webhook && currentChannelId) {
+      const oldChannel = client.channels.cache.get(currentChannelId) as TextChannel
+      const webhooks = await oldChannel.fetchWebhooks()
+      const webhook = webhooks.get(webhookId)
+
+      if (!webhook || !oldChannel) {
+        const webhook = await channel.createWebhook({
+          name: 'Noir Welcome',
+          avatar: channel.guild.iconURL()
+        })
+
+        this.data.webhook = webhook.id
+        this.data.channel = webhook.channelId
+      } else {
+        await webhook?.edit({
+          channel: channel
+        })
+      }
+      return
+    }
+
+    else if (!webhook) {
+      const webhook = await channel.createWebhook({
+        name: 'Noir Welcome',
+        avatar: channel.guild.iconURL()
+      })
+
+      this.data.webhook = webhook.id
+
+      return
+    }
   }
 
-  public async cache(client: NoirClient) {
+  public async cacheData(client: NoirClient): Promise<void> {
     let welcomeData = await client.prisma.welcome.findFirst({
       where: {
         guild: this.id
@@ -113,17 +162,15 @@ export default class WelcomeSettings {
           guild: this.id
         },
         data: {
-          channel: this.data.channel,
+          webhook: this.data.webhook,
           messages: this.data.messages,
           status: this.data.status
         }
       })
     }
-
-    return welcomeData
   }
 
-  public async send(client: NoirClient) {
+  public async requestData(client: NoirClient): Promise<void> {
     let welcomeData = await client.prisma.welcome.findFirst({
       where: {
         guild: this.id
@@ -137,7 +184,5 @@ export default class WelcomeSettings {
     }
 
     this._data = welcomeData
-
-    return welcomeData
   }
 }

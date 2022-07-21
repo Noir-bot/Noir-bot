@@ -3,10 +3,9 @@ import { Client, Collection } from 'discord.js'
 import glob from 'glob'
 import { promisify } from 'util'
 import Premium from '../collections/Premium'
-import ClientSettings from '../collections/settings/ClientSettings'
-import LoggingSettings from '../collections/settings/LoggingSettings'
-import WelcomeSettings from '../collections/settings/WelcomeSettings'
 import EmbedConstructor from '../commands/slash/utilities/embed/collection/EmbedConstructor'
+import LoggingSettings from '../commands/slash/utilities/settings/collections/LoggingSettings'
+import WelcomeSettings from '../commands/slash/utilities/settings/collections/WelcomeSettings'
 import Options from '../constants/Options'
 import Reply from '../libs/Reply'
 import Utils from '../libs/Utils'
@@ -18,7 +17,6 @@ export default class NoirClient extends Client {
   public events = new Collection<string, Event>()
   public premium = new Collection<string, Premium>()
   public embeds = new Collection<string, EmbedConstructor>()
-  public clientSettings = new Collection<string, ClientSettings>()
   public welcomeSettings = new Collection<string, WelcomeSettings>()
   public loggingSettings = new Collection<string, LoggingSettings>()
 

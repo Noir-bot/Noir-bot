@@ -1,7 +1,8 @@
 import { ButtonInteraction, ModalMessageModalSubmitInteraction } from 'discord.js'
 import NoirClient from '../../../../structures/Client'
 import SettingsCommand from './SettingsCommand'
-import SettingsWelcome from './SettingsCommandWelcome'
+import SettingsWelcome from './welcome/SettingsCommandWelcome'
+import SettingsCommandWelcomeChannel from './welcome/SettingsCommandWelcomeChannel'
 
 export default class SettingsCommandResponse {
   public static async button(client: NoirClient, interaction: ButtonInteraction): Promise<void> {
@@ -9,35 +10,36 @@ export default class SettingsCommandResponse {
     const method = parts[2]
     const id = parts[1]
 
-    if (method == 'initial') SettingsCommand.initialMessage(client, interaction, id)
+    if (method == 'welcome') {
+      await SettingsWelcome.initialMessage(client, interaction, id)
+    }
 
-    // else if (method == 'welcome') {
-    //   await SettingsWelcome.initialMessage(client, interaction, id)
-    // }
+    else if (method == 'welcomeBack') {
+      await SettingsCommand.initialMessage(client, interaction, id)
+    }
 
-    // else if (method == 'welcomeBack') {
-    //   await SettingsCommand.initialMessage(client, interaction, id)
-    // }
+    else if (method == 'welcomeSave') {
+      await client.welcomeSettings.get(id)?.cacheData(client)
+      await SettingsWelcome.initialMessage(client, interaction, id)
+    }
 
-    // else if (method == 'welcomeSave') {
-    //   await client.welcomeSettings.get(id)?.cache(client)
-    //   await SettingsWelcome.initialMessage(client, interaction, id)
-    // }
+    else if (method == 'welcomeReset') {
+      await client.welcomeSettings.get(id)?.requestData(client)
+      await SettingsWelcome.initialMessage(client, interaction, id)
+    }
 
-    // else if (method == 'welcomeReset') {
-    //   await client.welcomeSettings.get(id)?.send(client)
-    //   await SettingsWelcome.initialMessage(client, interaction, id)
-    // }
+    else if (method == 'welcomeStatus') {
+      const welcomeData = client.welcomeSettings.get(id)?.data
 
-    // else if (method == 'welcomeStatus') {
-    //   const welcomeData = client.welcomeSettings.get(id)!.data
-    //   welcomeData.status = !welcomeData.status
-    //   await SettingsWelcome.initialMessage(client, interaction, id)
-    // }
+      if (!welcomeData) return
 
-    // else if (method == 'welcomeChannel') {
-    //   await SettingsWelcome.channelRequest(client, interaction, id)
-    // }
+      welcomeData.status = !welcomeData.status
+      await SettingsWelcome.initialMessage(client, interaction, id)
+    }
+
+    else if (method == 'welcomeChannel') {
+      await SettingsCommandWelcomeChannel.request(client, interaction, id)
+    }
 
     // else if (method == 'welcomeMessages') {
     //   await SettingsWelcome.messagesMessage(client, interaction, id)
@@ -96,6 +98,6 @@ export default class SettingsCommandResponse {
     const method = parts[2]
     const id = parts[1]
 
-    if (method == 'welcomeChannel') SettingsWelcome.channelResponse(client, interaction, id)
+    if (method == 'welcomeChannel') SettingsCommandWelcomeChannel.response(client, interaction, id)
   }
 }

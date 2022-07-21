@@ -30,14 +30,18 @@ export default class SettingsCommand extends ChatCommand {
   }
 
   public async execute(client: NoirClient, interaction: ChatInputCommandInteraction): Promise<void> {
-    const id = interaction.guild!.id
+    const id = interaction.guild?.id
 
-    // if (id) {
-    //   await client.reply.reply({
-    //     interaction: interaction,
-    //     colors
-    //   })
-    // }
+    if (!id) {
+      await client.reply.reply({
+        interaction: interaction,
+        color: Colors.warning,
+        author: 'Guild error',
+        description: 'Undefined guild Id'
+      })
+
+      return
+    }
 
     await SettingsCommand.initialMessage(client, interaction, id)
   }

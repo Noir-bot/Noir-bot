@@ -14,14 +14,6 @@ model Premium {
   expireAt DateTime @default(now())
 }
 
-model Client {
-  id             String  @id @default(auto()) @map("_id") @db.ObjectId
-  guild          String
-  primaryColor   String
-  removeVariable String
-  premiumEmoji   Boolean @default(true)
-}
-
 model Logging {
   id     String        @id @default(auto()) @map("_id") @db.ObjectId
   guild  String
@@ -44,6 +36,7 @@ type LoggingEvents {
 model Welcome {
   id       String          @id @default(auto()) @map("_id") @db.ObjectId
   guild    String
+  webhook  String?
   channel  String?
   status   Boolean         @default(false)
   messages WelcomeMessages

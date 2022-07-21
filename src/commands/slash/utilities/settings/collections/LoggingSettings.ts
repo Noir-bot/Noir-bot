@@ -1,5 +1,5 @@
 import { Logging } from '@prisma/client'
-import NoirClient from '../../structures/Client'
+import NoirClient from '../../../../../structures/Client'
 
 type LoggingSettingsData = Omit<Logging, 'id'>
 
