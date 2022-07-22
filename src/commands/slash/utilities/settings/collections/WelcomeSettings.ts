@@ -1,5 +1,5 @@
 import { Welcome } from '@prisma/client'
-import { ChannelType, TextChannel } from 'discord.js'
+import { ChannelType, TextChannel, Webhook } from 'discord.js'
 import Colors from '../../../../../constants/Colors'
 import NoirClient from '../../../../../structures/Client'
 
@@ -86,12 +86,12 @@ export default class WelcomeSettings {
     return this._data
   }
 
-  public async getWebhook(client: NoirClient, channelId: string): Promise<void> {
+  public async getWebhook(client: NoirClient, channelId: string): Promise<Webhook | undefined> {
     const channel = client.channels.cache.get(channelId.trim())
     const currentChannelId = this.data.channel
 
     if (!channel) return
-    if (!(channel.type == ChannelType.GuildText)) return
+    if (channel.type != ChannelType.GuildText) return
 
     const webhookId = this.data.webhook
 
@@ -104,7 +104,7 @@ export default class WelcomeSettings {
       this.data.webhook = webhook.id
       this.data.channel = webhook.channelId
 
-      return
+      return webhook
     }
 
     const webhooks = await channel.fetchWebhooks()
@@ -112,7 +112,7 @@ export default class WelcomeSettings {
 
     if (!webhook && currentChannelId) {
       const oldChannel = client.channels.cache.get(currentChannelId) as TextChannel
-      const webhooks = await oldChannel.fetchWebhooks()
+      const webhooks = await oldChannel?.fetchWebhooks()
       const webhook = webhooks.get(webhookId)
 
       if (!webhook || !oldChannel) {
@@ -123,12 +123,13 @@ export default class WelcomeSettings {
 
         this.data.webhook = webhook.id
         this.data.channel = webhook.channelId
+
+        return webhook
       } else {
-        await webhook?.edit({
+        return await webhook?.edit({
           channel: channel
         })
       }
-      return
     }
 
     else if (!webhook) {
