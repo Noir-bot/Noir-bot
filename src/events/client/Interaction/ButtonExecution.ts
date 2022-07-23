@@ -1,7 +1,7 @@
 import { ButtonInteraction } from 'discord.js'
 import EmbedCommandResponses from '../../../commands/slash/utilities/embed/EmbedCommandResponses'
 import HelpCommandResponses from '../../../commands/slash/utilities/help/HelpCommandResponses'
-import SettingsCommandResponse from '../../../commands/slash/utilities/settings/SettingsCommandResponses'
+import SettingsCommandResponses from '../../../commands/slash/utilities/settings/SettingsCommandResponses'
 import NoirClient from '../../../structures/Client'
 
 export default class ButtonExecution {
@@ -11,6 +11,6 @@ export default class ButtonExecution {
 
     if (name == 'embed') await EmbedCommandResponses.button(client, interaction)
     else if (name == 'help') await HelpCommandResponses.button(client, interaction)
-    else if (name == 'settings') await SettingsCommandResponse.button(client, interaction)
+    else if (name == 'settings') await SettingsCommandResponses.button(client, interaction)
   }
 }

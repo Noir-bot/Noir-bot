@@ -1,6 +1,6 @@
 import { ModalMessageModalSubmitInteraction } from 'discord.js'
 import EmbedCommandResponses from '../../../commands/slash/utilities/embed/EmbedCommandResponses'
-import SettingsResponse from '../../../commands/slash/utilities/settings/SettingsCommandResponses'
+import SettingsCommandResponses from '../../../commands/slash/utilities/settings/SettingsCommandResponses'
 import NoirClient from '../../../structures/Client'
 
 export default class ModalExecution {
@@ -9,6 +9,6 @@ export default class ModalExecution {
     const name = parts[0].toLowerCase()
 
     if (name == 'embed') await EmbedCommandResponses.modal(client, interaction)
-    else if (name == 'settings') await SettingsResponse.modal(client, interaction)
+    else if (name == 'settings') await SettingsCommandResponses.modal(client, interaction)
   }
 }
