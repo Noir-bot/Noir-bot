@@ -88,14 +88,51 @@ export default class WelcomeSettings {
 
   public async getWebhook(client: NoirClient, channelId: string): Promise<Webhook | undefined> {
     const channel = client.channels.cache.get(channelId.trim())
-    const currentChannelId = this.data.channel
 
     if (!channel) return
     if (channel.type != ChannelType.GuildText) return
 
+    const oldChannelId = this.data.channel
     const webhookId = this.data.webhook
 
     if (!webhookId) {
+      const newWebhook = await channel.createWebhook({
+        name: 'Noir Welcome',
+        avatar: channel.guild.iconURL()
+      })
+
+      this.data.webhook = newWebhook.id
+      this.data.channel = newWebhook.channelId
+
+      return newWebhook
+    }
+
+    const webhooks = await channel.fetchWebhooks()
+    const webhook = webhooks.get(webhookId)
+
+    if (!webhook && oldChannelId) {
+      const oldChannel = client.channels.cache.get(oldChannelId) as TextChannel
+      const oldChannelWebhooks = await oldChannel.fetchWebhooks()
+      const oldWebhook = oldChannelWebhooks.get(webhookId)
+
+      if (!oldWebhook || !oldChannel) {
+        const newWebhook = await channel.createWebhook({
+          name: 'Noir Welcome',
+          avatar: channel.guild.iconURL()
+        })
+
+        this.data.webhook = newWebhook.id
+        this.data.channel = newWebhook.channelId
+
+        return newWebhook
+      }
+
+      return await oldWebhook.edit({
+        channel: channel
+      })
+    }
+
+    else if (!webhook) {
       const webhook = await channel.createWebhook({
         name: 'Noir Welcome',
         avatar: channel.guild.iconURL()
@@ -107,41 +144,7 @@ export default class WelcomeSettings {
       return webhook
     }
 
-    const webhooks = await channel.fetchWebhooks()
-    const webhook = webhooks.get(webhookId)
-
-    if (!webhook && currentChannelId) {
-      const oldChannel = client.channels.cache.get(currentChannelId) as TextChannel
-      const webhooks = await oldChannel?.fetchWebhooks()
-      const webhook = webhooks.get(webhookId)
-
-      if (!webhook || !oldChannel) {
-        const webhook = await channel.createWebhook({
-          name: 'Noir Welcome',
-          avatar: channel.guild.iconURL()
-        })
-
-        this.data.webhook = webhook.id
-        this.data.channel = webhook.channelId
-
-        return webhook
-      } else {
-        return await webhook?.edit({
-          channel: channel
-        })
-      }
-    }
-
-    else if (!webhook) {
-      const webhook = await channel.createWebhook({
-        name: 'Noir Welcome',
-        avatar: channel.guild.iconURL()
-      })
-
-      this.data.webhook = webhook.id
-
-      return
-    }
+    return webhook
   }
 
   public async cacheData(client: NoirClient): Promise<void> {
