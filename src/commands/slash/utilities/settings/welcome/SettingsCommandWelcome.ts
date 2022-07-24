@@ -29,8 +29,13 @@ export default class SettingsCommandWelcome {
           .setDisabled(!welcomeData?.data.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateComponentId(id, 'welcomeChannel', 'button'))
-          .setLabel(`${welcomeData?.data.webhook ? 'Change' : 'Select'} message channel`)
+          .setLabel(`${welcomeData?.data.webhook ? 'Change' : 'Set'} message channel`)
           .setStyle(SettingsUtils.generateButtonStyle(welcomeData?.data.webhook))
+          .setDisabled(!welcomeData?.data.status),
+        new ButtonBuilder()
+          .setCustomId(SettingsUtils.generateComponentId(id, 'welcomeRole', 'button'))
+          .setLabel(`${welcomeData?.data.role ? 'Change' : 'Set'} welcome role`)
+          .setStyle(SettingsUtils.generateButtonStyle(welcomeData?.data.role))
           .setDisabled(!welcomeData?.data.status),
       ],
       [

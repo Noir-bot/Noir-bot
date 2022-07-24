@@ -1,7 +1,9 @@
 import { ButtonInteraction, ModalMessageModalSubmitInteraction } from 'discord.js'
 import NoirClient from '../../../../../../structures/Client'
+import SettingsCommand from '../../SettingsCommand'
 import SettingsCommandWelcome from '../SettingsCommandWelcome'
 import SettingsCommandWelcomeChannel from '../SettingsCommandWelcomeChannel'
+import SettingsCommandWelcomeRole from '../SettingsCommandWelcomeRole'
 import SettingsCommandWelcomeEditorResponses from './SettingsCommandWelcomeEditorResponses'
 
 export default class SettingsCommandWelcomeResponses {
@@ -11,7 +13,7 @@ export default class SettingsCommandWelcomeResponses {
     }
 
     else if (method == 'welcomeBack') {
-      await SettingsCommandWelcome.initialMessage(client, interaction, id)
+      await SettingsCommand.initialMessage(client, interaction, id)
     }
 
     else if (method == 'welcomeSave') {
@@ -37,12 +39,22 @@ export default class SettingsCommandWelcomeResponses {
       await SettingsCommandWelcomeChannel.request(client, interaction, id)
     }
 
+    else if (method == 'welcomeRole') {
+      await SettingsCommandWelcomeRole.request(client, interaction, id)
+    }
+
     else if (method.startsWith('welcomeEditor')) {
       await SettingsCommandWelcomeEditorResponses.button(client, interaction, parts, method, id)
     }
   }
 
   public static async modal(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, parts: string[], method: string, id: string): Promise<void> {
-    if (method == 'welcomeChannel') SettingsCommandWelcomeChannel.response(client, interaction, id)
+    if (method == 'welcomeChannel') {
+      await SettingsCommandWelcomeChannel.response(client, interaction, id)
+    }
+
+    else if (method == 'welcomeRole') {
+      await SettingsCommandWelcomeRole.response(client, interaction, id)
+    }
   }
 }

@@ -38,6 +38,7 @@ model Welcome {
   guild    String
   webhook  String?
   channel  String?
+  role     String?
   status   Boolean         @default(false)
   messages WelcomeMessages
 }

@@ -3,36 +3,36 @@ import NoirClient from '../../../../../structures/Client'
 import SettingsCommandUtils from '../SettingsCommandUtils'
 import SettingsCommandWelcome from './SettingsCommandWelcome'
 
-export default class SettingsCommandWelcomeChannel {
+export default class SettingsCommandWelcomeRole {
   public static async request(client: NoirClient, interaction: ButtonInteraction, id: string) {
     const welcomeData = client.welcomeSettings.get(id)
 
-    const channelInput = new TextInputBuilder()
-      .setCustomId(SettingsCommandUtils.generateComponentId(id, 'welcomeChannel', 'input'))
-      .setLabel('Channel Id')
-      .setPlaceholder(`Enter channel Id to ${welcomeData?.data.webhook ? 'change' : 'add'}`)
+    const roleInput = new TextInputBuilder()
+      .setCustomId(SettingsCommandUtils.generateComponentId(id, 'welcomeRole', 'input'))
+      .setLabel('Role Id')
+      .setPlaceholder(`Enter role Id to ${welcomeData?.data.webhook ? 'change' : 'add'}`)
       .setStyle(TextInputStyle.Short)
       .setRequired(true)
 
-    if (welcomeData?.data.webhook) {
-      channelInput.setValue(welcomeData.data.webhook)
+    if (welcomeData?.data.role) {
+      roleInput.setValue(welcomeData.data.role)
     }
 
     const actionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>()
-      .addComponents(channelInput)
+      .addComponents(roleInput)
     const modal = new ModalBuilder()
-      .setCustomId(SettingsCommandUtils.generateComponentId(id, 'welcomeChannel', 'modal'))
-      .setTitle('Welcome channel')
+      .setCustomId(SettingsCommandUtils.generateComponentId(id, 'welcomeRole', 'modal'))
+      .setTitle('Welcome role')
       .addComponents(actionRow)
 
     await interaction.showModal(modal)
   }
 
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string) {
-    const channelId = interaction.fields.getTextInputValue(SettingsCommandUtils.generateComponentId(id, 'welcomeChannel', 'input'))
+    const roleId = interaction.fields.getTextInputValue(SettingsCommandUtils.generateComponentId(id, 'welcomeRole', 'input'))
     const welcomeData = client.welcomeSettings.get(id)
 
-    welcomeData?.getWebhook(client, channelId)
+    welcomeData?.getRole(client, roleId, interaction)
 
     await SettingsCommandWelcome.initialMessage(client, interaction, id)
   }

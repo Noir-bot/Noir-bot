@@ -1,6 +1,7 @@
 import { Welcome } from '@prisma/client'
-import { ChannelType, TextChannel, Webhook } from 'discord.js'
+import { ChannelType, Interaction, Role, TextChannel, Webhook } from 'discord.js'
 import Colors from '../../../../../constants/Colors'
+import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
 
 type WelcomeSettingsData = Omit<Welcome, 'id'>
@@ -16,6 +17,7 @@ export default class WelcomeSettings {
       status: false,
       webhook: null,
       channel: null,
+      role: null,
       messages: {
         guild: {
           status: false,
@@ -89,6 +91,21 @@ export default class WelcomeSettings {
   public async getWebhook(client: NoirClient, channelId: string): Promise<Webhook | undefined> {
     const channel = client.channels.cache.get(channelId.trim())
 
+    if (channelId == Options.removeValue) {
+      if (!this.data.channel) return
+      if (!this.data.webhook) return
+
+      const channel = client.channels.cache.get(this.data.channel) as TextChannel
+      const webhooks = await channel.fetchWebhooks()
+
+      await webhooks.get(this.data.webhook)?.delete()
+
+      this.data.channel = null
+      this.data.webhook = null
+
+      return
+    }
+
     if (!channel) return
     if (channel.type != ChannelType.GuildText) return
 
@@ -147,6 +164,22 @@ export default class WelcomeSettings {
     return webhook
   }
 
+  public async getRole(client: NoirClient, roleId: string, interaction: Interaction): Promise<Role | undefined> {
+    const role = interaction.guild?.roles.cache.get(roleId)
+
+    if (roleId == Options.removeValue) {
+      this.data.role = null
+
+      return
+    }
+
+    if (!role) return
+
+    this.data.role = roleId
+
+    return role
+  }
+
   public async cacheData(client: NoirClient): Promise<void> {
     let welcomeData = await client.prisma.welcome.findFirst({
       where: {
@@ -166,9 +199,11 @@ export default class WelcomeSettings {
           guild: this.id
         },
         data: {
-          webhook: this.data.webhook,
           messages: this.data.messages,
-          status: this.data.status
+          webhook: this.data.webhook,
+          channel: this.data.channel,
+          status: this.data.status,
+          role: this.data.role
         }
       })
     }
