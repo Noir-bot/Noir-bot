@@ -32,7 +32,7 @@ export default class SettingsCommandWelcomeRole {
     const roleId = interaction.fields.getTextInputValue(SettingsCommandUtils.generateComponentId(id, 'welcomeRole', 'input'))
     const welcomeData = client.welcomeSettings.get(id)
 
-    welcomeData?.getRole(client, roleId, interaction)
+    welcomeData?.getRole(interaction, roleId)
 
     await SettingsCommandWelcome.initialMessage(client, interaction, id)
   }

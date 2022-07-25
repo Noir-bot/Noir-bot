@@ -1,5 +1,6 @@
 import { ButtonInteraction } from 'discord.js'
 import NoirClient from '../../../../../../structures/Client'
+import SettingsCommandWelcomeAuthor from '../components/SettingsCommandWelcomeAuthor'
 import SettingsCommandWelcome from '../SettingsCommandWelcome'
 import SettingsCommandWelcomeEditor from '../SettingsCommandWelcomeEditor'
 
@@ -59,6 +60,18 @@ export default class SettingsCommandWelcomeEditorResponses {
     else if (method.startsWith('welcomeEditorSelectedExample.')) {
       const type = method.split('.')[1]
       await SettingsCommandWelcomeEditor.editorMessage(client, interaction, id, type)
+    }
+
+    else if (method.startsWith('welcomeEditorAuthor:')) {
+      const type = method.split(':')[1]
+      await SettingsCommandWelcomeAuthor.request(client, interaction, id, type)
+    }
+  }
+
+  public static async modal(client: NoirClient, interaction: ButtonInteraction, parts: string[], method: string, id: string): Promise<void> {
+    if (method.startsWith('author:')) {
+      const type = method.split(':')[1]
+      await SettingsCommandWelcomeAuthor.response(client, interaction, id, type)
     }
   }
 }

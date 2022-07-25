@@ -1,9 +1,9 @@
 import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
+import EmbedConstructor from '../../../../collections/EmbedConstructor'
 import Colors from '../../../../constants/Colors'
 import Options from '../../../../constants/Options'
 import NoirClient from '../../../../structures/Client'
 import ChatCommand from '../../../../structures/command/ChatCommand'
-import EmbedConstructor from './collection/EmbedConstructor'
 import EmbedCommandComponents from './EmbedCommandComponents'
 import EmbedCommandUtils from './EmbedCommandUtils'
 

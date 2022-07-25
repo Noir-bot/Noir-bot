@@ -9,14 +9,14 @@ datasource db {
 
 model Premium {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  guild    String
+  guild    String   @unique
   status   Boolean  @default(false)
   expireAt DateTime @default(now())
 }
 
 model Logging {
   id     String        @id @default(auto()) @map("_id") @db.ObjectId
-  guild  String
+  guild  String        @unique
   status Boolean       @default(false)
   events LoggingEvents
 }
@@ -35,11 +35,11 @@ type LoggingEvents {
 
 model Welcome {
   id       String          @id @default(auto()) @map("_id") @db.ObjectId
-  guild    String
-  webhook  String?
-  channel  String?
-  role     String?
+  guild    String          @unique
   status   Boolean         @default(false)
+  role     String?
+  channel  String?
+  webhook  String?
   messages WelcomeMessages
 }
 
@@ -49,8 +49,8 @@ type WelcomeMessages {
 }
 
 type WelcomeDirectMessages {
-  status Boolean            @default(false)
-  join   WelcomeMessageData
+  status Boolean             @default(false)
+  join   WelcomeMessageData?
 }
 
 type WelcomeGuildMessages {
@@ -80,7 +80,7 @@ type WelcomeMessageEmbedData {
 }
 
 type WelcomeMessageEmbedFieldData {
-  id     String
+  id     Int
   name   String
   value  String
   inline Boolean @default(false)

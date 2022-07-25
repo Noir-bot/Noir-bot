@@ -1,6 +1,6 @@
 import { ChannelType, Collection, ColorResolvable, EmbedBuilder as DiscordEmbedBuilder, EmbedField, Interaction, TextChannel, Webhook } from 'discord.js'
-import Options from '../../../../../constants/Options'
-import NoirClient from '../../../../../structures/Client'
+import Options from '../constants/Options'
+import NoirClient from '../structures/Client'
 import EmbedConstructorUtils from './EmbedConstructorUtils'
 
 export default class EmbedConstructor {

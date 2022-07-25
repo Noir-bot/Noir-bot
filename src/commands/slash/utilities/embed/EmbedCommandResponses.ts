@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
+import EmbedConstructor from '../../../../collections/EmbedConstructor'
 import Colors from '../../../../constants/Colors'
 import NoirClient from '../../../../structures/Client'
-import EmbedConstructor from './collection/EmbedConstructor'
 import EmbedCommandAuthor from './components/EmbedCommandAuthor'
 import EmbedCommandEmbedSettings from './components/EmbedCommandEmbedSettings'
 import EmbedCommandFooter from './components/EmbedCommandFooter'

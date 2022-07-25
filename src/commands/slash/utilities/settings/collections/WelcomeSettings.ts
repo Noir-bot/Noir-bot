@@ -164,7 +164,7 @@ export default class WelcomeSettings {
     return webhook
   }
 
-  public async getRole(client: NoirClient, roleId: string, interaction: Interaction): Promise<Role | undefined> {
+  public async getRole(interaction: Interaction, roleId: string): Promise<Role | undefined> {
     const role = interaction.guild?.roles.cache.get(roleId)
 
     if (roleId == Options.removeValue) {

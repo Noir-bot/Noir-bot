@@ -1,7 +1,7 @@
 import { Interaction } from 'discord.js'
-import Colors from '../../../../../constants/Colors'
-import Options from '../../../../../constants/Options'
-import Patterns from '../../../../../constants/Patterns'
+import Colors from '../constants/Colors'
+import Options from '../constants/Options'
+import Patterns from '../constants/Patterns'
 
 export default class EmbedConstructorUtils {
   public static modifyValue(value?: string): string | undefined {
