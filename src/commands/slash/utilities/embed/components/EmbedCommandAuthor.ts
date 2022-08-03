@@ -5,7 +5,7 @@ import EmbedCommandUtils from '../EmbedCommandUtils'
 
 export default class EmbedCommandAuthor {
   public static async request(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
-    const messageData = client.embeds.get(id)
+    const messageData = client.embedConstructors.get(id)
 
     const authorInput = new TextInputBuilder()
       .setCustomId(EmbedCommandUtils.generateComponentId(id, 'author', 'input'))
@@ -42,7 +42,7 @@ export default class EmbedCommandAuthor {
   }
 
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
-    const messageData = client.embeds.get(id)
+    const messageData = client.embedConstructors.get(id)
 
     const authorInput = interaction.fields.getTextInputValue(EmbedCommandUtils.generateComponentId(id, 'author', 'input'))
     const authorImageInput = interaction.fields.getTextInputValue(EmbedCommandUtils.generateComponentId(id, 'authorImage', 'modal'))

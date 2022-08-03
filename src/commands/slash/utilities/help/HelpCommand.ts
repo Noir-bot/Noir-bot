@@ -2,7 +2,7 @@ import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteract
 import Colors from '../../../../constants/Colors'
 import Options from '../../../../constants/Options'
 import NoirClient from '../../../../structures/Client'
-import ChatCommand from '../../../../structures/command/ChatCommand'
+import ChatCommand from '../../../../structures/commands/ChatCommand'
 
 export default class HelpCommand extends ChatCommand {
   constructor(client: NoirClient,) {

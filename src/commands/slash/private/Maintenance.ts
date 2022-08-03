@@ -3,7 +3,7 @@ import { ActivityType, ChatInputCommandInteraction } from 'discord.js'
 import Colors from '../../../constants/Colors'
 import Options from '../../../constants/Options'
 import NoirClient from '../../../structures/Client'
-import ChatCommand from '../../../structures/command/ChatCommand'
+import ChatCommand from '../../../structures/commands/ChatCommand'
 
 export default class MaintenanceCommand extends ChatCommand {
   constructor(client: NoirClient) {

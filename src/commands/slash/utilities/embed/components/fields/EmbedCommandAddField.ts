@@ -52,7 +52,7 @@ export default class EmbedCommandAddField {
     const inline = interaction.fields.getTextInputValue(EmbedCommandUtils.generateComponentId(id, 'fieldInline', 'input')).toLowerCase()
 
     if (name && value && inline || name && value) {
-      const messageData = client.embeds.get(id)
+      const messageData = client.embedConstructors.get(id)
       const fieldId = messageData?.data.embed.fields.size ? messageData.data.embed.fields.size + 1 : 1
       messageData?.addEmbedField({ name: name, value: value, inline: inline == 'true' ? true : false, id: fieldId })
     }

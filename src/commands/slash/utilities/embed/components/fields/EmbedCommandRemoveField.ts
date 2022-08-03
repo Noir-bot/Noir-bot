@@ -7,7 +7,7 @@ import EmbedCommandUtils from '../../EmbedCommandUtils'
 
 export default class EmbedCommandRemoveField {
   public static async request(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
-    const messageData = client.embeds.get(id)
+    const messageData = client.embedConstructors.get(id)
 
     if (!messageData?.data.embed.fields?.size) return
 
@@ -47,7 +47,7 @@ export default class EmbedCommandRemoveField {
     const fields = interaction.values
 
     fields.map(field => {
-      client.embeds.get(id)?.removeEmbedField(parseInt(field))
+      client.embedConstructors.get(id)?.removeEmbedField(parseInt(field))
     })
 
     await EmbedCommand.initialMessage(client, interaction, id)

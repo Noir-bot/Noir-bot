@@ -35,4 +35,8 @@ export default class Utils {
 
     return duration
   }
+
+  public premiumStatus(guild: string) {
+    return this.client.premium.get(guild)?.status ?? false
+  }
 }

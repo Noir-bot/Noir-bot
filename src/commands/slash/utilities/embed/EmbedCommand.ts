@@ -3,7 +3,7 @@ import EmbedConstructor from '../../../../collections/EmbedConstructor'
 import Colors from '../../../../constants/Colors'
 import Options from '../../../../constants/Options'
 import NoirClient from '../../../../structures/Client'
-import ChatCommand from '../../../../structures/command/ChatCommand'
+import ChatCommand from '../../../../structures/commands/ChatCommand'
 import EmbedCommandComponents from './EmbedCommandComponents'
 import EmbedCommandUtils from './EmbedCommandUtils'
 
@@ -32,8 +32,8 @@ export default class EmbedCommand extends ChatCommand {
   public async execute(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {
     const id = `${interaction.user.id}${interaction.guild?.id}`
 
-    if (!client.embeds.get(id)) {
-      client.embeds.set(id, new EmbedConstructor(id))
+    if (!client.embedConstructors.get(id)) {
+      client.embedConstructors.set(id, new EmbedConstructor(id))
     }
 
     await EmbedCommand.initialMessage(client, interaction, id)
@@ -41,7 +41,7 @@ export default class EmbedCommand extends ChatCommand {
 
   public static async initialMessage(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction | ModalMessageModalSubmitInteraction | SelectMenuInteraction, id: string): Promise<void> {
     const premiumData = EmbedCommandUtils.getPremiumStatus(client, interaction.guild?.id)
-    const messageData = client.embeds.get(id)
+    const messageData = client.embedConstructors.get(id)
     const fieldsLength = messageData?.data.embed.fields?.size ?? 0
 
     const buttons = [

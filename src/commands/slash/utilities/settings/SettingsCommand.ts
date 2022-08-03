@@ -2,10 +2,7 @@ import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteract
 import Colors from '../../../../constants/Colors'
 import Options from '../../../../constants/Options'
 import NoirClient from '../../../../structures/Client'
-import ChatCommand from '../../../../structures/command/ChatCommand'
-import SettingsComponents from './SettingsCommandComponents'
-
-import SettingsUtils from './SettingsCommandUtils'
+import ChatCommand from '../../../../structures/commands/ChatCommand'
 
 export default class SettingsCommand extends ChatCommand {
   constructor(client: NoirClient) {
@@ -20,8 +17,6 @@ export default class SettingsCommand extends ChatCommand {
       {
         name: 'settings',
         description: 'Setup Noir',
-        nameLocalizations: { ru: 'настройки' },
-        descriptionLocalizations: { ru: 'Настроить Noir' },
         defaultMemberPermissions: ['ManageGuild', 'ManageChannels', 'ManageRoles'],
         type: ApplicationCommandType.ChatInput,
         dmPermission: false
@@ -30,9 +25,9 @@ export default class SettingsCommand extends ChatCommand {
   }
 
   public async execute(client: NoirClient, interaction: ChatInputCommandInteraction): Promise<void> {
-    const id = interaction.guild?.id
+    const guildId = interaction.guild?.id
 
-    if (!id) {
+    if (!guildId) {
       await client.reply.reply({
         interaction: interaction,
         color: Colors.warning,
@@ -43,23 +38,23 @@ export default class SettingsCommand extends ChatCommand {
       return
     }
 
-    await SettingsCommand.initialMessage(client, interaction, id)
+    await SettingsCommand.initialMessage(client, interaction, guildId)
   }
 
   public static async initialMessage(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction, id: string) {
     const buttons = [
       new ButtonBuilder()
-        .setCustomId(SettingsUtils.generateComponentId(id, 'welcome', 'button'))
-        .setLabel('Welcome settings')
-        .setStyle(SettingsComponents.defaultButtonStyle),
+        .setCustomId(client.componentsUtils.generateId('settings', id, 'welcome', 'button'))
+        .setLabel('Welcome')
+        .setStyle(client.componentsUtils.defaultStyle),
       new ButtonBuilder()
-        .setCustomId(SettingsUtils.generateComponentId(id, 'logging', 'button'))
-        .setLabel('Logging settings')
-        .setStyle(SettingsComponents.defaultButtonStyle),
+        .setCustomId(client.componentsUtils.generateId('settings', id, 'logging', 'button'))
+        .setLabel('Logging')
+        .setStyle(client.componentsUtils.defaultStyle),
       new ButtonBuilder()
-        .setCustomId(SettingsUtils.generateComponentId(id, 'automod', 'button'))
-        .setLabel('Automod settings')
-        .setStyle(SettingsComponents.defaultButtonStyle)
+        .setCustomId(client.componentsUtils.generateId('settings', id, 'automod', 'button'))
+        .setLabel('Auto Mod')
+        .setStyle(client.componentsUtils.defaultStyle)
     ]
 
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -70,7 +65,7 @@ export default class SettingsCommand extends ChatCommand {
       color: Colors.primary,
       author: 'Noir settings',
       authorImage: Options.clientAvatar,
-      description: `Setup Noir in the best way. Use buttons bellow to navigate, for more information or if you have question be sure to join our [support server](${Options.guildInvite})`,
+      description: `Use buttons bellow to navigate and configure Noir in the best way for your server. If you have any questions be sure to join our [support server](${Options.guildInvite})`,
       components: [actionRow],
       ephemeral: true,
     })

@@ -62,7 +62,7 @@ export default class EmbedCommandResponses {
   }
 
   public static async cancel(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
-    client.embeds.delete(id)
+    client.embedConstructors.delete(id)
 
     await client.reply.reply({
       interaction: interaction,
@@ -75,14 +75,14 @@ export default class EmbedCommandResponses {
   public static async reset(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
     const messageData = new EmbedConstructor(id)
 
-    client.embeds.delete(id)
-    client.embeds.set(id, messageData)
+    client.embedConstructors.delete(id)
+    client.embedConstructors.set(id, messageData)
 
     await EmbedCommand.initialMessage(client, interaction, id)
   }
 
   public static async send(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
-    const messageData = client.embeds.get(id)
+    const messageData = client.embedConstructors.get(id)
     const embedData = messageData?.build(client, interaction).data
     const embedStatus = messageData?.data.embed.status
     const message = messageData?.data.message
@@ -124,7 +124,7 @@ export default class EmbedCommandResponses {
   }
 
   public static async example(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
-    const messageData = client.embeds.get(id)
+    const messageData = client.embedConstructors.get(id)
     const embedData = messageData?.build(client, interaction).data
     const embedStatus = messageData?.data.embed.status
     const message = messageData?.data.message

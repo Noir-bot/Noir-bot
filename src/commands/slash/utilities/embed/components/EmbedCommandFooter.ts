@@ -5,7 +5,7 @@ import EmbedCommandUtils from '../EmbedCommandUtils'
 
 export default class EmbedCommandFooter {
   public static async request(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
-    const messageData = client.embeds.get(id)
+    const messageData = client.embedConstructors.get(id)
 
     const footerInput = new TextInputBuilder()
       .setCustomId(EmbedCommandUtils.generateComponentId(id, 'footer', 'input'))
@@ -41,7 +41,7 @@ export default class EmbedCommandFooter {
   }
 
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
-    const messageData = client.embeds.get(id)
+    const messageData = client.embedConstructors.get(id)
 
     const footerInput = interaction.fields.getTextInputValue(EmbedCommandUtils.generateComponentId(id, 'footer', 'input'))
     const footerImageInput = interaction.fields.getTextInputValue(EmbedCommandUtils.generateComponentId(id, 'footerImage', 'modal'))

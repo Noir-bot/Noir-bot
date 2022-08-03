@@ -6,7 +6,7 @@ import EmbedCommandComponents from '../../EmbedCommandComponents'
 import EmbedCommandUtils from '../../EmbedCommandUtils'
 export default class EmbedCommandEditField {
   public static async listRequest(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
-    const messageData = client.embeds.get(id)
+    const messageData = client.embedConstructors.get(id)
 
     if (!messageData?.data.embed.fields?.size) return
 
@@ -42,7 +42,7 @@ export default class EmbedCommandEditField {
   }
 
   public static async request(client: NoirClient, interaction: SelectMenuInteraction, id: string, fieldId: number): Promise<void> {
-    const message = client.embeds.get(id)
+    const message = client.embedConstructors.get(id)
 
     const nameInput = new TextInputBuilder()
       .setCustomId(EmbedCommandUtils.generateComponentId(id, 'fieldName', 'input'))
@@ -94,7 +94,7 @@ export default class EmbedCommandEditField {
     const inline = interaction.fields.getTextInputValue(EmbedCommandUtils.generateComponentId(id, 'fieldInline', 'input')).toLowerCase()
 
     if (name && value && inline == 'true' || name && value) {
-      client.embeds.get(id)?.editEmbedField({ name: name, value: value, inline: inline == 'true' ? true : false, id: fieldId })
+      client.embedConstructors.get(id)?.editEmbedField({ name: name, value: value, inline: inline == 'true' ? true : false, id: fieldId })
     }
 
     await EmbedCommand.initialMessage(client, interaction, id)

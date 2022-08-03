@@ -4,7 +4,7 @@ import glob from 'glob'
 import { promisify } from 'util'
 import Options from '../../constants/Options'
 import NoirClient from '../../structures/Client'
-import Command from '../../structures/command/Command'
+import Command from '../../structures/commands/Command'
 import Event from '../../structures/Event'
 
 export default class ReadyEvent extends Event {
@@ -30,7 +30,7 @@ export default class ReadyEvent extends Event {
     // client.guilds.cache.get(Options.guildId)?.commands.set([])
     // client.application?.commands.set([])
 
-    commandsFiles.map(async (commandFile: string) => {
+    commandsFiles.forEach(async (commandFile: string) => {
       try {
         const file = await import(commandFile)
         const command = new file.default(client) as Command

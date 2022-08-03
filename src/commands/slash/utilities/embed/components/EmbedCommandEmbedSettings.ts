@@ -5,7 +5,7 @@ import EmbedCommandUtils from '../EmbedCommandUtils'
 
 export default class EmbedCommandEmbedSettings {
   public static async request(client: NoirClient, interaction: ButtonInteraction, id: string): Promise<void> {
-    const messageData = client.embeds.get(id)
+    const messageData = client.embedConstructors.get(id)
 
     const colorInput = new TextInputBuilder()
       .setCustomId(EmbedCommandUtils.generateComponentId(id, 'color', 'input'))
@@ -75,7 +75,7 @@ export default class EmbedCommandEmbedSettings {
   }
 
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string): Promise<void> {
-    const messageData = client.embeds.get(id)
+    const messageData = client.embedConstructors.get(id)
 
     const colorInput = interaction.fields.getTextInputValue(EmbedCommandUtils.generateComponentId(id, 'color', 'input'))
     const descriptionInput = interaction.fields.getTextInputValue(EmbedCommandUtils.generateComponentId(id, 'description', 'input'))

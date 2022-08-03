@@ -14,30 +14,11 @@ model Premium {
   expireAt DateTime @default(now())
 }
 
-model Logging {
-  id     String        @id @default(auto()) @map("_id") @db.ObjectId
-  guild  String        @unique
-  status Boolean       @default(false)
-  events LoggingEvents
-}
-
-type LoggingEvents {
-  status        Boolean @default(false)
-  restriction   Boolean @default(true)
-  warning       Boolean @default(true)
-  kick          Boolean @default(true)
-  ban           Boolean @default(true)
-  createRole    Boolean @default(true)
-  deleteRole    Boolean @default(true)
-  updateMessage Boolean @default(true)
-  deleteMessage Boolean @default(true)
-}
-
 model Welcome {
   id       String          @id @default(auto()) @map("_id") @db.ObjectId
   guild    String          @unique
   status   Boolean         @default(false)
-  role     String?
+  roles    String[]
   channel  String?
   webhook  String?
   messages WelcomeMessages
@@ -56,7 +37,7 @@ type WelcomeDirectMessages {
 type WelcomeGuildMessages {
   status Boolean            @default(false)
   join   WelcomeMessageData
-  leave  WelcomeMessageData
+  left   WelcomeMessageData
 }
 
 type WelcomeMessageData {
