@@ -1,4 +1,10 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  MessageActionRowComponentBuilder,
+  ModalMessageModalSubmitInteraction
+} from 'discord.js'
 import Colors from '../../../../../constants/Colors'
 import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
@@ -11,7 +17,7 @@ export default class SettingsCommandWelcome {
     if (!welcomeData) {
       client.welcomeSettings.set(id, new SettingsCommandWelcomeCollection(id))
       welcomeData = client.welcomeSettings.get(id)
-      await welcomeData?.requestData(client)
+      await welcomeData?.cacheData(client)
     }
 
     const buttons = [
@@ -21,7 +27,7 @@ export default class SettingsCommandWelcome {
           .setLabel(`${welcomeData?.data.status ? 'Disable' : 'Enable'} system`)
           .setStyle(client.componentsUtils.generateStyle(welcomeData?.data.status)),
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeMessages', 'button'))
+          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeEditor', 'button'))
           .setLabel('Message setup')
           .setStyle(client.componentsUtils.defaultStyle)
           .setDisabled(!welcomeData?.data.status),
@@ -32,23 +38,14 @@ export default class SettingsCommandWelcome {
           .setDisabled(!welcomeData?.data.status),
         new ButtonBuilder()
           .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeRoles', 'button'))
-          .setLabel(`${welcomeData?.data.roles[0] ? 'Add or remove' : 'Add'} welcome roles`)
+          .setLabel(`${welcomeData?.data.roles[0] ? 'Edit' : 'Add'} welcome roles`)
           .setStyle(client.componentsUtils.generateStyle(welcomeData?.data.roles[0]))
           .setDisabled(!welcomeData?.data.status),
       ],
       [
-        new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeBack', 'button'))
-          .setLabel('Back to settings')
-          .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeSave', 'button'))
-          .setLabel('Save welcome settings')
-          .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeReset', 'button'))
-          .setLabel('Reset to last settings')
-          .setStyle(ButtonStyle.Danger),
+        client.componentsUtils.generateBack('settings', id, 'welcomeBack'),
+        client.componentsUtils.generateSave('settings', id, 'welcomeSave'),
+        client.componentsUtils.generateRestore('settings', id, 'welcomeRestore')
       ]
     ]
 

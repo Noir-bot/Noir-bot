@@ -1,6 +1,6 @@
 import { ButtonInteraction, ModalMessageModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
 import NoirClient from '../../../../../structures/Client'
-import SettingsCommandWelcomeResponses from './SettingsCommandWelcomeResponse'
+import SettingsCommandWelcomeResponses from './SettingsCommandWelcomeResponses'
 
 export default class SettingsCommandResponses {
   public static async button(client: NoirClient, interaction: ButtonInteraction): Promise<void> {

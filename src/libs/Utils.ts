@@ -1,5 +1,9 @@
 import { Duration, DurationFormatter } from '@sapphire/time-utilities'
+import { Interaction } from 'discord.js'
 import { promisify } from 'util'
+import Colors from '../constants/Colors'
+import Options from '../constants/Options'
+import Patterns from '../constants/Patterns'
 import NoirClient from '../structures/Client'
 
 export default class Utils {
@@ -38,5 +42,67 @@ export default class Utils {
 
   public premiumStatus(guild: string) {
     return this.client.premium.get(guild)?.status ?? false
+  }
+
+  public formatValue(value?: string) {
+    return value == Options.removeValue ? undefined : value
+  }
+
+  public formatBoolean(boolean?: string) {
+    return boolean?.toLowerCase() == 'true' ? true : false
+  }
+
+  public formatColor(color?: string) {
+    if (color) {
+      if (Patterns.color.test(color)) {
+        return color
+      }
+
+      color = color.toLowerCase()
+
+      if (color == 'green') {
+        return Colors.primaryHex
+      } else if (color == 'gray') {
+        return Colors.secondaryHex
+      } else if (color == 'yellow') {
+        return Colors.tertiaryHex
+      } else if (color == 'cyan') {
+        return Colors.successHex
+      } else if (color == 'red') {
+        return Colors.warningHex
+      } else if (color == 'embed') {
+        return Colors.embedHex
+      }
+    }
+
+    return undefined
+  }
+
+  public formatImage(interaction: Interaction, image?: string) {
+    if (image) {
+      if (Patterns.url.test(image)) {
+        return image
+      }
+
+      image = image.toLowerCase()
+
+      if (image == 'client') {
+        return Options.clientAvatar
+      } else if (image == 'server') {
+        const guildIcon = interaction.guild?.iconURL()
+
+        if (guildIcon) {
+          return guildIcon
+        }
+      } else if (image == 'user') {
+        const userAvatar = interaction.user.avatarURL()
+
+        if (userAvatar) {
+          return userAvatar
+        }
+      }
+    }
+
+    return undefined
   }
 }

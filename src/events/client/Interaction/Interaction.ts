@@ -43,7 +43,7 @@ export default class InteractionEvent extends Event {
       client.premium.set(interaction.guild.id, premiumData)
     }
 
-    if (premiumData.expired() && premiumData.status == true) {
+    if (premiumData.expired() && premiumData.status) {
       await client.prisma.premium.updateMany({
         where: { guild: interaction.guild.id },
         data: { status: false }

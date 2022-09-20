@@ -1,4 +1,16 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, SelectMenuBuilder, SelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  MessageActionRowComponentBuilder,
+  ModalActionRowComponentBuilder,
+  ModalBuilder,
+  ModalMessageModalSubmitInteraction,
+  SelectMenuBuilder,
+  SelectMenuInteraction,
+  TextInputBuilder,
+  TextInputStyle
+} from 'discord.js'
 import Colors from '../../../../../constants/Colors'
 import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
@@ -21,14 +33,9 @@ export default class SettingsCommandWelcomeRoles {
           .setDisabled(!welcomeData?.data.status || welcomeData.data.roles.length < 1),
       ],
       [
-        new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcome', 'button'))
-          .setLabel('Back to welcome settings')
-          .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeSave', 'button'))
-          .setLabel('Save welcome roles settings')
-          .setStyle(ButtonStyle.Primary)
+        client.componentsUtils.generateBack('settings', id, 'welcome'),
+        client.componentsUtils.generateSave('settings', id, 'welcomeSave.welcomeRoles'),
+        client.componentsUtils.generateRestore('settings', id, 'welcomeRestore.welcomeRoles')
       ]
     ]
 
@@ -90,10 +97,7 @@ export default class SettingsCommandWelcomeRoles {
     if (!welcomeData) return
 
     const buttons = [
-      new ButtonBuilder()
-        .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeRoles', 'button'))
-        .setLabel('Back to welcome role settings')
-        .setStyle(ButtonStyle.Primary)
+      client.componentsUtils.generateBack('settings', id, 'welcome.welcomeRoles')
     ]
 
     const selectMenu = new SelectMenuBuilder()

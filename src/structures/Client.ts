@@ -4,9 +4,10 @@ import glob from 'glob'
 import { promisify } from 'util'
 import EmbedConstructor from '../collections/EmbedConstructor'
 import Premium from '../collections/Premium'
-import SettingsCommandWelcomeCollection from '../commands/slash/utilities/settings/collections/SettingsCommandWelcomeCollection'
+import SettingsCommandWelcomeCollection
+  from '../commands/slash/utilities/settings/collections/SettingsCommandWelcomeCollection'
 import Options from '../constants/Options'
-import ComponentUtils from '../libs/ComponentUtils'
+import ComponentsUtils from '../libs/ComponentsUtils'
 import Reply from '../libs/Reply'
 import Utils from '../libs/Utils'
 import Command from './commands/Command'
@@ -18,7 +19,7 @@ export default class NoirClient extends Client {
   public commands = new Collection<string, Command>()
   public premium = new Collection<string, Premium>()
   public events = new Collection<string, Event>()
-  public componentsUtils = new ComponentUtils(this)
+  public componentsUtils = new ComponentsUtils(this)
   public utils = new Utils(this)
   public reply = new Reply(this)
   public prisma = new PrismaClient()
