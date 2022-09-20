@@ -48,6 +48,10 @@ export default class Utils {
     return value == Options.removeValue ? undefined : value
   }
 
+  public formatURL(url: string) {
+    return Patterns.url.test(url) ? url : undefined
+  }
+
   public formatBoolean(boolean?: string) {
     return boolean?.toLowerCase() == 'true' ? true : false
   }
@@ -93,12 +97,6 @@ export default class Utils {
 
         if (guildIcon) {
           return guildIcon
-        }
-      } else if (image == 'user') {
-        const userAvatar = interaction.user.avatarURL()
-
-        if (userAvatar) {
-          return userAvatar
         }
       }
     }

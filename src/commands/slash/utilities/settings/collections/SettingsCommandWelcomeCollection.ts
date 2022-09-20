@@ -94,7 +94,6 @@ export default class SettingsCommandWelcomeCollection {
             message: welcomeData.messages.guild.join.message ?? undefined,
             embed: {
               url: welcomeData.messages.guild.join?.embed.url ?? undefined,
-              rawUrl: welcomeData.messages.guild.join?.embed.rawUrl ?? undefined,
               color: welcomeData.messages.guild.join?.embed.color ?? undefined,
               rawColor: welcomeData.messages.guild.join?.embed.rawColor ?? undefined,
               title: welcomeData.messages.guild.join?.embed.title ?? undefined,
@@ -117,7 +116,6 @@ export default class SettingsCommandWelcomeCollection {
             message: welcomeData.messages.guild.left.message ?? undefined,
             embed: {
               url: welcomeData.messages.guild.left?.embed.url ?? undefined,
-              rawUrl: welcomeData.messages.guild.left?.embed.rawUrl ?? undefined,
               color: welcomeData.messages.guild.left?.embed.color ?? undefined,
               rawColor: welcomeData.messages.guild.left?.embed.rawColor ?? undefined,
               title: welcomeData.messages.guild.left?.embed.title ?? undefined,
@@ -143,7 +141,6 @@ export default class SettingsCommandWelcomeCollection {
             message: welcomeData.messages.direct.join?.message ?? undefined,
             embed: {
               url: welcomeData.messages.direct.join?.embed.url ?? undefined,
-              rawUrl: welcomeData.messages.direct.join?.embed.rawUrl ?? undefined,
               color: welcomeData.messages.direct.join?.embed.color ?? undefined,
               rawColor: welcomeData.messages.direct.join?.embed.rawColor ?? undefined,
               title: welcomeData.messages.direct.join?.embed.title ?? undefined,
@@ -272,7 +269,6 @@ interface WelcomeCollectionData {
         message?: string
         embed: {
           url?: string
-          rawUrl?: string
           color?: string
           rawColor?: string
           title?: string
@@ -300,7 +296,6 @@ interface WelcomeCollectionData {
         message?: string
         embed: {
           url?: string
-          rawUrl?: string
           color?: string
           rawColor?: string
           title?: string
@@ -331,7 +326,6 @@ interface WelcomeCollectionData {
         message?: string
         embed: {
           url?: string
-          rawUrl?: string
           color?: string
           rawColor?: string
           title?: string

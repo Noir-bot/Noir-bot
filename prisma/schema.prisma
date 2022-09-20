@@ -47,7 +47,6 @@ type WelcomeMessageData {
 
 type WelcomeMessageEmbedData {
   url            String?
-  rawUrl         String?
   color          String?
   rawColor       String?
   title          String?

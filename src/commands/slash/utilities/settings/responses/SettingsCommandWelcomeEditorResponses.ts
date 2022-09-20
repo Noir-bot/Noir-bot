@@ -1,7 +1,9 @@
 import { ButtonInteraction, ModalMessageModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
 import NoirClient from '../../../../../structures/Client'
 import SettingsCommandWelcomeEditor from '../welcome/SettingsCommandWelcomeEditor'
+import SettingsCommandWelcomeEditorAuthor from './editor/SettingsCommandWelcomeEditorAuthor'
 import SettingsCommandWelcomeEditorSettings from './editor/SettingsCommandWelcomeEditorSettings'
+import SettingsCommandWelcomeEditorTitle from './editor/SettingsCommandWelcomeEditorTitle'
 
 export default class SettingsCommandWelcomeEditorResponses {
 	public static async button(client: NoirClient, interaction: ButtonInteraction, parts: string[]) {
@@ -25,6 +27,10 @@ export default class SettingsCommandWelcomeEditorResponses {
 			}
 		} else if (method.startsWith('welcomeEditorSettings')) {
 			await SettingsCommandWelcomeEditorSettings.request(client, interaction, id, messageType)
+		} else if (method.startsWith('welcomeEditorAuthor')) {
+			await SettingsCommandWelcomeEditorAuthor.request(client, interaction, id, messageType)
+		} else if (method.startsWith('welcomeEditorTitle')) {
+			await SettingsCommandWelcomeEditorTitle.request(client, interaction, id, messageType)
 		}
 	}
 
@@ -48,6 +54,10 @@ export default class SettingsCommandWelcomeEditorResponses {
 
 		if (method.startsWith('welcomeEditorSettings')) {
 			await SettingsCommandWelcomeEditorSettings.response(client, interaction, id, messageType)
+		} else if (method.startsWith('welcomeEditorAuthor')) {
+			await SettingsCommandWelcomeEditorAuthor.response(client, interaction, id, messageType)
+		} else if (method.startsWith('welcomeEditorTitle')) {
+			await SettingsCommandWelcomeEditorTitle.response(client, interaction, id, messageType)
 		}
 	}
 }
