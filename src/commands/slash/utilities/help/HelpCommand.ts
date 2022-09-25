@@ -44,8 +44,7 @@ export default class HelpCommand extends ChatCommand {
       author: 'Help command',
       authorImage: Options.clientAvatar,
       description: `Hey there, if you have any problems or questions contact our support team. Be sure to join [support server](${Options.guildInvite})`,
-      components: [actionRow],
-      fetch: true
+      components: [actionRow]
     })
   }
 

@@ -14,14 +14,57 @@ model Premium {
   expireAt DateTime @default(now())
 }
 
+model Statistics {
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  status       Boolean         @default(false)
+  commandsUsed Int             @default(0)
+  cases        StatisticsCases
+}
+
+type StatisticsCases {
+  overall      Int @default(0)
+  warnings     Int @default(0)
+  restrictions Int @default(0)
+  kicks        Int @default(0)
+  bans         Int @default(0)
+  softbans     Int @default(0)
+  tempbans     Int @default(0)
+}
+
+model Moderation {
+  id    String          @id @default(auto()) @map("_id") @db.ObjectId
+  guild String          @unique
+  logs  ModerationLogs
+  rules ModerationRules
+}
+
+type ModerationLogs {
+  status           Boolean @default(false)
+  webhook          String?
+  rawWebhookAvatar String?
+}
+
+type ModerationRules {
+  status Boolean          @default(false)
+  rules  ModerationRule[]
+}
+
+type ModerationRule {
+  id       Int
+  type     String
+  quantity Int
+  duration String?
+}
+
 model Welcome {
-  id       String          @id @default(auto()) @map("_id") @db.ObjectId
-  guild    String          @unique
-  status   Boolean         @default(false)
-  roles    String[]
-  channel  String?
-  webhook  String?
-  messages WelcomeMessages
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  guild        String          @unique
+  status       Boolean         @default(false)
+  restoreRoles Boolean         @default(false)
+  roles        String[]
+  channel      String?
+  webhook      String?
+  messages     WelcomeMessages
 }
 
 type WelcomeMessages {

@@ -4,8 +4,8 @@ import glob from 'glob'
 import { promisify } from 'util'
 import EmbedConstructor from '../collections/EmbedConstructor'
 import Premium from '../collections/Premium'
-import SettingsCommandWelcomeCollection
-  from '../commands/slash/utilities/settings/collections/SettingsCommandWelcomeCollection'
+import ModerationCollection from '../commands/slash/utilities/settings/collections/ModerationCollection'
+import WelcomeSettingsCollection from '../commands/slash/utilities/settings/collections/WelcomeCollection'
 import Options from '../constants/Options'
 import ComponentsUtils from '../libs/ComponentsUtils'
 import Reply from '../libs/Reply'
@@ -14,7 +14,8 @@ import Command from './commands/Command'
 import Event from './Event'
 
 export default class NoirClient extends Client {
-  public welcomeSettings = new Collection<string, SettingsCommandWelcomeCollection>()
+  public welcomeSettings = new Collection<string, WelcomeSettingsCollection>()
+  public moderationSettings = new Collection<string, ModerationCollection>()
   public embedConstructors = new Collection<string, EmbedConstructor>()
   public commands = new Collection<string, Command>()
   public premium = new Collection<string, Premium>()
