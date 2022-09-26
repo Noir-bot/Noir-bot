@@ -57,14 +57,14 @@ type ModerationRule {
 }
 
 model Welcome {
-  id           String          @id @default(auto()) @map("_id") @db.ObjectId
-  guild        String          @unique
-  status       Boolean         @default(false)
-  restoreRoles Boolean         @default(false)
-  roles        String[]
-  channel      String?
-  webhook      String?
-  messages     WelcomeMessages
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  guild            String          @unique
+  status           Boolean         @default(false)
+  restoreRoles     Boolean         @default(false)
+  roles            String[]
+  webhook          String?
+  rawWebhookAvatar String?
+  messages         WelcomeMessages
 }
 
 type WelcomeMessages {

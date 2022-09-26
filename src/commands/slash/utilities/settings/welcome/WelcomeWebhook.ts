@@ -12,19 +12,14 @@ export default class WelcomeWebhook {
       [
         new ButtonBuilder()
           .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookChannel', 'button'))
-          .setLabel(`${welcomeData?.data.channel ? 'Change' : 'Set'} welcome channel`)
-          .setStyle(client.componentsUtils.generateStyle(welcomeData?.data.channel))
+          .setLabel(`${welcomeData?.data.webhook ? 'Change' : 'Set'} welcome channel`)
+          .setStyle(client.componentsUtils.generateStyle(welcomeData?.data.webhook))
           .setDisabled(!welcomeData?.data.status),
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'button'))
-          .setLabel('Change webhook avatar')
+          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookEdit', 'button'))
+          .setLabel('Edit webhook settings')
           .setStyle(client.componentsUtils.defaultStyle)
-          .setDisabled(!welcomeData?.data.status || !welcomeWebhook),
-        new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookUsername', 'button'))
-          .setLabel('Change webhook username')
-          .setStyle(client.componentsUtils.defaultStyle)
-          .setDisabled(!welcomeData?.data.status || !welcomeWebhook)
+          .setDisabled(!welcomeData?.data.status || !welcomeData.getWebhook(client) || !welcomeWebhook)
       ],
       [
         client.componentsUtils.generateBack('settings', id, 'welcomeBack'),
@@ -51,11 +46,13 @@ export default class WelcomeWebhook {
 
   public static async channelRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
     const welcomeData = client.welcomeSettings.get(id)
+    const webhook = await welcomeData?.getWebhook(client)
 
     const channelInput = new TextInputBuilder()
       .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookChannel', 'input'))
       .setLabel('Channel id')
-      .setPlaceholder(`Enter the channel id to ${welcomeData?.data.channel ? 'change' : 'add'}`)
+      .setPlaceholder('Enter the channel id')
+      .setValue(webhook?.channelId ?? '')
       .setStyle(TextInputStyle.Short)
       .setRequired(true)
 
@@ -63,125 +60,97 @@ export default class WelcomeWebhook {
       .addComponents(channelInput)
     const modal = new ModalBuilder()
       .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookChannel', 'modal'))
-      .setTitle('Welcome channel settings')
+      .setTitle('Welcome settings')
       .addComponents(actionRow)
 
     await interaction.showModal(modal)
   }
 
-  public static async avatarRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
+  public static async editRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
     const welcomeData = client.welcomeSettings.get(id)
+    const webhook = await welcomeData?.getWebhook(client)
 
-    const channelInput = new TextInputBuilder()
+    const webhookNameInput = new TextInputBuilder()
+      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookName', 'input'))
+      .setLabel('Webhook name')
+      .setPlaceholder('Enter new webhook name')
+      .setValue(webhook?.name ?? '')
+      .setStyle(TextInputStyle.Short)
+      .setRequired(false)
+    const webhookAvatarInput = new TextInputBuilder()
       .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'input'))
-      .setLabel('Avatar variable')
-      .setPlaceholder(`Image URL or server, user, client`)
+      .setLabel('Webhook avatar')
+      .setPlaceholder('Enter new webhook avatar URL or use variables')
+      .setValue(welcomeData?.data.rawWebhookAvatar ?? '')
       .setStyle(TextInputStyle.Short)
-      .setRequired(true)
+      .setRequired(false)
 
-    const actionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>()
-      .addComponents(channelInput)
+    const actionRows = [
+      new ActionRowBuilder<ModalActionRowComponentBuilder>()
+        .addComponents(webhookNameInput),
+      new ActionRowBuilder<ModalActionRowComponentBuilder>()
+        .addComponents(webhookAvatarInput)
+    ]
     const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'modal'))
-      .setTitle('Welcome webhook avatar settings')
-      .addComponents(actionRow)
-
-    await interaction.showModal(modal)
-  }
-
-  public static async usernameRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
-    const welcomeData = client.welcomeSettings.get(id)
-
-    const channelInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookUsername', 'input'))
-      .setLabel('Username]')
-      .setPlaceholder(`Image URL or server, user, client`)
-      .setStyle(TextInputStyle.Short)
-      .setRequired(true)
-
-    const actionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>()
-      .addComponents(channelInput)
-    const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookUsername', 'modal'))
-      .setTitle('Welcome webhook avatar settings')
-      .addComponents(actionRow)
+      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhookEdit', 'modal'))
+      .setTitle('Welcome webhook editor')
+      .addComponents(actionRows)
 
     await interaction.showModal(modal)
   }
 
   public static async channelResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string) {
     const welcomeData = client.welcomeSettings.get(id)
-    const newChannel = client.channels.cache.get(interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeWebhookChannel', 'input')))
+    const channelId = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeWebhookChannel', 'input'))
 
-    if (!newChannel) return
-    if (newChannel?.type != ChannelType.GuildText) return
+    if (!welcomeData) return
+    if (!channelId) return
 
-    const oldChannel = client.channels.cache.get(welcomeData?.data.channel ?? '') as TextChannel
+    const channel = client.channels.cache.get(channelId) as TextChannel
 
-    if (newChannel == oldChannel) return
+    if (!channel) return
+    if (channel.type != ChannelType.GuildText) return
 
-    if (oldChannel) {
-      const oldWebhook = (await oldChannel.fetchWebhooks()).get(welcomeData?.data.webhook ?? '')
+    const webhook = await welcomeData.getWebhook(client)
 
-      if (oldWebhook) {
-        const newWebhook = await oldWebhook.edit({
-          channel: newChannel.id
-        })
-
-        if (!welcomeData) return
-
-        welcomeData.data.webhook = newWebhook.id
-        welcomeData.data.channel = newChannel.id
-      } else {
-        const newWebhook = await newChannel.createWebhook({
-          name: 'Noir welcome',
-          avatar: Options.clientAvatar
-        })
-
-        if (!welcomeData) return
-
-        welcomeData.data.webhook = newWebhook.id
-        welcomeData.data.channel = newChannel.id
-      }
-    } else {
-      const newWebhook = await newChannel.createWebhook({
+    if (!webhook) {
+      const updatedWebhook = await channel.createWebhook({
         name: 'Noir welcome',
         avatar: Options.clientAvatar
       })
 
-      if (!welcomeData) return
+      welcomeData.data.webhook = updatedWebhook.url
+    }
 
-      welcomeData.data.webhook = newWebhook.id
-      welcomeData.data.channel = newChannel.id
+    else {
+      const updatedWebhook = await webhook.edit({
+        channel: channel.id
+      })
+
+      welcomeData.data.webhook = updatedWebhook.url
     }
 
     await this.initialMessage(client, interaction, id)
   }
 
-  public static async avatarResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string) {
+  public static async editResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string) {
     const welcomeData = client.welcomeSettings.get(id)
-    const rawAvatar = client.utils.removeFormatValue(interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'input')))
-    const avatar = client.utils.formatImage(interaction, rawAvatar)
-    const webhook = await welcomeData?.getWebhook(client)
+    const webhookName = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeWebhookName', 'input'))
+    const webhookAvatar = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'input'))
 
-    if (!avatar) return
+    if (!welcomeData) return
 
-    await webhook?.edit({
-      avatar: avatar ?? Options.clientAvatar
-    })
+    const webhook = await welcomeData.getWebhook(client)
 
-    await this.initialMessage(client, interaction, id)
-  }
+    if (!webhook) return
 
-  public static async usernameResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string) {
-    const welcomeData = client.welcomeSettings.get(id)
-    const username = client.utils.removeFormatValue(interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeWebhookUsername', 'input')))
-    const webhook = await welcomeData?.getWebhook(client)
+    if (webhookAvatar) {
+      welcomeData.data.rawWebhookAvatar = webhookAvatar
+    }
 
-    if (!username) return
-
-    await webhook?.edit({
-      name: username ?? 'Noir welcome'
+    await webhook.edit({
+      name: webhookName ?? webhook.name,
+      avatar: client.utils.formatImage(interaction, webhookAvatar) ?? webhook.avatarURL()
     })
 
     await this.initialMessage(client, interaction, id)
@@ -196,12 +165,8 @@ export default class WelcomeWebhook {
       await WelcomeWebhook.channelRequest(client, interaction, id)
     }
 
-    else if (method == 'welcomeWebhookAvatar') {
-      await WelcomeWebhook.avatarRequest(client, interaction, id)
-    }
-
-    else if (method == 'welcomeWebhookUsername') {
-      await WelcomeWebhook.usernameRequest(client, interaction, id)
+    else if (method == 'welcomeWebhookEdit') {
+      await WelcomeWebhook.editRequest(client, interaction, id)
     }
   }
 
@@ -210,12 +175,8 @@ export default class WelcomeWebhook {
       await WelcomeWebhook.channelResponse(client, interaction, id)
     }
 
-    else if (method == 'welcomeWebhookAvatar') {
-      await WelcomeWebhook.avatarResponse(client, interaction, id)
-    }
-
-    else if (method == 'welcomeWebhookUsername') {
-      await WelcomeWebhook.usernameResponse(client, interaction, id)
+    else if (method == 'welcomeWebhookEdit') {
+      await WelcomeWebhook.editResponse(client, interaction, id)
     }
   }
 }

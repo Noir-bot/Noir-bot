@@ -1,4 +1,4 @@
-import { TextChannel } from 'discord.js'
+import { parseWebhookURL } from 'discord.js'
 import NoirClient from '../../../../../structures/Client'
 
 export default class WelcomeCollection {
@@ -11,7 +11,7 @@ export default class WelcomeCollection {
       guild: id,
       status: false,
       restoreRoles: false,
-      channel: undefined,
+      rawWebhookAvatar: undefined,
       webhook: undefined,
       roles: [],
       messages: {
@@ -80,7 +80,7 @@ export default class WelcomeCollection {
       status: welcomeData.status,
       restoreRoles: welcomeData.restoreRoles,
       roles: welcomeData.roles,
-      channel: welcomeData.channel ?? undefined,
+      rawWebhookAvatar: welcomeData.rawWebhookAvatar ?? undefined,
       webhook: welcomeData.webhook ?? undefined,
       messages: {
         guild: {
@@ -162,12 +162,13 @@ export default class WelcomeCollection {
   public async getWebhook(client: NoirClient) {
     const welcomeData = client.welcomeSettings.get(this.id)
 
-    if (!welcomeData) return undefined
-    const welcomeChannel = client.channels.cache.get(welcomeData?.data.channel ?? '') as TextChannel
-    if (!welcomeChannel) return undefined
-    const welcomeWebhook = (await welcomeChannel.fetchWebhooks()).get(welcomeData?.data.webhook ?? '')
+    if (!welcomeData || !welcomeData.data.webhook) return undefined
+    const webhookData = parseWebhookURL(welcomeData.data.webhook)
 
-    return welcomeWebhook
+    if (!webhookData) return undefined
+    const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token)
+
+    return webhook
   }
 }
 
@@ -176,7 +177,7 @@ interface WelcomeCollectionData {
   status: boolean
   restoreRoles: boolean
   roles: string[]
-  channel?: string
+  rawWebhookAvatar?: string
   webhook?: string
   messages: {
     guild: {
