@@ -121,13 +121,15 @@ export default class RuleSettings {
     const moderationData = client.moderationSettings.get(id)
     const ruleType = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesType', 'input')).toLowerCase()
     const ruleQuantity = parseInt(interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesQuantity', 'input')))
-    const ruleDuration = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesDuration', 'input'))
+    const ruleDuration = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesDuration', 'input')).toLowerCase()
     const duration = new Duration(ruleDuration)
 
     if (!moderationData) return
     if (!ModerationRuleRegex.test(ruleType)) return
-    if (isNaN(duration.offset)) return
+    if (ruleDuration != 'permanent' && parseInt(ruleDuration) != 0 && isNaN(duration.offset)) return
     if (!ruleQuantity || ruleQuantity == 0) return
+    if (ruleType == 'restriction' && duration.offset > 1209600000) return
+    if (duration.offset > 31556952000) return
 
     moderationData.data.rules.rules.push({
       id: moderationData.data.rules.rules.length,
@@ -143,7 +145,9 @@ export default class RuleSettings {
     const moderationData = client.moderationSettings.get(id)
     const ruleId = parseInt(interaction.values[0])
 
-    if (!ruleId) return
+    console.log(ruleId)
+
+    if (!ruleId && ruleId != 0) return
 
     const ruleData = moderationData?.data.rules.rules.find(rule => rule.id == ruleId)
 
@@ -180,7 +184,7 @@ export default class RuleSettings {
     ]
 
     const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, `moderationRulesEdit.${ruleId - 1}`, 'modal'))
+      .setCustomId(client.componentsUtils.generateId('settings', id, `moderationRulesEdit.${ruleId}`, 'modal'))
       .setTitle('Rule editor')
       .addComponents(actionRows)
 
@@ -191,12 +195,13 @@ export default class RuleSettings {
     const moderationData = client.moderationSettings.get(id)
     const ruleType = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesTypeUpdate', 'input')).toLowerCase()
     const ruleQuantity = parseInt(interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesQuantityUpdate', 'input')))
-    const ruleDuration = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesDurationUpdate', 'input'))
+    const ruleDuration = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesDurationUpdate', 'input')).toLowerCase()
     const duration = new Duration(ruleDuration)
 
     if (!moderationData) return
     if (!ModerationRuleRegex.test(ruleType)) return
-    if (isNaN(duration.offset)) return
+    if (ruleDuration != 'permanent' && parseInt(ruleDuration) != 0 && isNaN(duration.offset)) return
+    if (ruleType == 'restriction' && duration.offset > 1209600000 || duration.offset > 31556952000) return
 
     if (ruleQuantity == 0) {
       moderationData.data.rules.rules = moderationData.data.rules.rules.filter(rule => rule.id != ruleId)
@@ -208,7 +213,7 @@ export default class RuleSettings {
         id: moderationData.data.rules.rules[index].id,
         type: ruleType as ModerationRuleTypes,
         quantity: ruleQuantity,
-        duration: ruleDuration ?? undefined
+        duration: ruleDuration.replace(/$0^|$permanent^/, 'permanent') ?? undefined
       }
     }
 
