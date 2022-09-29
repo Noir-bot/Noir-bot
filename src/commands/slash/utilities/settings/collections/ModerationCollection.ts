@@ -53,14 +53,14 @@ export default class ModerationCollection {
 
     this._data = {
       guild: moderationData.guild,
-      collectCases: moderationData.collectCases,
+      collectCases: moderationData.collectCases ?? false,
       logs: {
-        status: moderationData.logs.status,
+        status: moderationData.logs.status ?? false,
         webhook: moderationData.logs.webhook ?? undefined,
         rawWebhookAvatar: moderationData.logs.rawWebhookAvatar ?? undefined
       },
       rules: {
-        status: moderationData.rules.status,
+        status: moderationData.rules.status ?? false,
         rules: moderationData.rules.rules as any
       }
     }
@@ -76,6 +76,13 @@ export default class ModerationCollection {
     const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token)
 
     return webhook
+  }
+
+  public static async getData(client: NoirClient, id: string) {
+    await client.moderationSettings.get(id)?.cacheData(client)
+    const moderationData = client.moderationSettings.get(id)
+
+    return moderationData as ModerationCollection
   }
 }
 

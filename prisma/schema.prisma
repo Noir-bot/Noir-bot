@@ -14,6 +14,31 @@ model Premium {
   expireAt DateTime @default(now())
 }
 
+model Case {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  caseId    Int       @unique
+  guild     String    @unique
+  type      String
+  moderator String
+  user      String
+  reason    String?
+  duration  Int?
+  created   DateTime
+  expired   DateTime?
+}
+
+model Cases {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  guild       String @unique
+  overall     Int    @default(0)
+  restriction Int    @default(0)
+  warning     Int    @default(0)
+  ban         Int    @default(0)
+  tempban     Int    @default(0)
+  sotfban     Int    @default(0)
+  kick        Int    @default(0)
+}
+
 model Moderation {
   id           String          @id @default(auto()) @map("_id") @db.ObjectId
   guild        String          @unique
