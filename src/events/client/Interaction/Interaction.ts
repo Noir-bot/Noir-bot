@@ -17,7 +17,7 @@ export default class InteractionEvent extends Event {
 
     if (interaction.isButton()) await ButtonExecution.button(client, interaction)
     else if (interaction.isSelectMenu()) await SelectMenuExecution.selectMenu(client, interaction)
-    else if (interaction.isChatInputCommand() || interaction.isContextMenuCommand()) await CommandExecution.command(client, interaction)
+    else if (interaction.type == InteractionType.ApplicationCommand || interaction.isChatInputCommand() || interaction.isContextMenuCommand()) await CommandExecution.command(client, interaction)
     else if (interaction.type == InteractionType.ModalSubmit) await ModalExecution.messageModal(client, interaction as ModalMessageModalSubmitInteraction)
   }
 
@@ -43,7 +43,7 @@ export default class InteractionEvent extends Event {
       client.premium.set(interaction.guild.id, premiumData)
     }
 
-    if (premiumData.expired() && premiumData.status == true) {
+    if (premiumData.expired() && premiumData.status) {
       await client.prisma.premium.updateMany({
         where: { guild: interaction.guild.id },
         data: { status: false }

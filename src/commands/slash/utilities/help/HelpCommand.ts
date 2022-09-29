@@ -2,7 +2,7 @@ import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteract
 import Colors from '../../../../constants/Colors'
 import Options from '../../../../constants/Options'
 import NoirClient from '../../../../structures/Client'
-import ChatCommand from '../../../../structures/command/ChatCommand'
+import ChatCommand from '../../../../structures/commands/ChatCommand'
 
 export default class HelpCommand extends ChatCommand {
   constructor(client: NoirClient,) {
@@ -17,7 +17,7 @@ export default class HelpCommand extends ChatCommand {
       {
         name: 'help',
         description: 'Help command',
-        nameLocalizations: { 'ru': 'помощ' },
+        nameLocalizations: { 'ru': 'помощь' },
         descriptionLocalizations: { 'ru': 'Команда помощи' },
         defaultMemberPermissions: 'SendMessages',
         type: ApplicationCommandType.ChatInput,
@@ -44,8 +44,7 @@ export default class HelpCommand extends ChatCommand {
       author: 'Help command',
       authorImage: Options.clientAvatar,
       description: `Hey there, if you have any problems or questions contact our support team. Be sure to join [support server](${Options.guildInvite})`,
-      components: [actionRow],
-      fetch: true
+      components: [actionRow]
     })
   }
 

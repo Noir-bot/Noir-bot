@@ -16,10 +16,6 @@ export default class Premium {
   }
 
   public expired() {
-    if (new Date().getTime() >= this.expireAt.getTime()) {
-      return true
-    }
-
-    return false
+    return new Date().getTime() >= this.expireAt.getTime()
   }
 }

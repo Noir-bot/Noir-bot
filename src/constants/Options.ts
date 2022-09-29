@@ -42,3 +42,5 @@ export default class Options {
   public static get maintenance() { return this._maintenance }
   public static set maintenance(status: boolean) { this._maintenance = status }
 }
+
+export type WelcomeMessageType = 'guild_join' | 'guild_left' | 'direct_join'

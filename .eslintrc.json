@@ -14,15 +14,19 @@
         "ecmaFeatures": {}
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "module-newline"
     ],
     "rules": {
+        "modules-newline/import-declaration-newline": [
+          "warn"
+        ],
         "semi": [
-            "error",
+            "warn",
             "never"
         ],
         "quotes": [
-            "error",
+            "warn",
             "single"
         ]
     }

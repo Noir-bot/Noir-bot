@@ -9,44 +9,46 @@ datasource db {
 
 model Premium {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  guild    String
+  guild    String   @unique
   status   Boolean  @default(false)
   expireAt DateTime @default(now())
 }
 
-model Client {
-  id             String  @id @default(auto()) @map("_id") @db.ObjectId
-  guild          String
-  primaryColor   String
-  removeVariable String
-  premiumEmoji   Boolean @default(true)
+model Moderation {
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  guild        String          @unique
+  collectCases Boolean         @default(false)
+  logs         ModerationLogs
+  rules        ModerationRules
 }
 
-model Logging {
-  id     String        @id @default(auto()) @map("_id") @db.ObjectId
-  guild  String
-  status Boolean       @default(false)
-  events LoggingEvents
+type ModerationLogs {
+  status           Boolean @default(false)
+  webhook          String?
+  rawWebhookAvatar String?
 }
 
-type LoggingEvents {
-  status        Boolean @default(false)
-  restriction   Boolean @default(true)
-  warning       Boolean @default(true)
-  kick          Boolean @default(true)
-  ban           Boolean @default(true)
-  createRole    Boolean @default(true)
-  deleteRole    Boolean @default(true)
-  updateMessage Boolean @default(true)
-  deleteMessage Boolean @default(true)
+type ModerationRules {
+  status Boolean          @default(false)
+  rules  ModerationRule[]
+}
+
+type ModerationRule {
+  id       Int
+  type     String
+  quantity Int
+  duration String?
 }
 
 model Welcome {
-  id       String          @id @default(auto()) @map("_id") @db.ObjectId
-  guild    String
-  channel  String?
-  status   Boolean         @default(false)
-  messages WelcomeMessages
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  guild            String          @unique
+  status           Boolean         @default(false)
+  restoreRoles     Boolean         @default(false)
+  roles            String[]
+  webhook          String?
+  rawWebhookAvatar String?
+  messages         WelcomeMessages
 }
 
 type WelcomeMessages {
@@ -55,14 +57,14 @@ type WelcomeMessages {
 }
 
 type WelcomeDirectMessages {
-  status Boolean            @default(false)
-  join   WelcomeMessageData
+  status Boolean             @default(false)
+  join   WelcomeMessageData?
 }
 
 type WelcomeGuildMessages {
   status Boolean            @default(false)
   join   WelcomeMessageData
-  leave  WelcomeMessageData
+  left   WelcomeMessageData
 }
 
 type WelcomeMessageData {
@@ -71,22 +73,27 @@ type WelcomeMessageData {
 }
 
 type WelcomeMessageEmbedData {
-  url         String?
-  color       String?
-  title       String?
-  author      String?
-  footer      String?
-  authorImage String?
-  footerImage String?
-  description String?
-  thumbnail   String?
-  image       String?
-  fields      WelcomeMessageEmbedFieldData[]
-  timestamp   Boolean                        @default(false)
+  url            String?
+  color          String?
+  rawColor       String?
+  title          String?
+  author         String?
+  footer         String?
+  authorImage    String?
+  rawAuthorImage String?
+  footerImage    String?
+  rawFooterImage String?
+  description    String?
+  thumbnail      String?
+  rawThumbnail   String?
+  image          String?
+  rawImage       String?
+  fields         WelcomeMessageEmbedFieldData[]
+  timestamp      Boolean                        @default(false)
 }
 
 type WelcomeMessageEmbedFieldData {
-  id     String
+  id     Int
   name   String
   value  String
   inline Boolean @default(false)

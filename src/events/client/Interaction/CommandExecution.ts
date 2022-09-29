@@ -4,7 +4,7 @@ import MaintenanceCommand from '../../../commands/slash/private/Maintenance'
 import Colors from '../../../constants/Colors'
 import Options from '../../../constants/Options'
 import NoirClient from '../../../structures/Client'
-import Command from '../../../structures/command/Command'
+import Command from '../../../structures/commands/Command'
 
 export default class CommandExecution {
   public static async command(client: NoirClient, interaction: CommandInteraction | ContextMenuCommandInteraction): Promise<void> {

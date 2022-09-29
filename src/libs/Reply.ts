@@ -12,6 +12,8 @@ export default class Reply {
   public async reply(properties: {
     interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction | SelectMenuInteraction,
     components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
+    title?: string,
+    url?: string,
     author?: string,
     authorImage?: string,
     description?: string,
@@ -28,6 +30,8 @@ export default class Reply {
     const embed = this.build({
       color: properties.color,
       author: properties.author,
+      title: properties.title,
+      url: properties.url,
       description: properties.description,
       footer: properties.footer,
       authorImage: properties.authorImage,
@@ -49,6 +53,8 @@ export default class Reply {
 
   protected build(
     properties: {
+      title?: string,
+      url?: string,
       author?: string,
       authorImage?: string,
       description?: string,
@@ -65,6 +71,8 @@ export default class Reply {
 
     if (properties.color) embed.setColor(properties.color)
     if (properties.author) embed.setAuthor({ name: properties.author ?? '', iconURL: properties.authorImage })
+    if (properties.title) embed.setTitle(properties.title ?? '')
+    if (properties.url) embed.setURL(properties.url)
     if (properties.description) embed.setDescription(properties.description)
     if (properties.footer) embed.setFooter({ text: properties.footer, iconURL: properties.footerImage })
     if (properties.thumbnail) embed.setThumbnail(properties.thumbnail)
