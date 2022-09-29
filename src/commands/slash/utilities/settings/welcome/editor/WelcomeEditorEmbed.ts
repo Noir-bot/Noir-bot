@@ -1,16 +1,17 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import { WelcomeMessageType } from '../../../../../../constants/Options'
 import NoirClient from '../../../../../../structures/Client'
+import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditor from './WelcomeEditor'
 
 export default class WelcomeEditorEmbed {
   public static async request(client: NoirClient, interaction: ButtonInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     if (!messageData) return
 
     const colorInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeEmbedColor', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedColor', 'input'))
       .setLabel('Embed color')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter green, gray, yellow, cyan, red, embed or color hex')
@@ -19,7 +20,7 @@ export default class WelcomeEditorEmbed {
       .setMaxLength(10)
       .setMinLength(1)
     const descriptionInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeEmbedDescription', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedDescription', 'input'))
       .setLabel('Embed description')
       .setStyle(TextInputStyle.Paragraph)
       .setPlaceholder('Enter the description')
@@ -28,7 +29,7 @@ export default class WelcomeEditorEmbed {
       .setMaxLength(2000)
       .setMinLength(1)
     const imageInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeEmbedImage', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedImage', 'input'))
       .setLabel('Embed image')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter image URL or server, user, client')
@@ -37,7 +38,7 @@ export default class WelcomeEditorEmbed {
       .setMaxLength(2000)
       .setMinLength(1)
     const thumbnailInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeEmbedThumbnail', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedThumbnail', 'input'))
       .setLabel('Embed thumbnail')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter image URL or server, user, client')
@@ -46,7 +47,7 @@ export default class WelcomeEditorEmbed {
       .setMaxLength(2000)
       .setMinLength(1)
     const timestampInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeEmbedTimestamp', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedTimestamp', 'input'))
       .setLabel('Embed timestamp')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('True or false')
@@ -69,7 +70,7 @@ export default class WelcomeEditorEmbed {
     ]
 
     const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, `welcomeEditorEmbed.${type}`, 'modal'))
+      .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEmbed.${type}`, 'modal'))
       .setTitle('Embed settings')
       .addComponents(actionRows)
 
@@ -77,15 +78,15 @@ export default class WelcomeEditorEmbed {
   }
 
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     if (!messageData) return
 
-    const colorInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeEmbedColor', 'input'))
-    const descriptionInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeEmbedDescription', 'input'))
-    const imageInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeEmbedImage', 'input'))
-    const thumbnailInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeEmbedThumbnail', 'input'))
-    const timestampInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeEmbedTimestamp', 'input'))
+    const colorInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedColor', 'input'))
+    const descriptionInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedDescription', 'input'))
+    const imageInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedImage', 'input'))
+    const thumbnailInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedThumbnail', 'input'))
+    const timestampInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedTimestamp', 'input'))
 
     console.log(colorInput)
 
@@ -99,12 +100,12 @@ export default class WelcomeEditorEmbed {
     }
 
     if (imageInput) {
-      messageData.embed.image = client.utils.removeFormatValue(client.utils.formatImage(interaction, imageInput))
+      messageData.embed.image = client.utils.removeFormatValue(SettingsUtils.formatImage(client, interaction, imageInput))
       messageData.embed.rawImage = client.utils.removeFormatValue(imageInput)
     }
 
     if (thumbnailInput) {
-      messageData.embed.thumbnail = client.utils.removeFormatValue(client.utils.formatImage(interaction, thumbnailInput))
+      messageData.embed.thumbnail = client.utils.removeFormatValue(SettingsUtils.formatImage(client, interaction, thumbnailInput))
       messageData.embed.rawThumbnail = client.utils.removeFormatValue(thumbnailInput)
     }
 

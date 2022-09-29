@@ -3,6 +3,7 @@ import Colors from '../../../../../constants/Colors'
 import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
 import ModerationCollection from '../collections/ModerationCollection'
+import SettingsUtils from '../SettingsUtils'
 
 export default class LoggingsSettings {
   public static async initialMessage(client: NoirClient, interaction: ButtonInteraction | ModalMessageModalSubmitInteraction, id: string) {
@@ -17,24 +18,24 @@ export default class LoggingsSettings {
     const buttons = [
       [
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationLogsStatus', 'button'))
+          .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogsStatus', 'button'))
           .setLabel(`${moderationData?.data.logs.status ? 'Disable' : 'Enable'} logs messages`)
-          .setStyle(client.componentsUtils.generateStyle(moderationData?.data.logs.status)),
+          .setStyle(SettingsUtils.generateStyle(moderationData?.data.logs.status)),
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationLogsChannel', 'button'))
+          .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogsChannel', 'button'))
           .setLabel(`${moderationData?.data.logs.webhook ? 'Change' : 'Setup'} channel`)
-          .setStyle(client.componentsUtils.generateStyle(moderationData?.data.logs.webhook))
+          .setStyle(SettingsUtils.generateStyle(moderationData?.data.logs.webhook))
           .setDisabled(!moderationData?.data.logs.status),
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationLogsWebhook', 'button'))
+          .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogsWebhook', 'button'))
           .setLabel('Change webhook settings')
-          .setStyle(client.componentsUtils.defaultStyle)
+          .setStyle(SettingsUtils.defaultStyle)
           .setDisabled(!moderationData?.data.logs.status && !(await moderationData?.getWebhook(client)))
       ],
       [
-        client.componentsUtils.generateBack('settings', id, 'moderationBack'),
-        client.componentsUtils.generateSave('settings', id, 'moderationSave.loggings'),
-        client.componentsUtils.generateRestore('settings', id, 'moderationRestore.loggings')
+        SettingsUtils.generateBack('settings', id, 'moderationBack'),
+        SettingsUtils.generateSave('settings', id, 'moderationSave.loggings'),
+        SettingsUtils.generateRestore('settings', id, 'moderationRestore.loggings')
       ]
     ]
 
@@ -48,7 +49,14 @@ export default class LoggingsSettings {
       color: Colors.primary,
       author: 'Loggings settings',
       authorImage: Options.clientAvatar,
-      description: 'Setup moderation logs channel. Disable in order to not get any logs messages.',
+      description: 'Setup channel and create webhook. Customize webhook as you want.',
+      fields: [
+        {
+          name: 'Image variables',
+          value: '`{{client avatar}}` Client avatar\n`{{guild icon}}` Server icon',
+          inline: false,
+        }
+      ],
       components: actionRows,
       ephemeral: true,
     })
@@ -59,7 +67,7 @@ export default class LoggingsSettings {
     const webhook = await moderationData?.getWebhook(client)
 
     const channelInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationLogsChannel', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogsChannel', 'input'))
       .setLabel('Channel id')
       .setPlaceholder('Enter the channel id')
       .setValue(webhook?.channelId ?? '')
@@ -69,7 +77,7 @@ export default class LoggingsSettings {
     const actionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>()
       .addComponents(channelInput)
     const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationLogsChannel', 'modal'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogsChannel', 'modal'))
       .setTitle('Webhook settings')
       .addComponents(actionRow)
 
@@ -78,7 +86,7 @@ export default class LoggingsSettings {
 
   public static async channelResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string) {
     const moderationData = client.moderationSettings.get(id)
-    const channelId = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationLogsChannel', 'input'))
+    const channelId = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationLogsChannel', 'input'))
 
     if (!moderationData) return
     if (!channelId) return
@@ -115,14 +123,14 @@ export default class LoggingsSettings {
     const webhook = await moderationData?.getWebhook(client)
 
     const webhookNameInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationWebhookName', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationWebhookName', 'input'))
       .setLabel('Webhook name')
       .setPlaceholder('Enter new webhook name')
       .setValue(webhook?.name ?? '')
       .setStyle(TextInputStyle.Short)
       .setRequired(false)
     const webhookAvatarInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationWebhookAvatar', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationWebhookAvatar', 'input'))
       .setLabel('Webhook avatar')
       .setPlaceholder('Enter new webhook avatar URL or use variables')
       .setValue(moderationData?.data.logs.rawWebhookAvatar ?? '')
@@ -137,7 +145,7 @@ export default class LoggingsSettings {
     ]
 
     const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationLogsWebhook', 'modal'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogsWebhook', 'modal'))
       .setTitle('Webhook editor')
       .addComponents(actionRows)
 
@@ -146,8 +154,8 @@ export default class LoggingsSettings {
 
   public static async editResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string) {
     const moderationData = client.moderationSettings.get(id)
-    const webhookName = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationWebhookName', 'input'))
-    const webhookAvatar = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationWebhookAvatar', 'input'))
+    const webhookName = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationWebhookName', 'input'))
+    const webhookAvatar = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationWebhookAvatar', 'input'))
 
     if (!moderationData) return
 
@@ -161,7 +169,7 @@ export default class LoggingsSettings {
 
     await webhook.edit({
       name: webhookName ?? webhook.name,
-      avatar: client.utils.formatImage(interaction, webhookAvatar) ?? webhook.avatarURL()
+      avatar: SettingsUtils.formatImage(client, interaction, webhookAvatar) ?? webhook.avatarURL()
     })
 
     await this.initialMessage(client, interaction, id)

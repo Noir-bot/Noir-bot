@@ -2,20 +2,21 @@ import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, 
 import Colors from '../../../../../../../constants/Colors'
 import { WelcomeMessageType } from '../../../../../../../constants/Options'
 import NoirClient from '../../../../../../../structures/Client'
+import SettingsUtils from '../../../SettingsUtils'
 import WelcomeEditor from '../WelcomeEditor'
 
 export default class WelcomeEditorRemoveField {
   public static async request(client: NoirClient, interaction: ButtonInteraction | SelectMenuInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     if (!messageData) return
 
     const buttons = [
-      client.componentsUtils.generateBack('settings', id, `welcomeBack.welcomeEditor.${type}`)
+      SettingsUtils.generateBack('settings', id, `welcomeBack.welcomeEditor.${type}`)
     ]
 
     const selectMenu = new SelectMenuBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, `welcomeEditorRemoveField.${type}`, 'select'))
+      .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorRemoveField.${type}`, 'select'))
       .setPlaceholder('Choose fields to remove')
       .setMaxValues(messageData.embed.fields.length)
       .setMinValues(1)
@@ -47,7 +48,7 @@ export default class WelcomeEditorRemoveField {
   }
 
   public static async response(client: NoirClient, interaction: SelectMenuInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     if (!messageData) return
 

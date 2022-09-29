@@ -1,9 +1,9 @@
 import { ButtonInteraction, ModalMessageModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
 import NoirClient from '../../../../structures/Client'
 import ModerationResponse from './moderation/ModerationResponse'
-import WelcomeResponse from './welcome/WelcomeResponse'
+import WelcomeResponse from './welcome/WelcomeResponses'
 
-export default class SettingsResponse {
+export default class SettingsResponses {
   public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction) {
     const parts = interaction.customId.split('-')
     const method = parts[2]

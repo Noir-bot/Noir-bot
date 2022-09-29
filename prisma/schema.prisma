@@ -14,28 +14,12 @@ model Premium {
   expireAt DateTime @default(now())
 }
 
-model Statistics {
-  id           String          @id @default(auto()) @map("_id") @db.ObjectId
-  status       Boolean         @default(false)
-  commandsUsed Int             @default(0)
-  cases        StatisticsCases
-}
-
-type StatisticsCases {
-  overall      Int @default(0)
-  warnings     Int @default(0)
-  restrictions Int @default(0)
-  kicks        Int @default(0)
-  bans         Int @default(0)
-  softbans     Int @default(0)
-  tempbans     Int @default(0)
-}
-
 model Moderation {
-  id    String          @id @default(auto()) @map("_id") @db.ObjectId
-  guild String          @unique
-  logs  ModerationLogs
-  rules ModerationRules
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  guild        String          @unique
+  collectCases Boolean         @default(false)
+  logs         ModerationLogs
+  rules        ModerationRules
 }
 
 type ModerationLogs {

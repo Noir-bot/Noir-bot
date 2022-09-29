@@ -1,14 +1,15 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import { WelcomeMessageType } from '../../../../../../constants/Options'
 import NoirClient from '../../../../../../structures/Client'
+import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditor from './WelcomeEditor'
 
 export default class WelcomeEditorFooter {
   public static async request(client: NoirClient, interaction: ButtonInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     const footerInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeEditorFooter', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditorFooter', 'input'))
       .setLabel('Embed footer name')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter footer text')
@@ -17,7 +18,7 @@ export default class WelcomeEditorFooter {
       .setMaxLength(2000)
       .setMinLength(1)
     const footerImageInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeEditorFooterImage', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditorFooterImage', 'input'))
       .setLabel('Embed footer image')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Image URL or server, user, client')
@@ -34,7 +35,7 @@ export default class WelcomeEditorFooter {
     ]
 
     const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, `welcomeEditorFooter.${type}`, 'modal'))
+      .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorFooter.${type}`, 'modal'))
       .setTitle('Embed footer builder')
       .addComponents(actionRows)
 
@@ -42,12 +43,12 @@ export default class WelcomeEditorFooter {
   }
 
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     if (!messageData) return
 
-    const footerInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeEditorFooter', 'input'))
-    const footerImageInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeEditorFooterImage', 'input'))
+    const footerInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorFooter', 'input'))
+    const footerImageInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorFooterImage', 'input'))
 
     messageData.embed.footer = client.utils.removeFormatValue(footerInput)
 

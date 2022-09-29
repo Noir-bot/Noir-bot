@@ -3,6 +3,7 @@ import Colors from '../../../../../constants/Colors'
 import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
 import WelcomeCollection from '../collections/WelcomeCollection'
+import SettingsUtils from '../SettingsUtils'
 
 export default class WelcomeSettings {
   public static async generateCache(client: NoirClient, id: string) {
@@ -13,46 +14,44 @@ export default class WelcomeSettings {
   }
 
   public static async initialMessage(client: NoirClient, interaction: ButtonInteraction | ModalMessageModalSubmitInteraction, id: string) {
-    let welcomeData = client.welcomeSettings.get(id)
+    let welcomeData = client.welcomeSettings.get(id)?.data
 
     if (!welcomeData) {
-      client.welcomeSettings.set(id, new WelcomeCollection(id))
-      welcomeData = client.welcomeSettings.get(id)
-      await welcomeData?.cacheData(client)
+      welcomeData = await this.generateCache(client, id)
     }
 
     const buttons = [
       [
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeStatus', 'button'))
-          .setLabel(`${welcomeData?.data.status ? 'Disable' : 'Enable'} feature`)
-          .setStyle(client.componentsUtils.generateStyle(welcomeData?.data.status)),
+          .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeStatus', 'button'))
+          .setLabel(`${welcomeData?.status ? 'Disable' : 'Enable'} welcome features`)
+          .setStyle(SettingsUtils.generateStyle(welcomeData?.status)),
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeRoleRestore', 'button'))
-          .setLabel(`${welcomeData?.data.restoreRoles ? 'Disable' : 'Enable'} role restoring`)
-          .setStyle(client.componentsUtils.generateStyle(welcomeData?.data.restoreRoles))
+          .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeRolesRestore', 'button'))
+          .setLabel(`${welcomeData?.restoreRoles ? 'Disable' : 'Enable'} role-restoring`)
+          .setStyle(SettingsUtils.generateStyle(welcomeData?.restoreRoles))
       ],
       [
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeEditor', 'button'))
+          .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditor', 'button'))
           .setLabel('Setup messages')
-          .setStyle(client.componentsUtils.defaultStyle)
-          .setDisabled(!welcomeData?.data.status),
+          .setStyle(SettingsUtils.generateStyle(welcomeData?.messages.guild.status || welcomeData?.messages.direct.status))
+          .setDisabled(!welcomeData?.status),
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeWebhook', 'button'))
-          .setLabel(`${welcomeData?.data.webhook ? 'Change' : 'Setup'} webhook`)
-          .setStyle(client.componentsUtils.generateStyle(welcomeData?.data.webhook))
-          .setDisabled(!welcomeData?.data.status),
+          .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhook', 'button'))
+          .setLabel(`${welcomeData?.webhook ? 'Edit' : 'Setup'} webhook`)
+          .setStyle(SettingsUtils.generateStyle(welcomeData?.webhook))
+          .setDisabled(!welcomeData?.status),
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeRole', 'button'))
-          .setLabel(`${welcomeData?.data.roles[0] ? 'Edit' : 'Add'} auto-role`)
-          .setStyle(client.componentsUtils.generateStyle(welcomeData?.data.roles[0]))
-          .setDisabled(!welcomeData?.data.status),
+          .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeRoles', 'button'))
+          .setLabel(`${welcomeData?.roles[0] ? 'Edit' : 'Setup'} roles`)
+          .setStyle(SettingsUtils.generateStyle(welcomeData?.roles[0]))
+          .setDisabled(!welcomeData?.status),
       ],
       [
-        client.componentsUtils.generateBack('settings', id, 'welcomeBack.settings'),
-        client.componentsUtils.generateSave('settings', id, 'welcomeSave'),
-        client.componentsUtils.generateRestore('settings', id, 'welcomeRestore')
+        SettingsUtils.generateBack('settings', id, 'welcomeBack.settings'),
+        SettingsUtils.generateSave('settings', id, 'welcomeSave'),
+        SettingsUtils.generateRestore('settings', id, 'welcomeRestore')
       ]
     ]
 
@@ -67,7 +66,20 @@ export default class WelcomeSettings {
       color: Colors.primary,
       author: 'Welcome settings',
       authorImage: Options.clientAvatar,
-      description: 'Powerful welcoming tools and features. Fully customizable welcome messages, auto role, role restoring and custom webhook.',
+      description: 'Fully customizable welcoming features and tools.',
+      fields: [
+        {
+          name: 'Auto-role and role-restoring',
+          value: 'Give new users roles and save them if they leave the server. Able to save roles after user left the server and give it back when he returns.',
+          inline: false
+        },
+        {
+          name: 'Auto-message and webhook',
+          value: 'Advanced message editor and fully customizable webhook. Setup message and welcome new users with fancy message.',
+          inline: false
+        }
+      ],
+      footer: 'Some features are partially premium only.',
       components: actionRows,
       ephemeral: true,
     })

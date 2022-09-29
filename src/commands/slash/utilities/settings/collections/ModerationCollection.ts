@@ -8,6 +8,7 @@ export default class ModerationCollection {
     this._id = id
     this._data = {
       guild: id,
+      collectCases: false,
       logs: {
         status: false
       },
@@ -52,6 +53,7 @@ export default class ModerationCollection {
 
     this._data = {
       guild: moderationData.guild,
+      collectCases: moderationData.collectCases,
       logs: {
         status: moderationData.logs.status,
         webhook: moderationData.logs.webhook ?? undefined,
@@ -79,6 +81,7 @@ export default class ModerationCollection {
 
 interface ModerationCollectionData {
   guild: string
+  collectCases: boolean
   logs: {
     status: boolean
     webhook?: string

@@ -70,6 +70,11 @@ export default class ModerationResponse {
       }
     }
 
+    else if (method == 'moderationCases') {
+      moderationData.collectCases = !moderationData.collectCases
+      await ModerationSettings.initialMessage(client, interaction, id)
+    }
+
     else if (method == 'moderationLogs') {
       await LoggingsSettings.initialMessage(client, interaction, id)
     }

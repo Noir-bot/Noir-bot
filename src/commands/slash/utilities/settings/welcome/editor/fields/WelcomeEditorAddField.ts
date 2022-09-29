@@ -1,16 +1,17 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import { WelcomeMessageType } from '../../../../../../../constants/Options'
 import NoirClient from '../../../../../../../structures/Client'
+import SettingsUtils from '../../../SettingsUtils'
 import WelcomeEditor from '../WelcomeEditor'
 
 export default class WelcomeEditorAddField {
   public static async request(client: NoirClient, interaction: ButtonInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     if (!messageData) return
 
     const fieldNameInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeFieldName', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeFieldName', 'input'))
       .setLabel('Field name')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter field name')
@@ -18,7 +19,7 @@ export default class WelcomeEditorAddField {
       .setMaxLength(2000)
       .setMinLength(1)
     const fieldValueInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeFieldValue', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeFieldValue', 'input'))
       .setLabel('Field value')
       .setStyle(TextInputStyle.Paragraph)
       .setPlaceholder('Enter field value')
@@ -26,7 +27,7 @@ export default class WelcomeEditorAddField {
       .setMaxLength(2000)
       .setMinLength(1)
     const fieldInlineInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeFieldInline', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeFieldInline', 'input'))
       .setLabel('Field inline')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('True or false')
@@ -45,7 +46,7 @@ export default class WelcomeEditorAddField {
     ]
 
     const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, `welcomeEditorAddField.${type}`, 'modal'))
+      .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorAddField.${type}`, 'modal'))
       .setTitle('Embed field builder')
       .addComponents(actionRows)
 
@@ -53,15 +54,15 @@ export default class WelcomeEditorAddField {
   }
 
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     if (!messageData) return
     if (messageData.embed.fields.length > 5 && !client.utils.premiumStatus(interaction.guildId!)) return
     if (messageData.embed.fields.length >= 25) return
 
-    const fieldNameInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeFieldName', 'input'))
-    const fieldValueInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeFieldValue', 'input'))
-    const fieldInlineInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeFieldInline', 'input'))
+    const fieldNameInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldName', 'input'))
+    const fieldValueInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldValue', 'input'))
+    const fieldInlineInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldInline', 'input'))
 
     messageData.embed.fields.push({
       id: messageData.embed.fields.length,

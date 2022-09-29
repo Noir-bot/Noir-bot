@@ -1,14 +1,15 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import { WelcomeMessageType } from '../../../../../../constants/Options'
 import NoirClient from '../../../../../../structures/Client'
+import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditor from './WelcomeEditor'
 
 export default class WelcomeEditorMessage {
   public static async request(client: NoirClient, interaction: ButtonInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     const messageInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeEditorMessage', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditorMessage', 'input'))
       .setLabel('Message content')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter unembeded message content')
@@ -23,7 +24,7 @@ export default class WelcomeEditorMessage {
     ]
 
     const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, `welcomeEditorMessage.${type}`, 'modal'))
+      .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorMessage.${type}`, 'modal'))
       .setTitle('Message content editor')
       .addComponents(actionRows)
 
@@ -31,9 +32,9 @@ export default class WelcomeEditorMessage {
   }
 
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
-    const messageInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeEditorMessage', 'input'))
+    const messageInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorMessage', 'input'))
 
     if (!messageData) return
 

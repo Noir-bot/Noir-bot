@@ -2,20 +2,21 @@ import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, 
 import Colors from '../../../../../../../constants/Colors'
 import { WelcomeMessageType } from '../../../../../../../constants/Options'
 import NoirClient from '../../../../../../../structures/Client'
+import SettingsUtils from '../../../SettingsUtils'
 import WelcomeEditor from '../WelcomeEditor'
 
 export default class WelcomeEditorEditField {
   public static async listRequest(client: NoirClient, interaction: ButtonInteraction | ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     if (!messageData) return
 
     const buttons = [
-      client.componentsUtils.generateBack('settings', id, `welcomeBack.welcomeEditor.${type}`)
+      SettingsUtils.generateBack('settings', id, `welcomeBack.welcomeEditor.${type}`)
     ]
 
     const selectMenu = new SelectMenuBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, `welcomeEditorEditField.${type}`, 'select'))
+      .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEditField.${type}`, 'select'))
       .setPlaceholder('Choose field to edit')
       .setMaxValues(1)
       .setMinValues(1)
@@ -46,14 +47,14 @@ export default class WelcomeEditorEditField {
   }
 
   public static async request(client: NoirClient, interaction: SelectMenuInteraction, id: string, type: WelcomeMessageType, fieldId: number) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     if (!messageData) return
 
     const index = messageData.embed.fields.findIndex(field => field.id == fieldId)
 
     const nameInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeFieldNameNew', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeFieldNameNew', 'input'))
       .setLabel('Embed field name')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter embed field name')
@@ -62,7 +63,7 @@ export default class WelcomeEditorEditField {
       .setMinLength(1)
       .setRequired(true)
     const valueInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeFieldValueNew', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeFieldValueNew', 'input'))
       .setLabel('Embed field value')
       .setStyle(TextInputStyle.Paragraph)
       .setPlaceholder('Enter embed field value')
@@ -71,7 +72,7 @@ export default class WelcomeEditorEditField {
       .setMinLength(1)
       .setRequired(true)
     const inlineInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'welcomeFieldInlineNew', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeFieldInlineNew', 'input'))
       .setLabel('Embed field inline')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('True or false')
@@ -89,7 +90,7 @@ export default class WelcomeEditorEditField {
     ]
 
     const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, `welcomeEditorEditField.${type}.${index}`, 'modal'))
+      .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEditField.${type}.${index}`, 'modal'))
       .setTitle('Embed field editor')
       .addComponents(actionRows)
 
@@ -97,13 +98,13 @@ export default class WelcomeEditorEditField {
   }
 
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType, index: number) {
-    const { messageData } = WelcomeEditor.getMessageType(client, id, type)
+    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
     if (!messageData) return
 
-    const fieldNameInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeFieldNameNew', 'input'))
-    const fieldValueInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeFieldValueNew', 'input'))
-    const fieldInlineInput = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'welcomeFieldInlineNew', 'input'))
+    const fieldNameInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldNameNew', 'input'))
+    const fieldValueInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldValueNew', 'input'))
+    const fieldInlineInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldInlineNew', 'input'))
 
     if (fieldNameInput) {
       messageData.embed.fields[index].name = fieldNameInput

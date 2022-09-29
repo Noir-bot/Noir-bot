@@ -12,30 +12,37 @@ export default class WelcomeResponse {
   public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
-    const methodSplit = method.split('.')
+    const methods = method.split('.')
 
     if (method == 'welcome') {
       await WelcomeSettings.initialMessage(client, interaction, id)
     }
 
     let welcomeData = client.welcomeSettings.get(id)?.data
-    if (!welcomeData) welcomeData = await WelcomeSettings.generateCache(client, id)
-    if (!welcomeData) return
+
+    if (!welcomeData) {
+      welcomeData = await WelcomeSettings.generateCache(client, id)
+    }
 
     if (method.startsWith('welcomeBack')) {
-      const type = methodSplit[1]
+      const type = methods[1]
 
       if (type == 'settings') {
         await SettingsCommand.initialMessage(client, interaction, id)
+      }
+
+      else if (type == 'welcomeEditor') {
+        const messageType = methods[2] as WelcomeMessageType
+        await WelcomeEditor.initialMessage(client, interaction, id, messageType)
       }
 
       else if (type == 'welcomeRoleEdit') {
         await WelcomeRole.initialMessage(client, interaction, id)
       }
 
-      else if (type == 'welcomeEditor') {
-        const messageType = methodSplit[2] as WelcomeMessageType
-        await WelcomeEditor.initialMessage(client, interaction, id, messageType)
+      else if (type == 'welcomeExample') {
+        const messageType = methods[2] as WelcomeMessageType
+        await WelcomeEditor.exampleResponse(client, interaction, id, messageType)
       }
 
       else {
@@ -45,10 +52,10 @@ export default class WelcomeResponse {
 
     else if (method.startsWith('welcomeSave')) {
       await client.welcomeSettings.get(id)?.saveData(client)
-      const type = methodSplit[1]
+      const type = methods[1]
 
       if (type == 'welcomeEditor') {
-        const messageType = methodSplit[2] as WelcomeMessageType
+        const messageType = methods[2] as WelcomeMessageType
         await WelcomeEditor.initialMessage(client, interaction, id, messageType)
       }
 
@@ -56,17 +63,12 @@ export default class WelcomeResponse {
         await WelcomeRole.editRequest(client, interaction, id)
       }
 
-      else if (type == 'welcomeRole') {
+      else if (type == 'welcomeRoles') {
         await WelcomeRole.initialMessage(client, interaction, id)
       }
 
       else if (type == 'welcomeWebhook') {
         await WelcomeWebhook.initialMessage(client, interaction, id)
-      }
-
-      else if (type == 'welcomeExample') {
-        const messageType = methodSplit[2] as WelcomeMessageType
-        await WelcomeEditor.exampleResponse(client, interaction, id, messageType)
       }
 
       else {
@@ -76,10 +78,10 @@ export default class WelcomeResponse {
 
     else if (method.startsWith('welcomeRestore')) {
       await client.welcomeSettings.get(id)?.cacheData(client)
-      const type = methodSplit[1]
+      const type = methods[1]
 
       if (type == 'welcomeEditor') {
-        const messageType = methodSplit[2] as WelcomeMessageType
+        const messageType = methods[2] as WelcomeMessageType
         await WelcomeEditor.initialMessage(client, interaction, id, messageType)
       }
 
@@ -87,7 +89,7 @@ export default class WelcomeResponse {
         await WelcomeRole.editRequest(client, interaction, id)
       }
 
-      else if (type == 'welcomeRole') {
+      else if (type == 'welcomeRoles') {
         await WelcomeRole.initialMessage(client, interaction, id)
       }
 
@@ -101,14 +103,13 @@ export default class WelcomeResponse {
     }
 
     else if (method.startsWith('welcomeExample')) {
-      const messageType = methodSplit[2] as WelcomeMessageType
-
+      const messageType = methods[2] as WelcomeMessageType
       await WelcomeEditor.exampleResponse(client, interaction, id, messageType)
     }
 
     else if (method.startsWith('welcomeReset')) {
-      const messageType = methodSplit[2] as WelcomeMessageType
-      const type = methodSplit[3]
+      const messageType = methods[2] as WelcomeMessageType
+      const type = methods[3]
 
       if (!type) {
         await WelcomeEditor.resetRequest(client, interaction, id, messageType)
@@ -123,13 +124,15 @@ export default class WelcomeResponse {
       }
     }
 
-    if (method == 'welcomeRoleRestore') {
-      welcomeData.restoreRoles = !welcomeData.restoreRoles
+    else if (method == 'welcomeStatus') {
+      if (!welcomeData) return
+      welcomeData.status = !welcomeData.status
       await WelcomeSettings.initialMessage(client, interaction, id)
     }
 
-    else if (method == 'welcomeStatus') {
-      welcomeData.status = !welcomeData.status
+    else if (method == 'welcomeRolesRestore') {
+      if (!welcomeData) return
+      welcomeData.restoreRoles = !welcomeData.restoreRoles
       await WelcomeSettings.initialMessage(client, interaction, id)
     }
 
@@ -137,7 +140,7 @@ export default class WelcomeResponse {
       await WelcomeEditor.buttonResponse(client, interaction, id, method)
     }
 
-    else if (method.startsWith('welcomeRole')) {
+    else if (method.startsWith('welcomeRoles')) {
       await WelcomeRole.buttonResponse(client, interaction, id, method)
     }
 
@@ -158,7 +161,7 @@ export default class WelcomeResponse {
       await WelcomeEditor.modalResponse(client, interaction, id, method)
     }
 
-    else if (method.startsWith('welcomeRole')) {
+    else if (method.startsWith('welcomeRoles')) {
       await WelcomeRole.modalResponse(client, interaction, id, method)
     }
 
@@ -179,7 +182,7 @@ export default class WelcomeResponse {
       await WelcomeEditor.selectResponse(client, interaction, id, method)
     }
 
-    if (method.startsWith('welcomeRole')) {
+    if (method.startsWith('welcomeRoles')) {
       await WelcomeRole.selectResponse(client, interaction, id, method)
     }
   }

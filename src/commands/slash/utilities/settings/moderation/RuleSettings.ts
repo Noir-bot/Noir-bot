@@ -3,6 +3,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowCom
 import Colors from '../../../../../constants/Colors'
 import NoirClient from '../../../../../structures/Client'
 import ModerationCollection, { ModerationRuleRegex, ModerationRuleTypes } from '../collections/ModerationCollection'
+import SettingsUtils from '../SettingsUtils'
 
 export default class RuleSettings {
   public static async initialMessage(client: NoirClient, interaction: ButtonInteraction | ModalMessageModalSubmitInteraction | SelectMenuInteraction, id: string) {
@@ -17,18 +18,18 @@ export default class RuleSettings {
     const buttons = [
       [
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationRulesStatus', 'button'))
+          .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesStatus', 'button'))
           .setLabel(`${moderationData?.data.rules.status ? 'Disable' : 'Enable'} moderation rules`)
-          .setStyle(client.componentsUtils.generateStyle(moderationData?.data.rules.status)),
+          .setStyle(SettingsUtils.generateStyle(moderationData?.data.rules.status)),
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationRulesAdd', 'button'))
+          .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesAdd', 'button'))
           .setLabel('Add rule')
-          .setStyle(client.componentsUtils.defaultStyle)
+          .setStyle(SettingsUtils.defaultStyle)
       ],
       [
-        client.componentsUtils.generateBack('settings', id, 'moderationBack.rules'),
-        client.componentsUtils.generateSave('settings', id, 'moderationSave.rules'),
-        client.componentsUtils.generateRestore('settings', id, 'moderationRestore.rules')
+        SettingsUtils.generateBack('settings', id, 'moderationBack.rules'),
+        SettingsUtils.generateSave('settings', id, 'moderationSave.rules'),
+        SettingsUtils.generateRestore('settings', id, 'moderationRestore.rules')
       ]
     ]
 
@@ -44,7 +45,7 @@ export default class RuleSettings {
 
     if (moderationData?.data.rules.rules && moderationData.data.rules.rules.length >= 1) {
       const selectMenu = new SelectMenuBuilder()
-        .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationRules', 'select'))
+        .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRules', 'select'))
         .setPlaceholder(`Select rule to edit`)
         .setMaxValues(1)
         .setMinValues(1)
@@ -66,7 +67,24 @@ export default class RuleSettings {
       await client.reply.reply({
         interaction: interaction,
         author: 'Setup rules',
-        description: 'Setup auto-moderation rules. Punish rulebreakers automatically by given rules.',
+        description: 'Setup rules. Choose one of the types, quantity of warnings and the duration of punishment.',
+        fields: [
+          {
+            name: 'What is action type',
+            value: 'Action is the punishment to give user for the rule. Types are\n`restriction` Timeout with custom amount of time\n`ban` Ban\n`kick` Kick\n`softban` Ban and unban to clear messages\n`tempban` Temporary ban',
+            inline: false
+          },
+          {
+            name: 'How does the duration works',
+            value: 'Action duration is the duration of punishment. Duration are optional but some actions require to add it. To make duration permanent type `0` or `permanent`.',
+            inline: false
+          },
+          {
+            name: 'How to remove rule',
+            value: 'You can always delete rule by changing the quantity to `0`.',
+            inline: false
+          }
+        ],
         color: Colors.primary,
         components: actionRows
       })
@@ -79,13 +97,13 @@ export default class RuleSettings {
     const moderationData = client.moderationSettings.get(id)
 
     const ruleTypeInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationRulesType', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesType', 'input'))
       .setLabel('Rule type')
       .setPlaceholder('Choose action to activate. Restriction, kick, ban, tempban, softban')
       .setStyle(TextInputStyle.Paragraph)
       .setRequired(true)
     const ruleQuantityInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationRulesQuantity', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesQuantity', 'input'))
       .setLabel('Quantity')
       .setPlaceholder('Enter the quantity of warnings to activate the action')
       .setMaxLength(4)
@@ -93,7 +111,7 @@ export default class RuleSettings {
       .setStyle(TextInputStyle.Short)
       .setRequired(true)
     const ruleDurationInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationRulesDuration', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesDuration', 'input'))
       .setLabel('Action duration')
       .setPlaceholder('Enter the action duration. Use this format 1h10m (1 hour 10 minutes)')
       .setValue(moderationData?.data.logs.rawWebhookAvatar ?? '')
@@ -110,7 +128,7 @@ export default class RuleSettings {
     ]
 
     const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationRulesAdd', 'modal'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesAdd', 'modal'))
       .setTitle('Rule editor')
       .addComponents(actionRows)
 
@@ -119,9 +137,9 @@ export default class RuleSettings {
 
   public static async addResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string) {
     const moderationData = client.moderationSettings.get(id)
-    const ruleType = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesType', 'input')).toLowerCase()
-    const ruleQuantity = parseInt(interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesQuantity', 'input')))
-    const ruleDuration = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesDuration', 'input')).toLowerCase()
+    const ruleType = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesType', 'input')).toLowerCase()
+    const ruleQuantity = parseInt(interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesQuantity', 'input')))
+    const ruleDuration = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesDuration', 'input')).toLowerCase()
     const duration = new Duration(ruleDuration)
 
     if (!moderationData) return
@@ -152,14 +170,14 @@ export default class RuleSettings {
     const ruleData = moderationData?.data.rules.rules.find(rule => rule.id == ruleId)
 
     const ruleTypeInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationRulesTypeUpdate', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesTypeUpdate', 'input'))
       .setLabel('Rule type')
       .setPlaceholder('Choose action to activate. Restriction, kick, ban, tempban, softban')
       .setValue(`${ruleData?.type}`)
       .setStyle(TextInputStyle.Paragraph)
       .setRequired(true)
     const ruleQuantityInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationRulesQuantityUpdate', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesQuantityUpdate', 'input'))
       .setLabel('Quantity')
       .setPlaceholder('Enter the quantity of warnings to activate the action')
       .setValue(`${ruleData?.quantity}`)
@@ -167,7 +185,7 @@ export default class RuleSettings {
       .setStyle(TextInputStyle.Short)
       .setRequired(true)
     const ruleDurationInput = new TextInputBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationRulesDurationUpdate', 'input'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesDurationUpdate', 'input'))
       .setLabel('Action duration')
       .setPlaceholder('Enter the action duration. Use this format 1h10m (1 hour 10 minutes)')
       .setValue(`${ruleData?.duration}`)
@@ -184,7 +202,7 @@ export default class RuleSettings {
     ]
 
     const modal = new ModalBuilder()
-      .setCustomId(client.componentsUtils.generateId('settings', id, `moderationRulesEdit.${ruleId}`, 'modal'))
+      .setCustomId(SettingsUtils.generateId('settings', id, `moderationRulesEdit.${ruleId}`, 'modal'))
       .setTitle('Rule editor')
       .addComponents(actionRows)
 
@@ -193,9 +211,9 @@ export default class RuleSettings {
 
   public static async editResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, ruleId: number) {
     const moderationData = client.moderationSettings.get(id)
-    const ruleType = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesTypeUpdate', 'input')).toLowerCase()
-    const ruleQuantity = parseInt(interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesQuantityUpdate', 'input')))
-    const ruleDuration = interaction.fields.getTextInputValue(client.componentsUtils.generateId('settings', id, 'moderationRulesDurationUpdate', 'input')).toLowerCase()
+    const ruleType = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesTypeUpdate', 'input')).toLowerCase()
+    const ruleQuantity = parseInt(interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesQuantityUpdate', 'input')))
+    const ruleDuration = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesDurationUpdate', 'input')).toLowerCase()
     const duration = new Duration(ruleDuration)
 
     if (!moderationData) return

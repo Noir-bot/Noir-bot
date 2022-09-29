@@ -3,6 +3,7 @@ import Colors from '../../../../../constants/Colors'
 import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
 import ModerationCollection from '../collections/ModerationCollection'
+import SettingsUtils from '../SettingsUtils'
 
 export default class ModerationSettings {
   public static async generateCache(client: NoirClient, id: string) {
@@ -25,18 +26,22 @@ export default class ModerationSettings {
     const buttons = [
       [
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationLogs', 'button'))
+          .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogs', 'button'))
           .setLabel('Setup logs')
-          .setStyle(client.componentsUtils.generateStyle(moderationData?.data.logs.status)),
+          .setStyle(SettingsUtils.generateStyle(moderationData?.data.logs.status)),
         new ButtonBuilder()
-          .setCustomId(client.componentsUtils.generateId('settings', id, 'moderationRules', 'button'))
+          .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRules', 'button'))
           .setLabel('Setup rules')
-          .setStyle(client.componentsUtils.generateStyle(moderationData?.data.rules.status))
+          .setStyle(SettingsUtils.generateStyle(moderationData?.data.rules.status)),
+        new ButtonBuilder()
+          .setCustomId(SettingsUtils.generateId('settings', id, 'moderationCases', 'button'))
+          .setLabel('Collect case data')
+          .setStyle(SettingsUtils.generateStyle(moderationData?.data.collectCases))
       ],
       [
-        client.componentsUtils.generateBack('settings', id, 'moderationBack.settings'),
-        client.componentsUtils.generateSave('settings', id, 'moderationSave'),
-        client.componentsUtils.generateRestore('settings', id, 'moderationRestore')
+        SettingsUtils.generateBack('settings', id, 'moderationBack.settings'),
+        SettingsUtils.generateSave('settings', id, 'moderationSave'),
+        SettingsUtils.generateRestore('settings', id, 'moderationRestore')
       ]
     ]
 
@@ -50,7 +55,24 @@ export default class ModerationSettings {
       color: Colors.primary,
       author: 'Moderation settings',
       authorImage: Options.clientAvatar,
-      description: 'Must have moderation tools to automate moderation. Create rules and automatically punish rulebreakers with given statements. Be notified about all actions going on server with advanced loggings system.',
+      description: 'Must have moderation tools to automate server moderation.',
+      fields: [
+        {
+          name: 'Moderation logs',
+          value: 'Be notified about every action going on the server. Setup channel for logs and get very detailed informative message about actions.',
+          inline: false
+        },
+        {
+          name: 'Moderation rules',
+          value: 'It is always great to automate moderation. Create fancy rules to automatically punish users after fixed amount of warnings.',
+          inline: false
+        },
+        {
+          name: 'Moderation cases',
+          value: 'Start collecting data about moderation cases. Calculate statistics of punishments and save the data about cases and have ability to view and edit user\'s history of punishments.',
+          inline: false
+        }
+      ],
       components: actionRows,
       ephemeral: true,
     })

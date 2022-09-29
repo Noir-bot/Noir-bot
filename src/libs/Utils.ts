@@ -1,5 +1,4 @@
 import { Duration, DurationFormatter } from '@sapphire/time-utilities'
-import { Interaction } from 'discord.js'
 import { promisify } from 'util'
 import Colors from '../constants/Colors'
 import Options from '../constants/Options'
@@ -48,36 +47,6 @@ export default class Utils {
     return value == Options.removeValue ? undefined : value
   }
 
-  public testFormatValue(value?: string, data?: { guild?: string | null, guildIcon?: string | null, user?: string | null, userAvatar?: string | null, client?: string | null, clientAvatar?: string | null }) {
-    value = this.removeFormatValue(value)
-
-    if (data?.guild) {
-      value = value?.replace(/\{\{guild name\}\}/, data.guild)
-    }
-
-    if (data?.guildIcon) {
-      value = value?.replace(/\{\{guild icon\}\}/, data.guildIcon)
-    }
-
-    if (data?.user) {
-      value = value?.replace(/\{\{user name\}\}/, data.user)
-    }
-
-    if (data?.userAvatar) {
-      value = value?.replace(/\{\{user avatar\}\}/, data.userAvatar)
-    }
-
-    if (data?.client) {
-      value = value?.replace(/\{\{client name\}\}/, data.client)
-    }
-
-    if (data?.clientAvatar) {
-      value = value?.replace(/\{\{client avatar\}\}/, data.clientAvatar)
-    }
-
-    return value
-  }
-
   public formatURL(url: string) {
     return Patterns.url.test(url) ? url : undefined
   }
@@ -106,38 +75,6 @@ export default class Utils {
         return Colors.warningHex
       } else if (color == 'embed') {
         return Colors.embedHex
-      }
-    }
-
-    return undefined
-  }
-
-  public formatImage(interaction: Interaction, image?: string) {
-    if (image == Options.removeValue) {
-      return undefined
-    }
-
-    if (image) {
-      if (Patterns.url.test(image)) {
-        return image
-      }
-
-      image = image.toLowerCase()
-
-      if (image == '{{client avatar}}') {
-        return Options.clientAvatar
-      }
-
-      else if (image == '{{user avatar}}') {
-        return undefined
-      }
-
-      else if (image == '{{guild icon}}') {
-        const guildIcon = interaction.guild?.iconURL()
-
-        if (guildIcon) {
-          return guildIcon
-        }
       }
     }
 
