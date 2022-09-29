@@ -1,9 +1,10 @@
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
-import { ChatInputCommandInteraction, GuildMember, User } from 'discord.js'
+import { ButtonInteraction, ChatInputCommandInteraction, GuildMember, User } from 'discord.js'
 import Colors from '../../../../constants/Colors'
 import NoirClient from '../../../../structures/Client'
 import ChatCommand from '../../../../structures/commands/ChatCommand'
 import WarnConfirmation from './WarnConfirmation'
+import WarnModify from './WarnModify'
 
 export default class WarnCommand extends ChatCommand {
   constructor(client: NoirClient) {
@@ -135,5 +136,27 @@ export default class WarnCommand extends ChatCommand {
     }
 
     return true
+  }
+
+  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction) {
+    const parts = interaction.customId.split('-')
+    const id = parseInt(parts[1])
+    const method = parts[2]
+
+    if (method == 'cancel') {
+      await WarnConfirmation.cancelResponse(client, interaction)
+    }
+
+    else if (method == 'confirm') {
+      await WarnConfirmation.confirmResponse(client, interaction, id)
+    }
+
+    else if (method == 'remove') {
+      await WarnModify.removeResponse(client, interaction, id)
+    }
+
+    else if (method == 'edit') {
+
+    }
   }
 }

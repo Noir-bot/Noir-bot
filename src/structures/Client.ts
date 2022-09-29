@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { Client, Collection } from 'discord.js'
 import glob from 'glob'
 import { promisify } from 'util'
+import Case from '../collections/Case'
 import Cases from '../collections/Cases'
 import Premium from '../collections/Premium'
 import ModerationCollection from '../commands/slash/utilities/settings/collections/ModerationCollection'
@@ -19,6 +20,7 @@ export default class NoirClient extends Client {
   public premium = new Collection<string, Premium>()
   public events = new Collection<string, Event>()
   public cases = new Collection<string, Cases>()
+  public case = new Collection<number, Case>()
   public utils = new Utils(this)
   public reply = new Reply(this)
   public prisma = new PrismaClient()

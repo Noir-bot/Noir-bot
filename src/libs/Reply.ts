@@ -25,7 +25,8 @@ export default class Reply {
     image?: string,
     content?: string,
     ephemeral?: boolean,
-    fetch?: boolean
+    fetch?: boolean,
+    update?: boolean
   }) {
     const embed = this.build({
       color: properties.color,
@@ -47,7 +48,8 @@ export default class Reply {
       embed: embed,
       components: properties.components,
       ephemeral: properties?.ephemeral,
-      fetch: properties?.fetch
+      fetch: properties?.fetch,
+      update: properties?.update ?? true
     })
   }
 
@@ -89,31 +91,41 @@ export default class Reply {
       components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
       ephemeral?: boolean,
       content?: string,
-      fetch?: boolean
+      fetch?: boolean,
+      update?: boolean
     }
   ) {
     try {
-      if (properties.interaction.isButton() || properties.interaction.isSelectMenu() || properties.interaction.type == InteractionType.ModalSubmit && properties.interaction.isFromMessage()) {
-        return await properties.interaction.update({
+      if (properties.update) {
+        if (properties.interaction.isButton() || properties.interaction.isSelectMenu() || properties.interaction.type == InteractionType.ModalSubmit && properties.interaction.isFromMessage()) {
+          return await properties.interaction.update({
+            embeds: properties.embed?.data ? [properties.embed.data] : [],
+            components: properties?.components ?? [],
+            content: properties?.content,
+            fetchReply: properties.fetch ?? false
+          }).catch(async () => {
+            return await properties.interaction.editReply({
+              embeds: properties.embed?.data ? [properties.embed.data] : [],
+              components: properties?.components ?? [],
+              content: properties?.content
+            })
+          })
+        }
+
+        return await properties.interaction.editReply({
+          embeds: properties.embed?.data ? [properties.embed.data] : [],
+          components: properties?.components ?? [],
+          content: properties?.content
+        })
+      } else {
+        return await properties.interaction.reply({
           embeds: properties.embed?.data ? [properties.embed.data] : [],
           components: properties?.components ?? [],
           content: properties?.content,
+          ephemeral: properties?.ephemeral ?? true,
           fetchReply: properties.fetch ?? false
-        }).catch(async () => {
-          return await properties.interaction.editReply({
-            embeds: properties.embed?.data ? [properties.embed.data] : [],
-            components: properties?.components ?? [],
-            content: properties?.content
-          })
         })
       }
-
-      return await properties.interaction.editReply({
-        embeds: properties.embed?.data ? [properties.embed.data] : [],
-        components: properties?.components ?? [],
-        content: properties?.content
-      })
-
     } catch (err) {
       return await properties.interaction.reply({
         embeds: properties.embed?.data ? [properties.embed.data] : [],
@@ -122,7 +134,6 @@ export default class Reply {
         ephemeral: properties?.ephemeral ?? true,
         fetchReply: properties.fetch ?? false
       })
-      console.log(err)
     }
   }
 }

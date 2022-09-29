@@ -16,15 +16,18 @@ model Premium {
 
 model Case {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  caseId    Int       @unique
   guild     String    @unique
+  caseId    Int       @unique
   type      String
-  moderator String
   user      String
-  reason    String?
+  moderator String
   duration  Int?
+  reason    String?
   created   DateTime
   expired   DateTime?
+  edited    DateTime?
+  reference String?
+  message   String?
 }
 
 model Cases {

@@ -40,6 +40,8 @@ export default class ModerationCollection {
       where: { guild: this.id },
       data: this.data
     })
+
+    return this
   }
 
   public async cacheData(client: NoirClient) {
@@ -64,6 +66,8 @@ export default class ModerationCollection {
         rules: moderationData.rules.rules as any
       }
     }
+
+    return this
   }
 
   public async getWebhook(client: NoirClient) {
@@ -79,8 +83,12 @@ export default class ModerationCollection {
   }
 
   public static async getData(client: NoirClient, id: string) {
-    await client.moderationSettings.get(id)?.cacheData(client)
-    const moderationData = client.moderationSettings.get(id)
+    let moderationData = client.moderationSettings.get(id)
+
+    if (!moderationData) {
+      client.moderationSettings.set(id, new ModerationCollection(id))
+      moderationData = await client.moderationSettings.get(id)?.cacheData(client)
+    }
 
     return moderationData as ModerationCollection
   }

@@ -1,24 +1,36 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, User } from 'discord.js'
+import Case from '../../../../collections/Case'
 import Cases from '../../../../collections/Cases'
 import Colors from '../../../../constants/Colors'
 import NoirClient from '../../../../structures/Client'
 import ModerationCollection from '../../utilities/settings/collections/ModerationCollection'
+import WarnMessage from './WarnMessage'
 
 export default class WarnConfirmation {
   public static async confirmationMessage(client: NoirClient, interaction: ChatInputCommandInteraction, user: User, reason: string | null) {
     if (!interaction.guildId) return
 
     const casesData = await Cases.getData(client, interaction.guildId)
-    const warnId = casesData.data.overall + 1
+    const id = casesData.data.overall + 1
+
+    client.case.set(id, new Case(id, {
+      caseId: id,
+      type: 'warn',
+      guild: interaction.guildId!,
+      moderator: interaction.user.id,
+      user: user.id,
+      created: new Date(),
+      reason: reason ?? undefined
+    }))
 
     const buttons = [
       new ButtonBuilder()
         .setStyle(ButtonStyle.Secondary)
-        .setCustomId(`warn-${warnId}-${user.id}-cancel`)
+        .setCustomId(`warn-${id}-cancel`)
         .setLabel('Cancel'),
       new ButtonBuilder()
         .setStyle(ButtonStyle.Danger)
-        .setCustomId(`warn-${warnId}-${user.id}-confirm`)
+        .setCustomId(`warn-${id}-confirm`)
         .setLabel('Confirm'),
     ]
 
@@ -35,50 +47,56 @@ export default class WarnConfirmation {
     })
   }
 
-  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction) {
-    const parts = interaction.customId.split('-')
-    const method = parts[3]
-    const userId = parts[2]
-    const id = parseInt(parts[1])
+  public static async cancelResponse(client: NoirClient, interaction: ButtonInteraction) {
+    await client.reply.reply({
+      interaction: interaction,
+      color: Colors.warning,
+      author: 'Warning cancel',
+      description: `Action successfully canceled.`,
+      ephemeral: true
+    })
+  }
 
-    if (method == 'cancel') {
-      await client.reply.reply({
-        interaction: interaction,
-        color: Colors.warning,
-        author: 'Warning cancel',
-        description: `Action successfully canceled.`,
-        ephemeral: true
+  public static async confirmResponse(client: NoirClient, interaction: ButtonInteraction, id: number) {
+    const moderationData = await ModerationCollection.getData(client, interaction.guildId!)
+    const webhook = await moderationData.getWebhook(client)
+    const caseData = client.case.get(id)
+
+    if (!caseData) return
+    const casesData = await Cases.getData(client, interaction.guildId!)
+    casesData.data.overall += 1
+    casesData.data.warning += 1
+    casesData.saveData(client)
+
+    if (moderationData.data.logs.status && webhook) {
+      const message = await WarnMessage.sendLogsMessage(client, caseData, webhook)
+      caseData.data.message = message.id
+    }
+
+    if (moderationData.data.collectCases) {
+      await client.prisma.case.create({
+        data: {
+          guild: caseData.data.guild,
+          caseId: caseData.data.caseId,
+          moderator: caseData.data.moderator,
+          user: caseData.data.user,
+          type: caseData.data.type,
+          created: caseData.data.created,
+          reason: caseData.data.reason,
+          message: caseData.data.message,
+          edited: caseData.data.edited
+        }
       })
     }
 
-    else if (method == 'confirm') {
-      const moderationData = await ModerationCollection.getData(client, interaction.guildId!)
+    client.case.delete(id)
 
-      if (moderationData.data.collectCases) {
-        await client.prisma.case.create({
-          data: {
-            guild: interaction.guildId!,
-            caseId: id,
-            moderator: interaction.user.id,
-            user: userId,
-            type: 'warn',
-            created: new Date()
-          }
-        })
-      }
-
-      const casesData = await Cases.getData(client, interaction.guildId!)
-      casesData.data.overall += 1
-      casesData.data.warning += 1
-      casesData.saveData(client)
-
-      await client.reply.reply({
-        interaction: interaction,
-        color: Colors.warning,
-        author: 'Warning success',
-        description: `User successfully warned`,
-        ephemeral: true
-      })
-    }
+    await client.reply.reply({
+      interaction: interaction,
+      color: Colors.warning,
+      author: 'Warning success',
+      description: `User successfully warned`,
+      ephemeral: true
+    })
   }
 }

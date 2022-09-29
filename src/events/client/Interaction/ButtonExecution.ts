@@ -1,5 +1,5 @@
 import { ButtonInteraction } from 'discord.js'
-import WarnConfirmation from '../../../commands/slash/moderation/warn/WarnConfirmation'
+import WarnCommand from '../../../commands/slash/moderation/warn/WarnCommand'
 import HelpCommandResponses from '../../../commands/slash/utilities/help/HelpCommandResponses'
 import SettingsResponses from '../../../commands/slash/utilities/settings/SettingsResponses'
 import NoirClient from '../../../structures/Client'
@@ -11,6 +11,6 @@ export default class ButtonExecution {
 
     if (name == 'help') await HelpCommandResponses.button(client, interaction)
     else if (name == 'settings') await SettingsResponses.buttonResponse(client, interaction)
-    else if (name == 'warn') await WarnConfirmation.buttonResponse(client, interaction)
+    else if (name == 'warn') await WarnCommand.buttonResponse(client, interaction)
   }
 }
