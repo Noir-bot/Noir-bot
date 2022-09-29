@@ -14,7 +14,7 @@ export default class WelcomeEditorEmbed {
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedColor', 'input'))
       .setLabel('Embed color')
       .setStyle(TextInputStyle.Short)
-      .setPlaceholder('Enter green, gray, yellow, cyan, red, embed or color hex')
+      .setPlaceholder('Enter green, gray, yellow, blue, red, embed or color hex')
       .setValue(messageData.embed.rawColor ?? '')
       .setRequired(false)
       .setMaxLength(10)

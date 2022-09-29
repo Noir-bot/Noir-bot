@@ -68,9 +68,9 @@ export default class Utils {
       } else if (color == 'gray') {
         return Colors.secondaryHex
       } else if (color == 'yellow') {
-        return Colors.tertiaryHex
-      } else if (color == 'cyan') {
-        return Colors.successHex
+        return '#ffcc33'
+      } else if (color == 'blue') {
+        return '#338bff'
       } else if (color == 'red') {
         return Colors.warningHex
       } else if (color == 'embed') {
