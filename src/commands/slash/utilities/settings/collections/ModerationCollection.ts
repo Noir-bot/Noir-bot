@@ -73,13 +73,16 @@ export default class ModerationCollection {
   public async getWebhook(client: NoirClient) {
     const moderationData = client.moderationSettings.get(this.id)
 
-    if (!moderationData || !moderationData.data.logs.webhook) return undefined
+    if (!moderationData || !moderationData.data.logs.webhook) return
     const webhookData = parseWebhookURL(moderationData.data.logs.webhook)
 
-    if (!webhookData) return undefined
-    const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token)
+    if (!webhookData) return
 
-    return webhook
+    try {
+      return await client.fetchWebhook(webhookData?.id, webhookData?.token)
+    } catch {
+      return
+    }
   }
 
   public static async getData(client: NoirClient, id: string) {

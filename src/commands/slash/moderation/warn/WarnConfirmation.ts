@@ -59,7 +59,6 @@ export default class WarnConfirmation {
 
   public static async confirmResponse(client: NoirClient, interaction: ButtonInteraction, id: number) {
     const moderationData = await ModerationCollection.getData(client, interaction.guildId!)
-    const webhook = await moderationData.getWebhook(client)
     const caseData = client.case.get(id)
 
     if (!caseData) return
@@ -67,6 +66,8 @@ export default class WarnConfirmation {
     casesData.data.overall += 1
     casesData.data.warning += 1
     casesData.saveData(client)
+
+    const webhook = await moderationData.getWebhook(client)
 
     if (moderationData.data.logs.status && webhook) {
       const message = await WarnMessage.sendLogsMessage(client, caseData, webhook)

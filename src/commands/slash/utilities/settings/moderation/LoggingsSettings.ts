@@ -64,15 +64,18 @@ export default class LoggingsSettings {
 
   public static async channelRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
     const moderationData = client.moderationSettings.get(id)
-    const webhook = await moderationData?.getWebhook(client)
 
     const channelInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogsChannel', 'input'))
       .setLabel('Channel id')
       .setPlaceholder('Enter the channel id')
-      .setValue(webhook?.channelId ?? '')
       .setStyle(TextInputStyle.Short)
       .setRequired(true)
+
+    try {
+      const webhook = await moderationData?.getWebhook(client)
+      channelInput.setValue(webhook?.channelId ?? '')
+    } catch { }
 
     const actionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>()
       .addComponents(channelInput)
