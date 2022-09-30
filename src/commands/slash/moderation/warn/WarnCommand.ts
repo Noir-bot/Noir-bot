@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
-import { ButtonInteraction, ChatInputCommandInteraction, GuildMember, User } from 'discord.js'
+import { ButtonInteraction, ChatInputCommandInteraction, GuildMember, ModalMessageModalSubmitInteraction, User } from 'discord.js'
 import Colors from '../../../../constants/Colors'
 import NoirClient from '../../../../structures/Client'
 import ChatCommand from '../../../../structures/commands/ChatCommand'
@@ -156,7 +156,17 @@ export default class WarnCommand extends ChatCommand {
     }
 
     else if (method == 'edit') {
+      await WarnModify.editRequest(client, interaction, id)
+    }
+  }
 
+  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction) {
+    const parts = interaction.customId.split('-')
+    const id = parseInt(parts[1])
+    const method = parts[2]
+
+    if (method == 'edit') {
+      await WarnModify.editResponse(client, interaction, id)
     }
   }
 }

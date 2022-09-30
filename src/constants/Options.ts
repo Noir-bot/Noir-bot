@@ -30,7 +30,8 @@ export default class Options {
       'GuildMessages',
       'GuildPresences',
       'DirectMessages',
-      'GuildBans'
+      'GuildWebhooks',
+      'GuildBans',
     ],
     presence: {
       status: this.status,

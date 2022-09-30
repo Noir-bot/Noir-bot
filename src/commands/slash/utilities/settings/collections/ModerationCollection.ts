@@ -87,9 +87,10 @@ export default class ModerationCollection {
 
     if (!moderationData) {
       client.moderationSettings.set(id, new ModerationCollection(id))
-      moderationData = await client.moderationSettings.get(id)?.cacheData(client)
+      moderationData = client.moderationSettings.get(id)
     }
 
+    await moderationData?.cacheData(client)
     return moderationData as ModerationCollection
   }
 }
