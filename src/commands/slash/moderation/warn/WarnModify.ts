@@ -80,7 +80,7 @@ export default class WarnModify {
       .setPlaceholder('Enter the warn reason')
       .setValue(caseData.reason ?? '')
       .setStyle(TextInputStyle.Paragraph)
-      .setMaxLength(300)
+      .setMaxLength(500)
       .setRequired(true)
 
     const actionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>()

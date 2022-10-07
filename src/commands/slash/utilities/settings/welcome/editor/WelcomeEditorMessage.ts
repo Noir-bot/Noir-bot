@@ -13,7 +13,7 @@ export default class WelcomeEditorMessage {
       .setLabel('Message content')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter unembeded message content')
-      .setValue(messageData?.embed.author ?? '')
+      .setValue(messageData?.message ?? '')
       .setRequired(true)
       .setMaxLength(1000)
       .setMinLength(1)
@@ -34,9 +34,9 @@ export default class WelcomeEditorMessage {
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType) {
     const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
 
-    const messageInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorMessage', 'input'))
-
     if (!messageData) return
+
+    const messageInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorMessage', 'input'))
 
     messageData.message = client.utils.removeFormatValue(messageInput)
 

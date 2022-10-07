@@ -166,9 +166,52 @@ export default class WelcomeCollection {
     const webhookData = parseWebhookURL(welcomeData.data.webhook)
 
     if (!webhookData) return undefined
-    const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token)
 
-    return webhook
+    try {
+      return await client.fetchWebhook(webhookData?.id, webhookData?.token)
+    } catch {
+      return
+    }
+  }
+
+  public static async getData(client: NoirClient, id: string) {
+    let welcomeData = client.welcomeSettings.get(id)
+
+    if (!welcomeData) {
+      client.welcomeSettings.set(id, new WelcomeCollection(id))
+      welcomeData = client.welcomeSettings.get(id)
+    }
+
+    await welcomeData?.cacheData(client)
+    return welcomeData as WelcomeCollection
+  }
+}
+
+export interface WelcomeCollectionMessageData {
+  message?: string
+  embed: {
+    url?: string
+    color?: string
+    rawColor?: string
+    title?: string
+    author?: string
+    footer?: string
+    authorImage?: string
+    rawAuthorImage?: string
+    footerImage?: string
+    rawFooterImage?: string
+    description?: string
+    thumbnail?: string
+    rawThumbnail?: string
+    image?: string
+    rawImage?: string
+    fields: Array<{
+      id: number
+      name: string
+      value: string
+      inline: boolean
+    }>
+    timestamp: boolean
   }
 }
 
@@ -182,90 +225,12 @@ interface WelcomeCollectionData {
   messages: {
     guild: {
       status: boolean,
-      join: {
-        message?: string
-        embed: {
-          url?: string
-          color?: string
-          rawColor?: string
-          title?: string
-          author?: string
-          footer?: string
-          authorImage?: string
-          rawAuthorImage?: string
-          footerImage?: string
-          rawFooterImage?: string
-          description?: string
-          thumbnail?: string
-          rawThumbnail?: string
-          image?: string
-          rawImage?: string
-          fields: Array<{
-            id: number
-            name: string
-            value: string
-            inline: boolean
-          }>
-          timestamp: boolean
-        }
-      },
-      left: {
-        message?: string
-        embed: {
-          url?: string
-          color?: string
-          rawColor?: string
-          title?: string
-          author?: string
-          footer?: string
-          authorImage?: string
-          rawAuthorImage?: string
-          footerImage?: string
-          rawFooterImage?: string
-          description?: string
-          thumbnail?: string
-          rawThumbnail?: string
-          image?: string
-          rawImage?: string
-          fields: Array<{
-            id: number
-            name: string
-            value: string
-            inline: boolean
-          }>
-          timestamp: boolean
-        }
-      }
+      join: WelcomeCollectionMessageData,
+      left: WelcomeCollectionMessageData
     }
     direct: {
       status: boolean,
-      join: {
-        message?: string
-        embed: {
-          url?: string
-          color?: string
-          rawColor?: string
-          title?: string
-          author?: string
-          footer?: string
-          authorImage?: string
-          rawAuthorImage?: string
-          footerImage?: string
-          rawFooterImage?: string
-          description?: string
-          thumbnail?: string
-          rawThumbnail?: string
-          image?: string
-          rawImage?: string
-          fields: Array<{
-            id: number
-            name: string
-            value: string
-            inline: boolean
-          }>
-          timestamp: boolean
-        }
-      }
+      join: WelcomeCollectionMessageData
     }
   }
 }

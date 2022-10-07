@@ -41,7 +41,7 @@ export default class WelcomeResponse {
       }
 
       else if (type == 'welcomeExample') {
-        const messageType = methods[2] as WelcomeMessageType
+        const messageType = methods[3] as WelcomeMessageType
         await WelcomeEditor.exampleResponse(client, interaction, id, messageType)
       }
 

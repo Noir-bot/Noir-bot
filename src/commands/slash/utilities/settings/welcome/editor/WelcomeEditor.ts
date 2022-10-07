@@ -149,7 +149,7 @@ export default class WelcomeEditor {
       components: actionRows,
       fields: [{
         name: 'Message variables',
-        value: `\`${Options.removeValue}\` Remove field value\n\`{{guild name}}\` Guild name\n\`{{guild icon}}\` Guild icon\n\`{{guild members}}\` Guild members count\n\`{{guild createdAt}}\` Guild created at\n\`{{guild created}}\` Guild creation date\n\`{{client name}}\` Client name\n\`{{client avatar}}\` Client avatar\n\`{{user name}}\` User name\n\`{{user avatar}}\` User avatar\n\`{{user id}}\` User id\n\`{{user joinAt}}\` User joined at\n\`{{user joined}}\` - User join date\n\`{{user createdAt}}\` - User account created at\n\`{{user created}}\` - User account creation date`,
+        value: `\`${Options.removeValue}\` Remove field value\n\`{{guild name}}\` Guild name\n\`{{guild icon}}\` Guild icon\n\`{{guild members}}\` Guild members count\n\`{{guild createdAt}}\` Guild created at\n\`{{guild created}}\` Guild creation date\n\`{{client name}}\` Client name\n\`{{client avatar}}\` Client avatar\n\`{{user name}}\` User name\n\`{{user avatar}}\` User avatar\n\`{{user id}}\` User id\n\`{{user joinedAt}}\` User joined at\n\`{{user joined}}\` - User join date\n\`{{user createdAt}}\` - User account created at\n\`{{user created}}\` - User account creation date`,
         inline: false
       }],
       ephemeral: true
@@ -220,7 +220,7 @@ export default class WelcomeEditor {
     if (!messageData) return
 
     interaction.deferUpdate()
-    const button = SettingsUtils.generateBack('settings', id, 'welcomeBack.welcomeEditor')
+    const button = SettingsUtils.generateBack('settings', id, `welcomeBack.welcomeEditor.${type}`)
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(button)
     const exampleStatus = messageData?.embed.description || messageData?.embed.image || messageData?.embed.thumbnail || messageData?.embed.author || messageData?.embed.authorImage || messageData?.embed.footer || messageData?.embed.title || messageData.embed.fields
 

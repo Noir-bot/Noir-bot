@@ -1,39 +1,44 @@
-import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
-import { ButtonInteraction, ChatInputCommandInteraction, GuildMember, ModalMessageModalSubmitInteraction, User } from 'discord.js'
+import { Duration } from '@sapphire/time-utilities'
+import { ApplicationCommandOptionType, ApplicationCommandType, ButtonInteraction, ChatInputCommandInteraction, GuildMember, User } from 'discord.js'
 import Colors from '../../../../constants/Colors'
 import NoirClient from '../../../../structures/Client'
 import ChatCommand from '../../../../structures/commands/ChatCommand'
-import WarnConfirmation from './WarnConfirmation'
-import WarnModify from './WarnModify'
+import RestrictionConfirmation from './RestrictionConfirmation'
 
-export default class WarnCommand extends ChatCommand {
+export default class RestrictionCommand extends ChatCommand {
   constructor(client: NoirClient) {
     super(
       client,
       {
-        permissions: ['SendMessages', 'EmbedLinks', 'ManageWebhooks'],
+        permissions: ['ModerateMembers', 'EmbedLinks', 'SendMessages'],
         access: 'public',
         type: 'public',
         status: true
       },
       {
-        name: 'warn',
-        description: 'Warn user',
-        defaultMemberPermissions: ['ModerateMembers'],
-        dmPermission: false,
+        name: 'restrict',
+        description: 'Temporarily restrict user',
+        defaultMemberPermissions: ['SendMessages', 'EmbedLinks', 'ModerateMembers'],
         type: ApplicationCommandType.ChatInput,
+        dmPermission: false,
         options: [
           {
             name: 'user',
-            description: 'User to warn',
+            description: 'User to restrict',
             type: ApplicationCommandOptionType.User,
             required: true
           },
           {
-            name: 'reason',
-            description: 'Warn reason',
+            name: 'duration',
+            description: 'Restriction duration, up to 28 days',
             type: ApplicationCommandOptionType.String,
-            maxLength: 500
+            required: true
+          },
+          {
+            name: 'reason',
+            description: 'Restriction reason',
+            type: ApplicationCommandOptionType.String,
+
           }
         ]
       }
@@ -43,16 +48,15 @@ export default class WarnCommand extends ChatCommand {
   public async execute(client: NoirClient, interaction: ChatInputCommandInteraction) {
     const user = interaction.options.getUser('user', true)
     const member = interaction.options.getMember('user') as GuildMember
+    const duration = interaction.options.getString('duration', true)
     const reason = interaction.options.getString('reason')
-    const errors = await this.handleErrors(client, interaction, user, member, reason)
+    const errors = await this.handleErrors(client, interaction, user, member, duration)
 
     if (!errors) return
-
-    WarnConfirmation.confirmationMessage(client, interaction, user, reason)
   }
 
-  public async handleErrors(client: NoirClient, interaction: ChatInputCommandInteraction, user: User, member: GuildMember | null, reason: string | null) {
-    const command = `</warn:${interaction.commandId}>`
+  public async handleErrors(client: NoirClient, interaction: ChatInputCommandInteraction, user: User, member: GuildMember | null, duration: string) {
+    const command = `</restrict:${interaction.commandId}>`
 
     if (!user.id) {
       await client.reply.reply({
@@ -69,7 +73,7 @@ export default class WarnCommand extends ChatCommand {
         interaction: interaction,
         color: Colors.warning,
         author: 'User error',
-        description: `Bot can not be warned. ${command}`,
+        description: `Bot can not be restricted. ${command}`,
         ephemeral: true
       })
 
@@ -81,7 +85,7 @@ export default class WarnCommand extends ChatCommand {
         interaction: interaction,
         color: Colors.warning,
         author: 'User error',
-        description: `${interaction.user.username} you can not warn yourself. ${command}`,
+        description: `${interaction.user.username} you can not restrict yourself. ${command}`,
         ephemeral: true
       })
 
@@ -93,7 +97,7 @@ export default class WarnCommand extends ChatCommand {
         interaction: interaction,
         color: Colors.warning,
         author: 'Permission error',
-        description: `${interaction.user.username} you can not warn member with higher role than yours. ${command}`,
+        description: `${interaction.user.username} you can not restrict member with higher role than yours. ${command}`,
         ephemeral: true
       })
 
@@ -105,7 +109,7 @@ export default class WarnCommand extends ChatCommand {
         interaction: interaction,
         color: Colors.warning,
         author: 'Permission error',
-        description: `${interaction.user.username} can not warn server owner. ${command}`,
+        description: `${interaction.user.username} can not restrict server owner. ${command}`,
         ephemeral: true
       })
 
@@ -117,19 +121,38 @@ export default class WarnCommand extends ChatCommand {
         interaction: interaction,
         color: Colors.warning,
         author: 'Permission error',
-        description: `${member.user.username} can not be warned. ${command}`,
+        description: `${member.user.username} can not be restricted. ${command}`,
         ephemeral: true
       })
 
       return false
     }
 
-    if (reason && reason?.length > 500) {
+    if (member?.communicationDisabledUntilTimestamp) {
       await client.reply.reply({
         interaction: interaction,
         color: Colors.warning,
-        author: 'Reason error',
-        description: `Reason can not be longer than 500 characters. ${command}`,
+        author: 'Restriction error',
+        description: `${member.user.username} is already restricted. ${command}`,
+        ephemeral: true
+      })
+
+      return false
+    }
+
+    if (new Duration(duration).offset < 1) {
+      await client.reply.reply({
+        interaction: interaction,
+        color: Colors.warning,
+        author: 'Restriction error',
+        description: `Incorrect duration format. ${command}`,
+        fields: [
+          {
+            name: 'Duration examples',
+            value: '`1h10m` 1 hour 10 minutes\n`1d10s` 1 day 10 seconds\n`15m` 15 minutes',
+            inline: false
+          }
+        ],
         ephemeral: true
       })
 
@@ -139,35 +162,17 @@ export default class WarnCommand extends ChatCommand {
     return true
   }
 
-  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction) {
+  public async buttonResponse(client: NoirClient, interaction: ButtonInteraction) {
     const parts = interaction.customId.split('-')
     const id = parseInt(parts[1])
     const method = parts[2]
 
     if (method == 'cancel') {
-      await WarnConfirmation.cancelResponse(client, interaction)
+      await RestrictionConfirmation.cancelResponse(client, interaction)
     }
 
     else if (method == 'confirm') {
-      await WarnConfirmation.confirmResponse(client, interaction, id)
-    }
-
-    else if (method == 'remove') {
-      await WarnModify.removeResponse(client, interaction, id)
-    }
-
-    else if (method == 'edit') {
-      await WarnModify.editRequest(client, interaction, id)
-    }
-  }
-
-  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction) {
-    const parts = interaction.customId.split('-')
-    const id = parseInt(parts[1])
-    const method = parts[2]
-
-    if (method == 'edit') {
-      await WarnModify.editResponse(client, interaction, id)
+      await RestrictionConfirmation.confirmResponse(client, interaction, id)
     }
   }
 }
