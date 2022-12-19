@@ -1,21 +1,20 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
-import { WelcomeMessageType } from '../../../../../../constants/Options'
+import Options from '../../../../../../constants/Options'
 import NoirClient from '../../../../../../structures/Client'
+import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditor from './WelcomeEditor'
 
 export default class WelcomeEditorEmbed {
-  public static async request(client: NoirClient, interaction: ButtonInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
-
-    if (!messageData) return
+  public static async request(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
     const colorInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedColor', 'input'))
       .setLabel('Embed color')
       .setStyle(TextInputStyle.Short)
-      .setPlaceholder('Enter green, gray, yellow, blue, red, embed or color hex')
-      .setValue(messageData.embed.rawColor ?? '')
+      .setPlaceholder('Enter color hex or color name')
+      .setValue(messageData.rawColor ?? '')
       .setRequired(false)
       .setMaxLength(10)
       .setMinLength(1)
@@ -24,7 +23,7 @@ export default class WelcomeEditorEmbed {
       .setLabel('Embed description')
       .setStyle(TextInputStyle.Paragraph)
       .setPlaceholder('Enter the description')
-      .setValue(messageData.embed.description ?? '')
+      .setValue(messageData.description ?? '')
       .setRequired(false)
       .setMaxLength(2000)
       .setMinLength(1)
@@ -33,7 +32,7 @@ export default class WelcomeEditorEmbed {
       .setLabel('Embed image')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter image URL or server, user, client')
-      .setValue(messageData.embed.rawImage ?? '')
+      .setValue(messageData.rawImage ?? '')
       .setRequired(false)
       .setMaxLength(2000)
       .setMinLength(1)
@@ -42,7 +41,7 @@ export default class WelcomeEditorEmbed {
       .setLabel('Embed thumbnail')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter image URL or server, user, client')
-      .setValue(messageData.embed.rawThumbnail ?? '')
+      .setValue(messageData.rawThumbnail ?? '')
       .setRequired(false)
       .setMaxLength(2000)
       .setMinLength(1)
@@ -51,7 +50,7 @@ export default class WelcomeEditorEmbed {
       .setLabel('Embed timestamp')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('True or false')
-      .setValue(messageData.embed.timestamp ? 'True' : 'False')
+      .setValue(messageData.timestamp ? 'True' : 'False')
       .setRequired(false)
       .setMaxLength(5)
       .setMinLength(4)
@@ -77,10 +76,8 @@ export default class WelcomeEditorEmbed {
     await interaction.showModal(modal)
   }
 
-  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
-
-    if (!messageData) return
+  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
     const colorInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedColor', 'input'))
     const descriptionInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedDescription', 'input'))
@@ -88,29 +85,31 @@ export default class WelcomeEditorEmbed {
     const thumbnailInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedThumbnail', 'input'))
     const timestampInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedTimestamp', 'input'))
 
-    console.log(colorInput)
-
     if (colorInput) {
-      messageData.embed.rawColor = client.utils.removeFormatValue(colorInput)
-      messageData.embed.color = client.utils.formatColor(colorInput)
+      messageData.rawColor = WelcomeMessage.formatRemove(colorInput)
+      messageData.color = WelcomeMessage.formatColor(colorInput)
     }
 
     if (descriptionInput) {
-      messageData.embed.description = client.utils.removeFormatValue(descriptionInput)
+      messageData.description = WelcomeMessage.formatRemove(descriptionInput)
     }
 
     if (imageInput) {
-      messageData.embed.image = client.utils.removeFormatValue(SettingsUtils.formatImage(client, interaction, imageInput))
-      messageData.embed.rawImage = client.utils.removeFormatValue(imageInput)
+      const formatted = WelcomeMessage.formatVariable(imageInput, { client: { avatar: Options.clientAvatar }, guild: { icon: interaction.guild.iconURL() } })
+
+      messageData.image = formatted == messageData.rawImage ? undefined : formatted
+      messageData.rawImage = WelcomeMessage.formatRemove(imageInput)
     }
 
     if (thumbnailInput) {
-      messageData.embed.thumbnail = client.utils.removeFormatValue(SettingsUtils.formatImage(client, interaction, thumbnailInput))
-      messageData.embed.rawThumbnail = client.utils.removeFormatValue(thumbnailInput)
+      const formatted = WelcomeMessage.formatVariable(thumbnailInput, { client: { avatar: Options.clientAvatar }, guild: { icon: interaction.guild.iconURL() } })
+
+      messageData.thumbnail = formatted == messageData.rawThumbnail ? undefined : formatted
+      messageData.rawThumbnail = WelcomeMessage.formatRemove(thumbnailInput)
     }
 
     if (timestampInput) {
-      messageData.embed.timestamp = client.utils.formatBoolean(timestampInput)
+      messageData.timestamp = client.utils.formatBoolean(timestampInput)
     }
 
     await WelcomeEditor.initialMessage(client, interaction, id, type)

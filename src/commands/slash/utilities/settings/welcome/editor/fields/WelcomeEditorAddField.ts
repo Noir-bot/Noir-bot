@@ -1,12 +1,13 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
-import { WelcomeMessageType } from '../../../../../../../constants/Options'
 import NoirClient from '../../../../../../../structures/Client'
+import Premium from '../../../../../../../structures/Premium'
+import WelcomeMessage, { WelcomeMessageType } from '../../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../../SettingsUtils'
 import WelcomeEditor from '../WelcomeEditor'
 
 export default class WelcomeEditorAddField {
-  public static async request(client: NoirClient, interaction: ButtonInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
+  public static async request(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
     if (!messageData) return
 
@@ -53,23 +54,22 @@ export default class WelcomeEditorAddField {
     await interaction.showModal(modal)
   }
 
-  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
+  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
+    const premiumData = await Premium.cache(client, id)
 
     if (!messageData) return
-    if (messageData.embed.fields.length > 5 && !client.utils.premiumStatus(interaction.guildId!)) return
-    if (messageData.embed.fields.length >= 25) return
+    if (messageData.fieldsId.length > 5 && !premiumData?.status()) return
+    if (messageData.fieldsId.length >= 25) return
 
     const fieldNameInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldName', 'input'))
     const fieldValueInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldValue', 'input'))
-    const fieldInlineInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldInline', 'input'))
+    const fieldInlineInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldInline', 'input')).trim().toLowerCase()
 
-    messageData.embed.fields.push({
-      id: messageData.embed.fields.length,
-      name: fieldNameInput,
-      value: fieldValueInput,
-      inline: client.utils.formatBoolean(fieldInlineInput) ?? false
-    })
+    messageData.fieldsId.push(messageData.fieldsId.length)
+    messageData.fieldsName.push(fieldNameInput)
+    messageData.fieldsValue.push(fieldValueInput)
+    messageData.fieldsInline.push(fieldInlineInput == 'true' ? true : false)
 
     await WelcomeEditor.initialMessage(client, interaction, id, type)
   }

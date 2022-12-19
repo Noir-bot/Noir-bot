@@ -1,26 +1,26 @@
 import { PrismaClient } from '@prisma/client'
-import { Client, Collection } from 'discord.js'
+import { Client, Collection, ForumChannel, ThreadAutoArchiveDuration } from 'discord.js'
 import glob from 'glob'
 import { promisify } from 'util'
-import Case from '../collections/Case'
-import Cases from '../collections/Cases'
-import Premium from '../collections/Premium'
-import ModerationCollection from '../commands/slash/utilities/settings/collections/ModerationCollection'
-import WelcomeSettingsCollection from '../commands/slash/utilities/settings/collections/WelcomeCollection'
 import Options from '../constants/Options'
 import Reply from '../libs/Reply'
 import Utils from '../libs/Utils'
-import Command from './commands/Command'
 import Event from './Event'
+import Moderation from './Moderation'
+import ModerationRules from './ModerationRules'
+import Premium from './Premium'
+import Welcome from './Welcome'
+import WelcomeMessage from './WelcomeMessage'
+import Command from './commands/Command'
 
 export default class NoirClient extends Client {
-  public welcomeSettings = new Collection<string, WelcomeSettingsCollection>()
-  public moderationSettings = new Collection<string, ModerationCollection>()
   public commands = new Collection<string, Command>()
-  public premium = new Collection<string, Premium>()
   public events = new Collection<string, Event>()
-  public cases = new Collection<string, Cases>()
-  public case = new Collection<number, Case>()
+  public premium = new Collection<string, Premium>()
+  public welcome = new Collection<string, Welcome>()
+  public welcomeMessages = new Collection<string, WelcomeMessage>()
+  public moderation = new Collection<string, Moderation>()
+  public moderationRules = new Collection<string, ModerationRules>()
   public utils = new Utils(this)
   public reply = new Reply(this)
   public prisma = new PrismaClient()
@@ -63,10 +63,28 @@ export default class NoirClient extends Client {
   private handleErrors() {
     process.on('uncaughtException', (error) => {
       console.log('Uncaught exception\n', error)
+
+      const errorChannel = this.channels.cache.get(Options.errorChannelId!) as ForumChannel
+
+      errorChannel.threads.create({
+        name: 'Uncaught exception error',
+        appliedTags: ['1051854458239336489'],
+        message: { content: this.utils.capitalize(error.stack ?? 'Message not provided') },
+        autoArchiveDuration: ThreadAutoArchiveDuration.ThreeDays
+      })
     })
 
-    process.on('unhandledRejection', (error) => {
+    process.on('unhandledRejection', (error: Error) => {
       console.log('Unhandled rejection\n', error)
+
+      const errorChannel = this.channels.cache.get(Options.errorChannelId!) as ForumChannel
+
+      errorChannel.threads.create({
+        name: 'Unhandled rejection error',
+        appliedTags: ['1051855781475139694'],
+        message: { content: this.utils.capitalize(error.stack ?? 'Message not provided') },
+        autoArchiveDuration: ThreadAutoArchiveDuration.ThreeDays
+      })
     })
   }
 }

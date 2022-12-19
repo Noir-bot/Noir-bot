@@ -1,30 +1,27 @@
-import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, SelectMenuBuilder, SelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
+import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import Colors from '../../../../../../../constants/Colors'
-import { WelcomeMessageType } from '../../../../../../../constants/Options'
 import NoirClient from '../../../../../../../structures/Client'
+import WelcomeMessage, { WelcomeMessageType } from '../../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../../SettingsUtils'
-import WelcomeEditor from '../WelcomeEditor'
 
 export default class WelcomeEditorEditField {
-  public static async listRequest(client: NoirClient, interaction: ButtonInteraction | ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
-
-    if (!messageData) return
+  public static async listRequest(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
     const buttons = [
       SettingsUtils.generateBack('settings', id, `welcomeBack.welcomeEditor.${type}`)
     ]
 
-    const selectMenu = new SelectMenuBuilder()
+    const selectMenu = new StringSelectMenuBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEditField.${type}`, 'select'))
       .setPlaceholder('Choose field to edit')
       .setMaxValues(1)
       .setMinValues(1)
-      .addOptions(messageData.embed.fields.map(field => {
+      .addOptions(messageData.fieldsId.map(id => {
         return {
-          label: field.name,
+          label: messageData.fieldsName[id],
           description: 'Select to edit',
-          value: `${field.id}`
+          value: `${id}`
         }
       }))
 
@@ -46,19 +43,16 @@ export default class WelcomeEditorEditField {
     }
   }
 
-  public static async request(client: NoirClient, interaction: SelectMenuInteraction, id: string, type: WelcomeMessageType, fieldId: number) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
-
-    if (!messageData) return
-
-    const index = messageData.embed.fields.findIndex(field => field.id == fieldId)
+  public static async request(client: NoirClient, interaction: StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType, fieldId: number) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
+    const index = messageData.fieldsId.findIndex(id => id == fieldId)
 
     const nameInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeFieldNameNew', 'input'))
       .setLabel('Embed field name')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter embed field name')
-      .setValue(messageData.embed.fields[index].name ?? '')
+      .setValue(messageData.fieldsName[index] ?? '')
       .setMaxLength(2000)
       .setMinLength(1)
       .setRequired(true)
@@ -67,7 +61,7 @@ export default class WelcomeEditorEditField {
       .setLabel('Embed field value')
       .setStyle(TextInputStyle.Paragraph)
       .setPlaceholder('Enter embed field value')
-      .setValue(messageData.embed.fields[index].value ?? '')
+      .setValue(messageData.fieldsValue[index] ?? '')
       .setMaxLength(2000)
       .setMinLength(1)
       .setRequired(true)
@@ -76,7 +70,7 @@ export default class WelcomeEditorEditField {
       .setLabel('Embed field inline')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('True or false')
-      .setValue(messageData.embed.fields[index].inline ? 'True' : 'False')
+      .setValue(messageData.fieldsInline[index] ? 'True' : 'False')
       .setMaxLength(5)
       .setMinLength(4)
 
@@ -97,25 +91,22 @@ export default class WelcomeEditorEditField {
     await interaction.showModal(modal)
   }
 
-  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType, index: number) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
-
-    if (!messageData) return
-
+  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType, index: number) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
     const fieldNameInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldNameNew', 'input'))
     const fieldValueInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldValueNew', 'input'))
     const fieldInlineInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldInlineNew', 'input'))
 
     if (fieldNameInput) {
-      messageData.embed.fields[index].name = fieldNameInput
+      messageData.fieldsName[index] = fieldNameInput
     }
 
     if (fieldValueInput) {
-      messageData.embed.fields[index].value = fieldValueInput
+      messageData.fieldsValue[index] = fieldValueInput
     }
 
     if (fieldInlineInput) {
-      messageData.embed.fields[index].inline = client.utils.formatBoolean(fieldInlineInput)
+      messageData.fieldsInline[index] = client.utils.formatBoolean(fieldInlineInput)
     }
 
     await this.listRequest(client, interaction, id, type)

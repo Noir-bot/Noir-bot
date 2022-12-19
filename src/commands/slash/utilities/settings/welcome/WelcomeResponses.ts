@@ -1,6 +1,7 @@
-import { ButtonInteraction, ModalMessageModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
-import { WelcomeMessageType } from '../../../../../constants/Options'
+import { AnySelectMenuInteraction, ButtonInteraction, ModalMessageModalSubmitInteraction } from 'discord.js'
 import NoirClient from '../../../../../structures/Client'
+import Welcome from '../../../../../structures/Welcome'
+import WelcomeMessage, { WelcomeMessageType } from '../../../../../structures/WelcomeMessage'
 import SettingsCommand from '../SettingsCommand'
 import WelcomeEditor from './editor/WelcomeEditor'
 import WelcomeRole from './WelcomeRole'
@@ -9,19 +10,13 @@ import WelcomeWebhook from './WelcomeWebhook'
 
 
 export default class WelcomeResponse {
-  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction, parts: string[]) {
+  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
     const methods = method.split('.')
 
     if (method == 'welcome') {
       await WelcomeSettings.initialMessage(client, interaction, id)
-    }
-
-    let welcomeData = client.welcomeSettings.get(id)?.data
-
-    if (!welcomeData) {
-      welcomeData = await WelcomeSettings.generateCache(client, id)
     }
 
     if (method.startsWith('welcomeBack')) {
@@ -45,22 +40,24 @@ export default class WelcomeResponse {
         await WelcomeEditor.exampleResponse(client, interaction, id, messageType)
       }
 
+      else if (type == 'welcomeWebhook') {
+        await WelcomeWebhook.initialMessage(client, interaction, id)
+      }
+
       else {
         await WelcomeSettings.initialMessage(client, interaction, id)
       }
     }
 
     else if (method.startsWith('welcomeSave')) {
-      await client.welcomeSettings.get(id)?.saveData(client)
+      await Welcome.save(client, interaction.guildId)
       const type = methods[1]
 
       if (type == 'welcomeEditor') {
         const messageType = methods[2] as WelcomeMessageType
-        await WelcomeEditor.initialMessage(client, interaction, id, messageType)
-      }
 
-      else if (type == 'welcomeRoleEdit') {
-        await WelcomeRole.editRequest(client, interaction, id)
+        await WelcomeMessage.save(client, interaction.guildId, messageType)
+        await WelcomeEditor.initialMessage(client, interaction, id, messageType)
       }
 
       else if (type == 'welcomeRoles') {
@@ -69,6 +66,10 @@ export default class WelcomeResponse {
 
       else if (type == 'welcomeWebhook') {
         await WelcomeWebhook.initialMessage(client, interaction, id)
+      }
+
+      else if (type == 'welcomeWebhookChannel') {
+        await WelcomeWebhook.channelRequest(client, interaction, id)
       }
 
       else {
@@ -77,16 +78,14 @@ export default class WelcomeResponse {
     }
 
     else if (method.startsWith('welcomeRestore')) {
-      await client.welcomeSettings.get(id)?.cacheData(client)
+      await Welcome.cache(client, interaction.guildId, true)
       const type = methods[1]
 
       if (type == 'welcomeEditor') {
         const messageType = methods[2] as WelcomeMessageType
-        await WelcomeEditor.initialMessage(client, interaction, id, messageType)
-      }
 
-      else if (type == 'welcomeRoleEdit') {
-        await WelcomeRole.editRequest(client, interaction, id)
+        await WelcomeMessage.cache(client, interaction.guildId, messageType, true)
+        await WelcomeEditor.initialMessage(client, interaction, id, messageType)
       }
 
       else if (type == 'welcomeRoles') {
@@ -95,6 +94,10 @@ export default class WelcomeResponse {
 
       else if (type == 'welcomeWebhook') {
         await WelcomeWebhook.initialMessage(client, interaction, id)
+      }
+
+      else if (type == 'welcomeWebhookChannel') {
+        await WelcomeWebhook.channelRequest(client, interaction, id)
       }
 
       else {
@@ -125,23 +128,27 @@ export default class WelcomeResponse {
     }
 
     else if (method == 'welcomeStatus') {
-      if (!welcomeData) return
+      const welcomeData = await Welcome.cache(client, interaction.guildId)
       welcomeData.status = !welcomeData.status
       await WelcomeSettings.initialMessage(client, interaction, id)
     }
 
     else if (method == 'welcomeRolesRestore') {
-      if (!welcomeData) return
-      welcomeData.restoreRoles = !welcomeData.restoreRoles
+      const welcomeData = await Welcome.cache(client, interaction.guildId)
+      welcomeData.restore = !welcomeData.restore
       await WelcomeSettings.initialMessage(client, interaction, id)
+    }
+
+    else if (method == 'welcomeRoles') {
+      await WelcomeRole.initialMessage(client, interaction, id)
+    }
+
+    else if (method == 'welcomeRolesClear') {
+      await WelcomeRole.clearResponse(client, interaction, id)
     }
 
     else if (method.startsWith('welcomeEditor')) {
       await WelcomeEditor.buttonResponse(client, interaction, id, method)
-    }
-
-    else if (method.startsWith('welcomeRoles')) {
-      await WelcomeRole.buttonResponse(client, interaction, id, method)
     }
 
     else if (method.startsWith('welcomeWebhook')) {
@@ -149,20 +156,12 @@ export default class WelcomeResponse {
     }
   }
 
-  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, parts: string[]) {
+  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
 
-    let welcomeData = client.welcomeSettings.get(id)?.data
-    if (!welcomeData) welcomeData = await WelcomeSettings.generateCache(client, id)
-    if (!welcomeData) return
-
     if (method.startsWith('welcomeEditor')) {
       await WelcomeEditor.modalResponse(client, interaction, id, method)
-    }
-
-    else if (method.startsWith('welcomeRoles')) {
-      await WelcomeRole.modalResponse(client, interaction, id, method)
     }
 
     else if (method.startsWith('welcomeWebhook')) {
@@ -170,20 +169,20 @@ export default class WelcomeResponse {
     }
   }
 
-  public static async selectResponse(client: NoirClient, interaction: SelectMenuInteraction, parts: string[]) {
+  public static async selectResponse(client: NoirClient, interaction: AnySelectMenuInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
 
-    let welcomeData = client.welcomeSettings.get(id)?.data
-    if (!welcomeData) welcomeData = await WelcomeSettings.generateCache(client, id)
-    if (!welcomeData) return
-
-    if (method.startsWith('welcomeEditor')) {
+    if (method.startsWith('welcomeEditor') && interaction.isStringSelectMenu()) {
       await WelcomeEditor.selectResponse(client, interaction, id, method)
     }
 
-    if (method.startsWith('welcomeRoles')) {
+    else if (method.startsWith('welcomeRoles') && interaction.isRoleSelectMenu()) {
       await WelcomeRole.selectResponse(client, interaction, id, method)
+    }
+
+    else if (method.startsWith('welcomeWebhook')) {
+      await WelcomeWebhook.selectResponse(client, interaction, id, method)
     }
   }
 }

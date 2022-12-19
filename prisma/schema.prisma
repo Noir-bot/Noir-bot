@@ -1,128 +1,87 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DEV_CLUSTER")
+    provider = "postgresql"
+    url      = env("DEV_DATABASE")
 }
 
 model Premium {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  guild    String   @unique
-  status   Boolean  @default(false)
-  expireAt DateTime @default(now())
-}
-
-model Case {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  guild     String    @unique
-  caseId    Int       @unique
-  type      String
-  user      String
-  moderator String
-  duration  Int?
-  reason    String?
-  created   DateTime
-  expired   DateTime?
-  edited    DateTime?
-  reference String?
-  message   String?
+    guild   String   @id @unique @db.VarChar(255)
+    expires DateTime @default(now()) @db.Timestamp()
 }
 
 model Cases {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  guild       String @unique
-  overall     Int    @default(0)
-  restriction Int    @default(0)
-  warning     Int    @default(0)
-  ban         Int    @default(0)
-  tempban     Int    @default(0)
-  sotfban     Int    @default(0)
-  kick        Int    @default(0)
+    id        String    @id @unique @default(uuid())
+    mod       String    @db.VarChar(255)
+    user      String    @db.VarChar(255)
+    guild     String    @db.VarChar(255)
+    action    String    @db.VarChar(255)
+    reason    String?   @db.VarChar(255)
+    reference String?   @db.VarChar(255)
+    logs      String?   @db.VarChar(255)
+    duration  Int?      @db.Integer
+    expires   DateTime? @db.Timestamp()
+    updated   DateTime? @db.Timestamp()
+    created   DateTime  @default(now()) @db.Timestamp()
 }
 
 model Moderation {
-  id           String          @id @default(auto()) @map("_id") @db.ObjectId
-  guild        String          @unique
-  collectCases Boolean         @default(false)
-  logs         ModerationLogs
-  rules        ModerationRules
+    guild          String   @id @unique
+    status         Boolean  @default(false) @db.Boolean
+    roles          String[] @default([])
+    modLogs        Boolean  @default(false) @db.Boolean
+    rulesLogs      Boolean  @default(false) @db.Boolean
+    webhook        String?  @db.VarChar(255)
+    webhookName    String?  @db.VarChar(255)
+    webhookAvatar  String?  @db.VarChar(255)
+    webhookChannel String?  @db.VarChar(255)
 }
 
-type ModerationLogs {
-  status           Boolean @default(false)
-  webhook          String?
-  rawWebhookAvatar String?
-}
-
-type ModerationRules {
-  status Boolean          @default(false)
-  rules  ModerationRule[]
-}
-
-type ModerationRule {
-  id       Int
-  type     String
-  quantity Int
-  duration String?
+model Rule {
+    id       Int     @id @unique @default(autoincrement())
+    guild    String  @db.VarChar(255)
+    action   String  @db.VarChar(255)
+    quantity Int     @db.Integer
+    duration String? @db.VarChar(255)
 }
 
 model Welcome {
-  id               String          @id @default(auto()) @map("_id") @db.ObjectId
-  guild            String          @unique
-  status           Boolean         @default(false)
-  restoreRoles     Boolean         @default(false)
-  roles            String[]
-  webhook          String?
-  rawWebhookAvatar String?
-  messages         WelcomeMessages
+    guild          String   @id @unique
+    status         Boolean  @default(false) @db.Boolean
+    restore        Boolean  @default(false) @db.Boolean
+    roles          String[] @default([])
+    webhook        String?  @db.VarChar(255)
+    webhookName    String?  @db.VarChar(255)
+    webhookAvatar  String?  @db.VarChar(255)
+    webhookChannel String?  @db.VarChar(255)
 }
 
-type WelcomeMessages {
-  guild  WelcomeGuildMessages
-  direct WelcomeDirectMessages
-}
-
-type WelcomeDirectMessages {
-  status Boolean             @default(false)
-  join   WelcomeMessageData?
-}
-
-type WelcomeGuildMessages {
-  status Boolean            @default(false)
-  join   WelcomeMessageData
-  left   WelcomeMessageData
-}
-
-type WelcomeMessageData {
-  message String?
-  embed   WelcomeMessageEmbedData
-}
-
-type WelcomeMessageEmbedData {
-  url            String?
-  color          String?
-  rawColor       String?
-  title          String?
-  author         String?
-  footer         String?
-  authorImage    String?
-  rawAuthorImage String?
-  footerImage    String?
-  rawFooterImage String?
-  description    String?
-  thumbnail      String?
-  rawThumbnail   String?
-  image          String?
-  rawImage       String?
-  fields         WelcomeMessageEmbedFieldData[]
-  timestamp      Boolean                        @default(false)
-}
-
-type WelcomeMessageEmbedFieldData {
-  id     Int
-  name   String
-  value  String
-  inline Boolean @default(false)
+model WelcomeMessage {
+    id             String    @id @unique @default(cuid())
+    status         Boolean   @db.Boolean
+    guild          String    @db.VarChar(255)
+    type           String    @db.VarChar(255)
+    message        String?   @db.VarChar(255)
+    url            String?   @db.VarChar(255)
+    color          String?   @db.VarChar(255)
+    rawColor       String?   @db.VarChar(255)
+    title          String?   @db.VarChar(255)
+    author         String?   @db.VarChar(255)
+    footer         String?   @db.VarChar(255)
+    authorImage    String?   @db.VarChar(255)
+    rawAuthorImage String?   @db.VarChar(255)
+    footerImage    String?   @db.VarChar(255)
+    rawFooterImage String?   @db.VarChar(255)
+    description    String?   @db.VarChar(255)
+    thumbnail      String?   @db.VarChar(255)
+    rawThumbnail   String?   @db.VarChar(255)
+    image          String?   @db.VarChar(255)
+    rawImage       String?   @db.VarChar(255)
+    fieldsId       Int[]
+    fieldsName     String[]
+    fieldsValue    String[]
+    fieldsInline   Boolean[]
+    timestamp      Boolean   @default(false) @db.Boolean
 }

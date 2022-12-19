@@ -2,41 +2,31 @@ import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowCom
 import Colors from '../../../../../constants/Colors'
 import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
-import ModerationCollection from '../collections/ModerationCollection'
+import Moderation from '../../../../../structures/Moderation'
 import SettingsUtils from '../SettingsUtils'
 
 export default class ModerationSettings {
-  public static async generateCache(client: NoirClient, id: string) {
-    client.moderationSettings.set(id, new ModerationCollection(id))
-    const moderationData = client.moderationSettings.get(id)
-    await moderationData?.cacheData(client)
-
-    return moderationData?.data
-  }
-
-  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction | ModalMessageModalSubmitInteraction, id: string) {
-    let moderationData = client.moderationSettings.get(id)
-
-    if (!moderationData) {
-      client.moderationSettings.set(id, new ModerationCollection(id))
-      moderationData = client.moderationSettings.get(id)
-      await moderationData?.cacheData(client)
-    }
+  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
+    const moderationData = await Moderation.cache(client, interaction.guildId)
 
     const buttons = [
       [
         new ButtonBuilder()
+          .setCustomId(SettingsUtils.generateId('settings', id, 'moderationStatus', 'button'))
+          .setLabel(`${moderationData.status ? 'Disable' : 'Enable'} moderation`)
+          .setStyle(SettingsUtils.generateStyle(moderationData.status)),
+        new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogs', 'button'))
           .setLabel('Setup logs')
-          .setStyle(SettingsUtils.generateStyle(moderationData?.data.logs.status)),
+          .setStyle(SettingsUtils.generateStyle(moderationData.modLogs))
+          .setDisabled(!moderationData.status),
+      ],
+      [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRules', 'button'))
-          .setLabel('Setup rules')
-          .setStyle(SettingsUtils.generateStyle(moderationData?.data.rules.status)),
-        new ButtonBuilder()
-          .setCustomId(SettingsUtils.generateId('settings', id, 'moderationCases', 'button'))
-          .setLabel('Collect case data')
-          .setStyle(SettingsUtils.generateStyle(moderationData?.data.collectCases))
+          .setLabel(`${moderationData.roles.length > 0 ? 'Edit' : 'Setup'} moderation rules`) // TODO s ete
+          .setStyle(SettingsUtils.generateStyle(moderationData.rulesLogs))
+          .setDisabled(!moderationData.status),
       ],
       [
         SettingsUtils.generateBack('settings', id, 'moderationBack.settings'),
@@ -47,7 +37,8 @@ export default class ModerationSettings {
 
     const actionRows = [
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[0]),
-      new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[1])
+      new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[1]),
+      new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[2])
     ]
 
     await client.reply.reply({

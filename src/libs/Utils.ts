@@ -1,7 +1,6 @@
 import { Duration, DurationFormatter } from '@sapphire/time-utilities'
 import { promisify } from 'util'
 import Colors from '../constants/Colors'
-import Options from '../constants/Options'
 import Patterns from '../constants/Patterns'
 import NoirClient from '../structures/Client'
 
@@ -22,9 +21,6 @@ export default class Utils {
     return string
   }
 
-  public formatTime(ms: number) {
-    return new DurationFormatter().format(ms)
-  }
 
   public async wait(ms: string) {
     const duration = new Duration(ms)
@@ -39,12 +35,8 @@ export default class Utils {
     return duration
   }
 
-  public premiumStatus(guild: string) {
-    return this.client.premium.get(guild)?.status ?? false
-  }
-
-  public removeFormatValue(value?: string) {
-    return value == Options.removeValue ? undefined : value
+  public formatTime(ms: number) {
+    return new DurationFormatter().format(ms)
   }
 
   public formatURL(url: string) {

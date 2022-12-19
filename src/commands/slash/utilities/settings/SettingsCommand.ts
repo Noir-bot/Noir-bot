@@ -17,8 +17,8 @@ export default class SettingsCommand extends ChatCommand {
       },
       {
         name: 'settings',
-        description: 'Noir bot settings',
-        defaultMemberPermissions: ['ManageGuild', 'ManageChannels', 'ManageRoles'],
+        description: 'Noir settings',
+        defaultMemberPermissions: ['ManageGuild', 'ManageChannels', 'ManageRoles', 'ManageWebhooks'],
         type: ApplicationCommandType.ChatInput,
         dmPermission: false
       }
@@ -31,15 +31,15 @@ export default class SettingsCommand extends ChatCommand {
     await SettingsCommand.initialMessage(client, interaction, guildId)
   }
 
-  public static async initialMessage(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction, id: string) {
+  public static async initialMessage(client: NoirClient, interaction: ChatInputCommandInteraction<'cached'> | ButtonInteraction<'cached'>, id: string) {
     const buttons = [
       new ButtonBuilder()
         .setCustomId(SettingsUtils.generateId('settings', id, 'welcome', 'button'))
-        .setLabel('Welcome setup')
+        .setLabel('Welcome system configuration')
         .setStyle(SettingsUtils.defaultStyle),
       new ButtonBuilder()
         .setCustomId(SettingsUtils.generateId('settings', id, 'moderation', 'button'))
-        .setLabel('Moderation setup')
+        .setLabel('Moderation settings')
         .setStyle(SettingsUtils.defaultStyle)
     ]
 
@@ -51,16 +51,16 @@ export default class SettingsCommand extends ChatCommand {
       color: Colors.primary,
       author: 'Noir settings',
       authorImage: Options.clientAvatar,
-      description: `Hello ${interaction.user.username}. Use components to navigate and configure Noir's settings.`,
+      description: `Hello ${interaction.user.username}, welcome to Noir's settings dashboard, navigate and configure Noir as you want.`,
       fields: [
         {
           name: 'Support',
-          value: `In case of having issue, contact to our [support server](${Options.guildInvite}).`,
+          value: `In case you have issue, contact to our [support server](${Options.guildInvite}).`,
           inline: false
         },
         {
           name: 'Data and usage',
-          value: 'Changed data is not saving automatically in order to make it possible to return to the last save point. Use \`save data\` button to save last changes. Unsaved data will be lost after Noir\'s cache clear. This data is not being used for any other purpose except the server it was created in.',
+          value: 'All collected data is strictly used only across Noir\'s ecosystem. It is fully controlled by the user and can be permanently deleted.',
           inline: false
         }
       ],

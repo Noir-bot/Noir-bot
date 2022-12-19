@@ -8,5 +8,6 @@
     "tempban",
     "unban",
     "unembeded"
-  ]
+],
+"prisma.fileWatcher": false
 }

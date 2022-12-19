@@ -1,19 +1,20 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
-import { WelcomeMessageType } from '../../../../../../constants/Options'
+import Options from '../../../../../../constants/Options'
 import NoirClient from '../../../../../../structures/Client'
+import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditor from './WelcomeEditor'
 
 export default class WelcomeEditorAuthor {
-  public static async request(client: NoirClient, interaction: ButtonInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
+  public static async request(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
     const authorInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditorAuthor', 'input'))
       .setLabel('Embed author')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter embed author name')
-      .setValue(messageData?.embed.author ?? '')
+      .setValue(messageData?.author ?? '')
       .setRequired(true)
       .setMaxLength(2000)
       .setMinLength(1)
@@ -22,7 +23,7 @@ export default class WelcomeEditorAuthor {
       .setLabel('Embed author image')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('Enter image URL or server, user, client')
-      .setValue(messageData?.embed.rawAuthorImage ?? '')
+      .setValue(messageData?.rawAuthorImage ?? '')
       .setRequired(false)
       .setMaxLength(2000)
       .setMinLength(1)
@@ -42,19 +43,21 @@ export default class WelcomeEditorAuthor {
     await interaction.showModal(modal)
   }
 
-  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
+  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
     const authorInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorAuthor', 'input'))
     const authorImageInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorAuthorImage', 'input'))
 
     if (!messageData) return
 
-    messageData.embed.author = client.utils.removeFormatValue(authorInput)
+    messageData.author = WelcomeMessage.formatRemove(authorInput)
 
     if (authorImageInput) {
-      messageData.embed.authorImage = client.utils.removeFormatValue(SettingsUtils.formatImage(client, interaction, authorImageInput))
-      messageData.embed.rawAuthorImage = client.utils.removeFormatValue(authorImageInput)
+      const formatted = WelcomeMessage.formatVariable(authorImageInput, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
+
+      messageData.authorImage = formatted == authorImageInput ? undefined : formatted
+      messageData.rawAuthorImage = WelcomeMessage.formatRemove(authorImageInput)
     }
 
     await WelcomeEditor.initialMessage(client, interaction, id, type)

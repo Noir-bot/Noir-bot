@@ -10,24 +10,20 @@ export default class MaintenanceCommand extends ChatCommand {
     super(
       client,
       {
-        permissions: ['SendMessages', 'EmbedLinks'],
+        permissions: [],
         access: 'private',
         type: 'private',
         status: true
       },
       {
         name: 'maintenance',
-        description: 'Noir maintenance mode',
-        nameLocalizations: { 'ru': 'техобслуживание' },
-        descriptionLocalizations: { 'ru': 'Техобслуживание Noir' },
+        description: 'Maintenance mode',
         type: ApplicationCommandType.ChatInput,
         dmPermission: true,
         options: [
           {
             name: 'status',
             description: 'Current status',
-            nameLocalizations: { 'ru': 'статус' },
-            descriptionLocalizations: { 'ru': 'Текущий статус' },
             type: ApplicationCommandOptionType.Boolean,
             required: true
           }
@@ -44,7 +40,7 @@ export default class MaintenanceCommand extends ChatCommand {
 
     await client.reply.reply({
       interaction: interaction,
-      color: Colors.success,
+      color: Colors.primary,
       author: 'Maintenance mode',
       description: `${status ? 'Enabling' : 'Disabling'} maintenance mode`
     })
@@ -58,7 +54,9 @@ export default class MaintenanceCommand extends ChatCommand {
       })
 
       client.user?.setStatus('idle')
-    } else {
+    }
+
+    else {
       client.user?.setActivity({
         name: Options.activity,
         type: ActivityType.Listening

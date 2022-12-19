@@ -1,5 +1,4 @@
-import { ButtonBuilder, ButtonStyle, Interaction } from 'discord.js'
-import NoirClient from '../../../../structures/Client'
+import { ButtonBuilder, ButtonStyle } from 'discord.js'
 export default class SettingsUtils {
   public static defaultStyle = ButtonStyle.Secondary
   public static primaryStyle = ButtonStyle.Primary
@@ -52,21 +51,6 @@ export default class SettingsUtils {
       .setLabel('Restart all data')
       .setStyle(this.warningStyle)
       .setDisabled(status)
-  }
-
-  public static formatImage(client: NoirClient, interaction: Interaction, value: string | undefined) {
-    value = client.utils.removeFormatValue(value)
-
-    if (client) {
-      return value?.replace(/\{\{client avatar\}\}/g, client.user?.avatarURL({ size: 4096 }) ?? '')
-    }
-
-    if (interaction) {
-      return value?.replace(/\{\{guild icon\}\}/g, interaction.guild?.iconURL({ size: 4096 }) ?? '')
-        .replace(/\{\{user avatar\}\}/g, '{{user avatar}}')
-    }
-
-    return undefined
   }
 }
 

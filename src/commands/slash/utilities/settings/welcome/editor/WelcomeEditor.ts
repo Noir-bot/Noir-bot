@@ -1,9 +1,10 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ColorResolvable, GuildMember, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, SelectMenuBuilder, SelectMenuInteraction } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ColorResolvable, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
 import Colors from '../../../../../../constants/Colors'
-import Options, { WelcomeMessageType } from '../../../../../../constants/Options'
+import Options from '../../../../../../constants/Options'
 import NoirClient from '../../../../../../structures/Client'
+import Premium from '../../../../../../structures/Premium'
+import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../SettingsUtils'
-import WelcomeSettings from '../WelcomeSettings'
 import WelcomeEditorAddField from './fields/WelcomeEditorAddField'
 import WelcomeEditorEditField from './fields/WelcomeEditorEditField'
 import WelcomeEditorRemoveField from './fields/WelcomeEditorRemoveField'
@@ -14,34 +15,11 @@ import WelcomeEditorMessage from './WelcomeEditorMessage'
 import WelcomeEditorTitle from './WelcomeEditorTitle'
 
 export default class WelcomeEditor {
-  public static async getMessageType(client: NoirClient, id: string, type: WelcomeMessageType) {
-    let welcomeData = client.welcomeSettings.get(id)?.data
-
-    if (!welcomeData) {
-      welcomeData = await WelcomeSettings.generateCache(client, id)
-    }
-
-    let messageStatus
-    let messageData
-
-    if (type == 'guild_join') {
-      messageData = welcomeData?.messages.guild.join
-      messageStatus = welcomeData?.messages.guild.status
-    } else if (type == 'guild_left') {
-      messageData = welcomeData?.messages.guild.left
-      messageStatus = welcomeData?.messages.guild.status
-    } else {
-      messageData = welcomeData?.messages.direct.join
-      messageStatus = welcomeData?.messages.direct.status
-    }
-
-    return { messageData, messageStatus }
-  }
-
-  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction | ModalMessageModalSubmitInteraction | SelectMenuInteraction, id: string, type: WelcomeMessageType = 'guild_join') {
-    const { messageData, messageStatus } = await this.getMessageType(client, id, type)
-    const embedStatus = messageData?.embed.color || messageData?.embed.description || messageData?.embed.image || messageData?.embed.thumbnail || messageData?.embed.timestamp
-    const exampleStatus = messageData?.embed.description || messageData?.embed.image || messageData?.embed.thumbnail || messageData?.embed.author || messageData?.embed.authorImage || messageData?.embed.footer || messageData?.embed.title
+  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType = 'guild_join') {
+    const messageData = await WelcomeMessage.cache(client, id, type)
+    const premiumData = await Premium.cache(client, id)
+    const embedStatus = messageData?.color ?? messageData?.description ?? messageData?.image ?? messageData?.thumbnail ?? messageData?.timestamp
+    const exampleStatus = messageData?.description ?? messageData?.image ?? messageData?.thumbnail ?? messageData?.author ?? messageData?.authorImage ?? messageData?.footer ?? messageData?.title
 
     const buttons = [
       [
@@ -49,64 +27,64 @@ export default class WelcomeEditor {
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEmbed.${type}`, 'button'))
           .setLabel('Embed settings')
           .setStyle(SettingsUtils.generateStyle(embedStatus))
-          .setDisabled(!messageStatus),
+          .setDisabled(!messageData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorAuthor.${type}`, 'button'))
           .setLabel('Embed author')
-          .setStyle(SettingsUtils.generateStyle(messageData?.embed.author || messageData?.embed.authorImage))
-          .setDisabled(!messageStatus),
+          .setStyle(SettingsUtils.generateStyle(messageData?.author || messageData?.authorImage))
+          .setDisabled(!messageData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorTitle.${type}`, 'button'))
           .setLabel('Embed title')
-          .setStyle(SettingsUtils.generateStyle(messageData?.embed.title || messageData?.embed.url))
-          .setDisabled(!messageStatus),
+          .setStyle(SettingsUtils.generateStyle(messageData?.title || messageData?.url))
+          .setDisabled(!messageData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorFooter.${type}`, 'button'))
           .setLabel('Embed footer')
-          .setStyle(SettingsUtils.generateStyle(messageData?.embed.footer || messageData?.embed.footerImage))
-          .setDisabled(!messageStatus)
+          .setStyle(SettingsUtils.generateStyle(messageData?.footer || messageData?.footerImage))
+          .setDisabled(!messageData.status)
       ],
       [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorAddField.${type}`, 'button'))
           .setLabel('Add embed field')
           .setStyle(SettingsUtils.defaultStyle)
-          .setDisabled(!messageStatus || messageData?.embed.fields.length == 25 || !client.utils.premiumStatus(id))
+          .setDisabled(!messageData.status || messageData.fieldsId.length >= 25 || !premiumData?.status())
           .setEmoji(Options.premiumEmoji),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorRemoveFields.${type}`, 'button'))
           .setLabel('Remove embed fields')
           .setStyle(SettingsUtils.defaultStyle)
-          .setDisabled(!messageStatus || messageData?.embed.fields.length == 0)
+          .setDisabled(!messageData.status || messageData?.fieldsId.length == 0)
           .setEmoji(Options.premiumEmoji),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEditFields.${type}`, 'button'))
           .setLabel('Edit embed fields')
           .setStyle(SettingsUtils.defaultStyle)
-          .setDisabled(!messageStatus || messageData?.embed.fields.length == 0 || !client.utils.premiumStatus(id))
+          .setDisabled(!messageData.status || messageData.fieldsId.length == 0 || !premiumData?.status())
           .setEmoji(Options.premiumEmoji)
       ],
       [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorStatus.${type}`, 'button'))
-          .setLabel(`${messageStatus ? 'Disable' : 'Enable'} auto-messaging for this type`)
-          .setStyle(SettingsUtils.generateStyle(messageStatus)),
+          .setLabel(`${messageData.status ? 'Disable' : 'Enable'} auto message`)
+          .setStyle(SettingsUtils.generateStyle(messageData.status)),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorMessage.${type}`, 'button'))
-          .setLabel('Message content')
+          .setLabel(`${messageData?.message ? 'Edit' : 'Add'} message content`)
           .setStyle(SettingsUtils.generateStyle(messageData?.message))
-          .setDisabled(!messageStatus)
+          .setDisabled(!messageData.status)
       ],
       [
         SettingsUtils.generateBack('settings', id, 'welcome'),
         SettingsUtils.generateSave('settings', id, `welcomeSave.welcomeEditor.${type}`),
-        SettingsUtils.generateExample('settings', id, `welcomeExample.welcomeEditor.${type}`, !messageStatus || !exampleStatus),
+        SettingsUtils.generateExample('settings', id, `welcomeExample.welcomeEditor.${type}`, !messageData.status || !exampleStatus),
         SettingsUtils.generateRestore('settings', id, `welcomeRestore.welcomeEditor.${type}`),
         SettingsUtils.generateReset('settings', id, `welcomeReset.welcomeEditor.${type}`)
       ]
     ]
 
-    const selectMenu = new SelectMenuBuilder()
+    const selectMenu = new StringSelectMenuBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditor', 'select'))
       .setPlaceholder('Choose message type')
       .setMaxValues(1)
@@ -156,73 +134,14 @@ export default class WelcomeEditor {
     })
   }
 
-  public static exampleFormat(client: NoirClient, value?: string, data?: { guildName?: string | null, guildIcon?: string | null, guildMembers?: number | 0, guildCreatedAt?: string | null, guildCreated?: string | null, userName?: string | null, userAvatar?: string | null, userJoinedAt?: string | null, userJoined?: string | null, userCreatedAt?: string | null, userCreated?: string | null, clientName?: string | null, clientAvatar?: string | null }) {
-    value = client.utils.removeFormatValue(value)
-
-    if (data?.guildName) {
-      value = value?.replace(/\{\{guild name\}\}/g, data.guildName)
-    }
-
-    if (data?.guildIcon) {
-      value = value?.replace(/\{\{guild icon\}\}/g, data.guildIcon)
-    }
-
-    if (data?.guildMembers) {
-      value = value?.replace(/\{\{guild members\}\}/g, `${data.guildMembers}`)
-    }
-
-    if (data?.guildCreated) {
-      value = value?.replace(/\{\{guild created\}\}/g, data.guildCreated)
-    }
-
-    if (data?.guildCreatedAt) {
-      value = value?.replace(/\{\{guild createdAt\}\}/g, data.guildCreatedAt)
-    }
-
-    if (data?.userName) {
-      value = value?.replace(/\{\{user name\}\}/g, data.userName)
-    }
-
-    if (data?.userAvatar) {
-      value = value?.replace(/\{\{user avatar\}\}/g, data.userAvatar)
-    }
-
-    if (data?.userCreated) {
-      value = value?.replace(/\{\{user created\}\}/g, data.userCreated)
-    }
-
-    if (data?.userCreatedAt) {
-      value = value?.replace(/\{\{user createdAt\}\}/g, data.userCreatedAt)
-    }
-
-    if (data?.userJoined) {
-      value = value?.replace(/\{\{user joined\}\}/g, data.userJoined)
-    }
-
-    if (data?.userJoinedAt) {
-      value = value?.replace(/\{\{user joinedAt\}\}/g, data.userJoinedAt)
-    }
-
-    if (data?.clientName) {
-      value = value?.replace(/\{\{client name\}\}/g, data.clientName)
-    }
-
-    if (data?.clientAvatar) {
-      value = value?.replace(/\{\{client avatar\}\}/g, data.clientAvatar)
-    }
-
-    return value
-  }
-
-  public static async exampleResponse(client: NoirClient, interaction: ButtonInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await this.getMessageType(client, id, type)
-
-    if (!messageData) return
+  public static async exampleResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
     interaction.deferUpdate()
+
     const button = SettingsUtils.generateBack('settings', id, `welcomeBack.welcomeEditor.${type}`)
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(button)
-    const exampleStatus = messageData?.embed.description || messageData?.embed.image || messageData?.embed.thumbnail || messageData?.embed.author || messageData?.embed.authorImage || messageData?.embed.footer || messageData?.embed.title || messageData.embed.fields
+    const exampleStatus = messageData?.description ?? messageData?.image ?? messageData?.thumbnail ?? messageData?.author ?? messageData?.authorImage ?? messageData?.footer ?? messageData?.title ?? messageData.fieldsId ?? messageData.message
 
     if (!exampleStatus) {
       await client.reply.reply({
@@ -235,41 +154,47 @@ export default class WelcomeEditor {
     }
 
     else {
-      const data = { guildName: interaction.guild?.name, guildIcon: interaction.guild?.iconURL({ size: 4096 }), guildMembers: interaction.guild?.memberCount, guildCreatedAt: `<t:${interaction.guild?.createdTimestamp.toString().slice(0, -3)}:R>`, guildCreated: `<t:${interaction.guild?.createdTimestamp.toString().slice(0, -3)}:f>`, userName: interaction.user.username, userAvatar: interaction.user.avatarURL({ size: 4096 }), userJoinedAt: `<t:${(interaction.member as GuildMember).joinedTimestamp?.toString().slice(0, -3)}:R>`, userJoined: `<t:${(interaction.member as GuildMember).joinedTimestamp?.toString().slice(0, -3)}:f>`, userCreatedAt: `<t:${interaction.user.createdTimestamp?.toString().slice(0, -3)}:R>`, userCreated: `<t:${interaction.user.createdTimestamp?.toString().slice(0, -3)}:f>`, clientName: client.user?.username, clientAvatar: client.user?.avatarURL({ size: 4096 }) }
+      const variables = { guild: { name: interaction.guild?.name, icon: interaction.guild?.iconURL(), members: interaction.guild?.memberCount, createdAt: `<t:${interaction.guild?.createdAt.getTime().toString().slice(0, -3)}:d>`, created: `<t:${interaction.guild?.createdAt.getTime().toString().slice(0, -3)}:R>` }, user: { name: interaction.user.username, avatar: interaction.user.avatarURL(), createdAt: `<t:${interaction.user?.createdAt.getTime().toString().slice(0, -3)}:d>`, created: `<t:${interaction.user?.createdAt.getTime().toString().slice(0, -3)}:R>` }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
 
       try {
         await client.reply.reply({
           interaction: interaction,
-          color: messageData.embed.color as ColorResolvable,
-          author: this.exampleFormat(client, messageData.embed.author, data),
-          title: this.exampleFormat(client, messageData.embed.title, data),
-          url: this.exampleFormat(client, messageData.embed.url, data),
-          authorImage: messageData.embed.authorImage ?? this.exampleFormat(client, messageData.embed.rawAuthorImage, data),
-          content: this.exampleFormat(client, messageData.message, data),
-          description: this.exampleFormat(client, messageData.embed.description, data),
-          fields: messageData.embed.fields.map(field => {
+          color: messageData.color as ColorResolvable,
+          author: WelcomeMessage.formatVariable(messageData.author, variables),
+          title: WelcomeMessage.formatVariable(messageData.title, variables),
+          url: WelcomeMessage.formatVariable(messageData.url, variables),
+          authorImage: messageData.authorImage ?? WelcomeMessage.formatVariable(messageData.rawAuthorImage, variables),
+          content: WelcomeMessage.formatVariable(messageData.message, variables),
+          description: WelcomeMessage.formatVariable(messageData.description, variables),
+          fields: messageData.fieldsId.map(id => {
             return {
-              name: this.exampleFormat(client, field.name, data) ?? field.name,
-              value: this.exampleFormat(client, field.value, data) ?? field.value,
-              inline: field.inline
+              name: WelcomeMessage.formatVariable(messageData?.fieldsName[id], variables) ?? messageData?.fieldsName[id],
+              value: WelcomeMessage.formatVariable(messageData?.fieldsName[id], variables) ?? messageData?.fieldsValue[id],
+              inline: messageData?.fieldsInline[id]
             }
           }) ?? [],
-          footer: this.exampleFormat(client, messageData.embed.footer, data),
-          footerImage: messageData.embed.footerImage ?? this.exampleFormat(client, messageData.embed.rawFooterImage, data),
-          image: messageData.embed.image ?? this.exampleFormat(client, messageData.embed.rawImage, data),
-          thumbnail: messageData.embed.thumbnail ?? this.exampleFormat(client, messageData.embed.rawThumbnail, data),
+          footer: WelcomeMessage.formatVariable(messageData.footer, variables),
+          footerImage: messageData.footerImage ?? WelcomeMessage.formatVariable(messageData.rawFooterImage, variables),
+          image: messageData.image ?? WelcomeMessage.formatVariable(messageData.rawImage, variables),
+          thumbnail: messageData.thumbnail ?? WelcomeMessage.formatVariable(messageData.rawThumbnail, variables),
           components: [actionRow]
         })
-      } catch {
-        return
+      } catch (error) {
+        await client.reply.reply({
+          interaction: interaction,
+          color: Colors.warning,
+          author: 'Message error',
+          description: 'Message object is empty, setup message before testing.',
+          components: [actionRow]
+        })
+
+        console.log(error)
       }
     }
   }
 
-  public static async resetRequest(client: NoirClient, interaction: ButtonInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await this.getMessageType(client, id, type)
-
-    if (!messageData) return
+  public static async resetRequest(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
     const buttons = [
       new ButtonBuilder()
@@ -294,95 +219,90 @@ export default class WelcomeEditor {
     })
   }
 
-  public static async resetResponse(client: NoirClient, interaction: ButtonInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await this.getMessageType(client, id, type)
+  public static async resetResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
-    if (!messageData) return
-
+    messageData.author = undefined
+    messageData.authorImage = undefined
+    messageData.color = undefined
+    messageData.description = undefined
+    messageData.fieldsId = []
+    messageData.fieldsInline = []
+    messageData.fieldsName = []
+    messageData.fieldsValue = []
+    messageData.footer = undefined
+    messageData.footerImage = undefined
+    messageData.image = undefined
     messageData.message = undefined
-    messageData.embed = {
-      fields: [],
-      timestamp: false,
-      author: undefined,
-      authorImage: undefined,
-      color: undefined,
-      description: undefined,
-      footer: undefined,
-      footerImage: undefined,
-      image: undefined,
-      rawAuthorImage: undefined,
-      rawColor: undefined,
-      rawFooterImage: undefined,
-      rawImage: undefined,
-      rawThumbnail: undefined,
-      thumbnail: undefined,
-      title: undefined,
-      url: undefined
-    }
+    messageData.rawAuthorImage = undefined
+    messageData.rawColor = undefined
+    messageData.rawFooterImage = undefined
+    messageData.rawImage = undefined
+    messageData.rawThumbnail = undefined
+    messageData.status = false
+    messageData.thumbnail = undefined
+    messageData.timestamp = false
+    messageData.title = undefined
+    messageData.url = undefined
 
     this.initialMessage(client, interaction, id, type)
   }
 
-  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction, id: string, method: string) {
+  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, method: string) {
     const messageType = method.split('.')[1] as WelcomeMessageType
-    const welcomeData = client.welcomeSettings.get(id)?.data
-
-    if (!welcomeData) return
+    const action = method.split('.')[0]
 
     if (method == 'welcomeEditor') {
       await this.initialMessage(client, interaction, id, messageType)
     }
 
-    else if (method.startsWith('welcomeEditorStatus')) {
-      if (messageType == 'guild_join' || messageType == 'guild_left') {
-        welcomeData.messages.guild.status = !welcomeData.messages.guild.status
-      }
+    else if (action == 'welcomeEditorStatus') {
+      const messageData = await WelcomeMessage.cache(client, id, messageType)
 
-      else {
-        welcomeData.messages.direct.status = !welcomeData.messages.direct.status
-      }
+      messageData.status = !messageData.status
 
       await WelcomeEditor.initialMessage(client, interaction, id, messageType)
     }
 
-    else if (method.startsWith('welcomeEditorMessage')) {
+    else if (action == 'welcomeEditorMessage') {
       await WelcomeEditorMessage.request(client, interaction, id, messageType)
     }
 
-    else if (method.startsWith('welcomeEditorEmbed')) {
+    else if (action == 'welcomeEditorEmbed') {
       await WelcomeEditorEmbed.request(client, interaction, id, messageType)
     }
 
-    else if (method.startsWith('welcomeEditorAuthor')) {
+    else if (action == 'welcomeEditorAuthor') {
       await WelcomeEditorAuthor.request(client, interaction, id, messageType)
     }
 
-    else if (method.startsWith('welcomeEditorTitle')) {
+    else if (action == 'welcomeEditorTitle') {
       await WelcomeEditorTitle.request(client, interaction, id, messageType)
     }
 
-    else if (method.startsWith('welcomeEditorFooter')) {
+    else if (action == 'welcomeEditorFooter') {
       await WelcomeEditorFooter.request(client, interaction, id, messageType)
     }
 
-    else if (method.startsWith('welcomeEditorAddField')) {
+    else if (action == 'welcomeEditorAddField') {
       await WelcomeEditorAddField.request(client, interaction, id, messageType)
     }
 
-    else if (method.startsWith('welcomeEditorRemoveField')) {
+    else if (action == 'welcomeEditorRemoveField') {
       await WelcomeEditorRemoveField.request(client, interaction, id, messageType)
     }
 
-    else if (method.startsWith('welcomeEditorEditField')) {
+    else if (action == 'welcomeEditorEditField') {
       await WelcomeEditorEditField.listRequest(client, interaction, id, messageType)
     }
   }
 
-  public static async selectResponse(client: NoirClient, interaction: SelectMenuInteraction, id: string, method: string) {
+  public static async selectResponse(client: NoirClient, interaction: StringSelectMenuInteraction<'cached'>, id: string, method: string) {
     const messageType = method.split('.')[1] as WelcomeMessageType
 
-    if (method == 'welcomeEditor') {
+    if (method.startsWith('welcomeEditor')) {
       const messageType = interaction.values[0] as WelcomeMessageType
+
       await this.initialMessage(client, interaction, id, messageType)
     }
 
@@ -396,7 +316,7 @@ export default class WelcomeEditor {
     }
   }
 
-  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, method: string) {
+  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, method: string) {
     const messageType = method.split('.')[1] as WelcomeMessageType
 
     if (method.startsWith('welcomeEditorEmbed')) {

@@ -1,4 +1,4 @@
-import { APIActionRowComponent, APIMessageActionRowComponent, ButtonInteraction, ColorResolvable, CommandInteraction, ContextMenuCommandInteraction, EmbedBuilder, EmbedField, InteractionType, JSONEncodable, ModalMessageModalSubmitInteraction, ModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
+import { AnySelectMenuInteraction, APIActionRowComponent, APIMessageActionRowComponent, ButtonInteraction, ColorResolvable, CommandInteraction, ContextMenuCommandInteraction, EmbedBuilder, EmbedField, InteractionType, JSONEncodable, ModalMessageModalSubmitInteraction, ModalSubmitInteraction } from 'discord.js'
 import Colors from '../constants/Colors'
 import NoirClient from '../structures/Client'
 
@@ -10,7 +10,7 @@ export default class Reply {
   }
 
   public async reply(properties: {
-    interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction | SelectMenuInteraction,
+    interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction | AnySelectMenuInteraction,
     components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
     title?: string,
     url?: string,
@@ -86,7 +86,7 @@ export default class Reply {
 
   private async send(
     properties: {
-      interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | SelectMenuInteraction | ModalSubmitInteraction | ModalMessageModalSubmitInteraction,
+      interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction | ModalMessageModalSubmitInteraction | AnySelectMenuInteraction,
       embed?: EmbedBuilder,
       components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
       ephemeral?: boolean,
@@ -97,7 +97,7 @@ export default class Reply {
   ) {
     try {
       if (properties.update) {
-        if (properties.interaction.isButton() || properties.interaction.isSelectMenu() || properties.interaction.type == InteractionType.ModalSubmit && properties.interaction.isFromMessage()) {
+        if (properties.interaction.isButton() || properties.interaction.isAnySelectMenu() || properties.interaction.type == InteractionType.ModalSubmit && properties.interaction.isFromMessage()) {
           return await properties.interaction.update({
             embeds: properties.embed?.data ? [properties.embed.data] : [],
             components: properties?.components ?? [],

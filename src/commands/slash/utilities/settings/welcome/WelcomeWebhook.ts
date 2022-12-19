@@ -1,21 +1,15 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ChannelType, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextChannel, TextInputBuilder, TextInputStyle } from 'discord.js'
+import { ActionRowBuilder, AnySelectMenuInteraction, ButtonBuilder, ButtonInteraction, ChannelSelectMenuBuilder, ChannelSelectMenuInteraction, ChannelType, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle, channelMention } from 'discord.js'
 import Colors from '../../../../../constants/Colors'
 import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
+import Welcome from '../../../../../structures/Welcome'
+import WelcomeMessage from '../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../SettingsUtils'
-import WelcomeSettings from './WelcomeSettings'
 
 export default class WelcomeWebhook {
-  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction | ModalMessageModalSubmitInteraction, id: string) {
-    const welcomeModel = client.welcomeSettings.get(id)
-    const welcomeWebhook = await welcomeModel?.getWebhook(client)
-    let welcomeData = welcomeModel?.data
-
-    if (!welcomeData) {
-      welcomeData = await WelcomeSettings.generateCache(client, id)
-    }
-
-    if (!welcomeData) return
+  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
+    const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const welcomeWebhook = await Welcome.getWebhook(client, welcomeData?.webhook ?? '')
 
     const buttons = [
       [
@@ -28,7 +22,7 @@ export default class WelcomeWebhook {
           .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookEdit', 'button'))
           .setLabel('Edit webhook settings')
           .setStyle(SettingsUtils.defaultStyle)
-          .setDisabled(!welcomeData?.status || !welcomeModel?.getWebhook(client) || !welcomeWebhook)
+          .setDisabled(!welcomeData?.status || !welcomeWebhook)
       ],
       [
         SettingsUtils.generateBack('settings', id, 'welcomeBack'),
@@ -60,44 +54,52 @@ export default class WelcomeWebhook {
     })
   }
 
-  public static async channelRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
-    const welcomeData = client.welcomeSettings.get(id)
-    const webhook = await welcomeData?.getWebhook(client)
+  public static async channelRequest(client: NoirClient, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'>, id: string) {
+    const welcomeData = await Welcome.cache(client, interaction.guildId)
 
-    const channelInput = new TextInputBuilder()
-      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookChannel', 'input'))
-      .setLabel('Channel id')
-      .setPlaceholder('Enter the channel id')
-      .setValue(webhook?.channelId ?? '')
-      .setStyle(TextInputStyle.Short)
-      .setRequired(true)
+    const buttons = [
+      SettingsUtils.generateBack('settings', id, 'welcomeBack.welcomeWebhook'),
+      SettingsUtils.generateSave('settings', id, 'welcomeSave.welcomeWebhookChannel'),
+      SettingsUtils.generateRestore('settings', id, 'welcomeRestore.welcomeWebhookChannel')
+    ]
 
-    const actionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>()
-      .addComponents(channelInput)
-    const modal = new ModalBuilder()
-      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookChannel', 'modal'))
-      .setTitle(`${webhook?.channelId ? 'Change' : 'Setup'} channel`)
-      .addComponents(actionRow)
+    const channelSelectMenu = new ChannelSelectMenuBuilder()
+      .setCustomId(SettingsUtils.generateId('settings', id, `welcomeWebhookChannel`, 'select'))
+      .setPlaceholder('Select channel for messages')
+      .setChannelTypes(ChannelType.GuildText)
+      .setMaxValues(1)
+      .setMinValues(1)
 
-    await interaction.showModal(modal)
+
+    const selectActionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
+      .addComponents(channelSelectMenu)
+    const buttonActionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
+      .addComponents(buttons)
+
+    await client.reply.reply({
+      interaction: interaction,
+      author: 'Welcome webhook channel',
+      description: `${welcomeData.webhookChannel ? `Current channel ${channelMention(welcomeData.webhookChannel)}` : 'No channel'}`,
+      color: Colors.primary,
+      components: [selectActionRow, buttonActionRow]
+    })
   }
 
-  public static async editRequest(client: NoirClient, interaction: ButtonInteraction, id: string) {
-    const welcomeData = client.welcomeSettings.get(id)
-    const webhook = await welcomeData?.getWebhook(client)
+  public static async editRequest(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string) {
+    const welcomeData = await Welcome.cache(client, interaction.guildId)
 
     const webhookNameInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookName', 'input'))
       .setLabel('Webhook name')
       .setPlaceholder('Enter new webhook name')
-      .setValue(webhook?.name ?? '')
+      .setValue(welcomeData.webhookName ?? '')
       .setStyle(TextInputStyle.Short)
       .setRequired(false)
     const webhookAvatarInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'input'))
       .setLabel('Webhook avatar')
-      .setPlaceholder('Enter new webhook avatar URL or use variables')
-      .setValue(welcomeData?.data.rawWebhookAvatar ?? '')
+      .setPlaceholder('Enter a valid image URL or use variables')
+      .setValue(welcomeData?.webhookAvatar ?? '')
       .setStyle(TextInputStyle.Short)
       .setRequired(false)
 
@@ -116,73 +118,27 @@ export default class WelcomeWebhook {
     await interaction.showModal(modal)
   }
 
-  public static async channelResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string) {
-    const welcomeModel = client.welcomeSettings.get(id)
-    let welcomeData = welcomeModel?.data
-    const channelId = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeWebhookChannel', 'input'))
+  public static async channelResponse(client: NoirClient, interaction: ChannelSelectMenuInteraction<'cached'>, id: string) {
+    const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const channelId = interaction.values[0]
 
-    if (!welcomeData) {
-      welcomeData = await WelcomeSettings.generateCache(client, id)
-    }
+    welcomeData.webhookChannel = channelId
 
-    if (!welcomeData || !channelId) return
-
-    const channel = client.channels.cache.get(channelId) as TextChannel
-
-    if (!channel) return
-    if (channel.type != ChannelType.GuildText) return
-
-    const webhook = await welcomeModel?.getWebhook(client)
-
-    if (!webhook) {
-      const updatedWebhook = await channel.createWebhook({
-        name: 'Noir welcome',
-        avatar: Options.clientAvatar
-      })
-
-      welcomeData.webhook = updatedWebhook.url
-    }
-
-    else {
-      const updatedWebhook = await webhook.edit({
-        channel: channel.id
-      })
-
-      welcomeData.webhook = updatedWebhook.url
-    }
-
-    await this.initialMessage(client, interaction, id)
+    await this.channelRequest(client, interaction, id)
   }
 
-  public static async editResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string) {
-    const welcomeModel = client.welcomeSettings.get(id)
-    let welcomeData = welcomeModel?.data
+  public static async editResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
+    const welcomeData = await Welcome.cache(client, interaction.guildId)
     const webhookName = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeWebhookName', 'input'))
     const webhookAvatar = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'input'))
 
-    if (!welcomeData) {
-      welcomeData = await WelcomeSettings.generateCache(client, id)
-    }
-
-    if (!welcomeData) return
-
-    const webhook = await welcomeModel?.getWebhook(client)
-
-    if (!webhook) return
-
-    if (webhookAvatar) {
-      welcomeData.rawWebhookAvatar = webhookAvatar
-    }
-
-    await webhook.edit({
-      name: webhookName ?? webhook.name,
-      avatar: SettingsUtils.formatImage(client, interaction, webhookAvatar) ?? webhook.avatarURL()
-    })
+    welcomeData.webhookName = WelcomeMessage.formatVariable(webhookName, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
+    welcomeData.webhookAvatar = WelcomeMessage.formatVariable(webhookAvatar, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
 
     await this.initialMessage(client, interaction, id)
   }
 
-  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction, id: string, method: string) {
+  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, method: string) {
     if (method == 'welcomeWebhook') {
       await WelcomeWebhook.initialMessage(client, interaction, id)
     }
@@ -196,12 +152,14 @@ export default class WelcomeWebhook {
     }
   }
 
-  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, method: string) {
-    if (method == 'welcomeWebhookChannel') {
+  public static async selectResponse(client: NoirClient, interaction: AnySelectMenuInteraction<'cached'>, id: string, method: string) {
+    if (method == 'welcomeWebhookChannel' && interaction.isChannelSelectMenu()) {
       await WelcomeWebhook.channelResponse(client, interaction, id)
     }
+  }
 
-    else if (method == 'welcomeWebhookEdit') {
+  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, method: string) {
+    if (method == 'welcomeWebhookEdit') {
       await WelcomeWebhook.editResponse(client, interaction, id)
     }
   }

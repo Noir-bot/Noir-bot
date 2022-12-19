@@ -1,12 +1,12 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
-import { WelcomeMessageType } from '../../../../../../constants/Options'
 import NoirClient from '../../../../../../structures/Client'
+import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditor from './WelcomeEditor'
 
 export default class WelcomeEditorMessage {
-  public static async request(client: NoirClient, interaction: ButtonInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
+  public static async request(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
     const messageInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditorMessage', 'input'))
@@ -31,14 +31,14 @@ export default class WelcomeEditorMessage {
     await interaction.showModal(modal)
   }
 
-  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
+  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
     if (!messageData) return
 
     const messageInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorMessage', 'input'))
 
-    messageData.message = client.utils.removeFormatValue(messageInput)
+    messageData.message = WelcomeMessage.formatRemove(messageInput)
 
     await WelcomeEditor.initialMessage(client, interaction, id, type)
   }

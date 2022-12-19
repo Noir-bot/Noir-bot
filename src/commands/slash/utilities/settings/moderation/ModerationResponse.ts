@@ -1,24 +1,24 @@
-import { ButtonInteraction, ModalMessageModalSubmitInteraction, SelectMenuInteraction } from 'discord.js'
+import { AnySelectMenuInteraction, ButtonInteraction, ModalMessageModalSubmitInteraction } from 'discord.js'
 import NoirClient from '../../../../../structures/Client'
+import Moderation from '../../../../../structures/Moderation'
+import ModerationRules from '../../../../../structures/ModerationRules'
 import SettingsCommand from '../SettingsCommand'
-import LoggingsSettings from './LoggingsSettings'
+import ModerationLogs from './ModerationLogs'
+import RuleSettings from './ModerationRules'
 import ModerationSettings from './ModerationSettings'
-import RuleSettings from './RuleSettings'
 
 
 export default class ModerationResponse {
-  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction, parts: string[]) {
+  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
     const methodSplit = method.split('.')
 
+    const moderationData = await Moderation.cache(client, interaction.guildId)
+
     if (method == 'moderation') {
       await ModerationSettings.initialMessage(client, interaction, id)
     }
-
-    let moderationData = client.moderationSettings.get(id)?.data
-    if (!moderationData) moderationData = await ModerationSettings.generateCache(client, id)
-    if (!moderationData) return
 
     if (method.startsWith('moderationBack')) {
       const type = methodSplit[1]
@@ -31,17 +31,25 @@ export default class ModerationResponse {
         await ModerationSettings.initialMessage(client, interaction, id)
       }
 
+      else if (type == 'moderationWebhookChannel') {
+        await ModerationLogs.initialMessage(client, interaction, id)
+      }
+
       else {
         await ModerationSettings.initialMessage(client, interaction, id)
       }
     }
 
     else if (method.startsWith('moderationSave')) {
-      await client.moderationSettings.get(id)?.saveData(client)
+      await Moderation.save(client, interaction.guildId)
       const type = methodSplit[1]
 
-      if (type == 'loggings') {
-        await LoggingsSettings.initialMessage(client, interaction, id)
+      if (type == 'moderationLogs') {
+        await ModerationLogs.initialMessage(client, interaction, id)
+      }
+
+      else if (type == 'moderationWebhookChannel') {
+        await ModerationLogs.channelRequest(client, interaction, id)
       }
 
       else if (type == 'rules') {
@@ -54,14 +62,20 @@ export default class ModerationResponse {
     }
 
     else if (method.startsWith('moderationRestore')) {
-      await client.welcomeSettings.get(id)?.cacheData(client)
+      await Moderation.cache(client, interaction.guildId, true)
       const type = methodSplit[1]
 
-      if (type == 'loggings') {
-        await LoggingsSettings.initialMessage(client, interaction, id)
+      if (type == 'moderationLogs') {
+        await ModerationLogs.initialMessage(client, interaction, id)
+      }
+
+      else if (type == 'moderationWebhookChannel') {
+        await ModerationLogs.channelRequest(client, interaction, id)
       }
 
       else if (type == 'rules') {
+        await ModerationRules.cache(client, interaction.guildId, true)
+
         await RuleSettings.initialMessage(client, interaction, id)
       }
 
@@ -70,57 +84,47 @@ export default class ModerationResponse {
       }
     }
 
-    else if (method == 'moderationCases') {
-      moderationData.collectCases = !moderationData.collectCases
+    else if (method == 'moderationStatus') {
+      moderationData.status = !moderationData.status
+
       await ModerationSettings.initialMessage(client, interaction, id)
     }
 
-    else if (method == 'moderationLogs') {
-      await LoggingsSettings.initialMessage(client, interaction, id)
-    }
-
     else if (method == 'moderationLogsStatus') {
-      moderationData.logs.status = !moderationData.logs.status
-      await LoggingsSettings.initialMessage(client, interaction, id)
+      moderationData.modLogs = !moderationData.modLogs
+
+      await ModerationLogs.initialMessage(client, interaction, id)
     }
 
-    else if (method == 'moderationLogsChannel') {
-      await LoggingsSettings.channelRequest(client, interaction, id)
+    else if (method == 'moderationRulesStatus') {
+      moderationData.rulesLogs = !moderationData.rulesLogs
+
+      await RuleSettings.initialMessage(client, interaction, id)
     }
 
-    else if (method == 'moderationLogsWebhook') {
-      await LoggingsSettings.editRequest(client, interaction, id)
+    else if (method == 'moderationLogs') {
+      await ModerationLogs.initialMessage(client, interaction, id)
     }
 
     else if (method == 'moderationRules') {
       await RuleSettings.initialMessage(client, interaction, id)
     }
 
-    else if (method == 'moderationRulesStatus') {
-      moderationData.rules.status = !moderationData.rules.status
-
-      await RuleSettings.initialMessage(client, interaction, id)
-    }
-
     else if (method == 'moderationRulesAdd') {
       await RuleSettings.addRequest(client, interaction, id)
     }
+
+    else if (method.startsWith('moderationWebhook')) {
+      ModerationLogs.buttonResponse(client, interaction, id, method)
+    }
   }
 
-  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction, parts: string[]) {
+  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
 
-    let moderationData = client.moderationSettings.get(id)?.data
-    if (!moderationData) moderationData = await ModerationSettings.generateCache(client, id)
-    if (!moderationData) return
-
-    else if (method == 'moderationLogsChannel') {
-      await LoggingsSettings.channelResponse(client, interaction, id)
-    }
-
-    else if (method == 'moderationLogsWebhook') {
-      await LoggingsSettings.editResponse(client, interaction, id)
+    if (method.startsWith('moderationWebhook')) {
+      await ModerationLogs.modalResponse(client, interaction, id, method)
     }
 
     else if (method == 'moderationRulesAdd') {
@@ -130,19 +134,19 @@ export default class ModerationResponse {
     else if (method.startsWith('moderationRulesEdit')) {
       const ruleId = method.split('.')[1]
 
-      await RuleSettings.editResponse(client, interaction, id, parseInt(ruleId))
+      await RuleSettings.editResponse(client, interaction, id, ruleId)
     }
   }
 
-  public static async selectResponse(client: NoirClient, interaction: SelectMenuInteraction, parts: string[]) {
+  public static async selectResponse(client: NoirClient, interaction: AnySelectMenuInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
 
-    let moderationData = client.moderationSettings.get(id)?.data
-    if (!moderationData) moderationData = await ModerationSettings.generateCache(client, id)
-    if (!moderationData) return
+    if (method.startsWith('moderationWebhook')) {
+      await ModerationLogs.selectResponse(client, interaction, id, method)
+    }
 
-    if (method == 'moderationRules') {
+    else if (method == 'moderationRules' && interaction.isStringSelectMenu()) {
       await RuleSettings.editRequest(client, interaction, id)
     }
   }

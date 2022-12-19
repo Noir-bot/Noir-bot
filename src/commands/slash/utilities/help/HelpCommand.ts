@@ -17,8 +17,6 @@ export default class HelpCommand extends ChatCommand {
       {
         name: 'help',
         description: 'Help command',
-        nameLocalizations: { 'ru': 'помощь' },
-        descriptionLocalizations: { 'ru': 'Команда помощи' },
         defaultMemberPermissions: 'SendMessages',
         type: ApplicationCommandType.ChatInput,
         dmPermission: false,

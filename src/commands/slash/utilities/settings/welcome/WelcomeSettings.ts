@@ -1,24 +1,13 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction } from 'discord.js'
 import Colors from '../../../../../constants/Colors'
 import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
-import WelcomeCollection from '../collections/WelcomeCollection'
+import Welcome from '../../../../../structures/Welcome'
 import SettingsUtils from '../SettingsUtils'
 
 export default class WelcomeSettings {
-  public static async generateCache(client: NoirClient, id: string) {
-    client.welcomeSettings.set(id, new WelcomeCollection(id))
-    const welcomeData = client.welcomeSettings.get(id)
-    await welcomeData?.cacheData(client)
-    return welcomeData?.data
-  }
-
-  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction | ModalMessageModalSubmitInteraction, id: string) {
-    let welcomeData = client.welcomeSettings.get(id)?.data
-
-    if (!welcomeData) {
-      welcomeData = await this.generateCache(client, id)
-    }
+  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
+    let welcomeData = await Welcome.cache(client, interaction.guildId)
 
     const buttons = [
       [
@@ -28,24 +17,24 @@ export default class WelcomeSettings {
           .setStyle(SettingsUtils.generateStyle(welcomeData?.status)),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeRolesRestore', 'button'))
-          .setLabel(`${welcomeData?.restoreRoles ? 'Disable' : 'Enable'} role-restoring`)
-          .setStyle(SettingsUtils.generateStyle(welcomeData?.restoreRoles))
+          .setLabel(`${welcomeData?.restore ? 'Disable' : 'Enable'} role-restoring`)
+          .setStyle(SettingsUtils.generateStyle(welcomeData?.restore))
       ],
       [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditor', 'button'))
-          .setLabel('Setup messages')
-          .setStyle(SettingsUtils.generateStyle(welcomeData?.messages.guild.status || welcomeData?.messages.direct.status))
+          .setLabel('Message editor')
+          .setStyle(ButtonStyle.Secondary)
           .setDisabled(!welcomeData?.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhook', 'button'))
-          .setLabel(`${welcomeData?.webhook ? 'Edit' : 'Setup'} webhook`)
-          .setStyle(SettingsUtils.generateStyle(welcomeData?.webhook))
+          .setLabel(`${welcomeData?.roles?.length ? 'Edit' : 'Setup'} webhook`)
+          .setStyle(SettingsUtils.generateStyle(welcomeData.webhook))
           .setDisabled(!welcomeData?.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeRoles', 'button'))
-          .setLabel(`${welcomeData?.roles[0] ? 'Edit' : 'Setup'} roles`)
-          .setStyle(SettingsUtils.generateStyle(welcomeData?.roles[0]))
+          .setLabel(`${welcomeData?.roles?.length ? 'Edit' : 'Setup'} role${welcomeData?.roles && welcomeData.roles.length > 1 ? 's' : ''}`)
+          .setStyle(SettingsUtils.generateStyle(welcomeData.roles?.length))
           .setDisabled(!welcomeData?.status),
       ],
       [
@@ -69,17 +58,16 @@ export default class WelcomeSettings {
       description: 'Fully customizable welcoming features and tools.',
       fields: [
         {
-          name: 'Auto-role and role-restoring',
-          value: 'Give new users roles and save them if they leave the server. Able to save roles after user left the server and give it back when he returns.',
+          name: 'Auto-role and role-restore',
+          value: 'Give roles to new users and return them on rejoin.',
           inline: false
         },
         {
           name: 'Auto-message and webhook',
-          value: 'Advanced message editor and fully customizable webhook. Setup message and welcome new users with fancy message.',
+          value: 'Welcome new users with fully customizable messages.',
           inline: false
         }
       ],
-      footer: 'Some features are partially premium only.',
       components: actionRows,
       ephemeral: true,
     })

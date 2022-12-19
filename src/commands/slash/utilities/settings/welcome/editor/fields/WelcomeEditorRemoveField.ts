@@ -1,13 +1,13 @@
-import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, SelectMenuBuilder, SelectMenuInteraction } from 'discord.js'
+import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
 import Colors from '../../../../../../../constants/Colors'
-import { WelcomeMessageType } from '../../../../../../../constants/Options'
 import NoirClient from '../../../../../../../structures/Client'
+import WelcomeMessage, { WelcomeMessageType } from '../../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../../SettingsUtils'
 import WelcomeEditor from '../WelcomeEditor'
 
 export default class WelcomeEditorRemoveField {
-  public static async request(client: NoirClient, interaction: ButtonInteraction | SelectMenuInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
+  public static async request(client: NoirClient, interaction: ButtonInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
 
     if (!messageData) return
 
@@ -15,16 +15,16 @@ export default class WelcomeEditorRemoveField {
       SettingsUtils.generateBack('settings', id, `welcomeBack.welcomeEditor.${type}`)
     ]
 
-    const selectMenu = new SelectMenuBuilder()
+    const selectMenu = new StringSelectMenuBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorRemoveField.${type}`, 'select'))
       .setPlaceholder('Choose fields to remove')
-      .setMaxValues(messageData.embed.fields.length)
+      .setMaxValues(messageData.fieldsId.length)
       .setMinValues(1)
-      .addOptions(messageData.embed.fields.map(field => {
+      .addOptions(messageData.fieldsId.map(id => {
         return {
-          label: field.name,
+          label: messageData.fieldsName[id],
           description: 'Select to remove',
-          value: `${field.id}`
+          value: `${id}`
         }
       }))
 
@@ -47,18 +47,20 @@ export default class WelcomeEditorRemoveField {
     }
   }
 
-  public static async response(client: NoirClient, interaction: SelectMenuInteraction, id: string, type: WelcomeMessageType) {
-    const { messageData } = await WelcomeEditor.getMessageType(client, id, type)
-
-    if (!messageData) return
-
+  public static async response(client: NoirClient, interaction: StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+    const messageData = await WelcomeMessage.cache(client, id, type)
     const ids = interaction.values
 
     ids.forEach(id => {
-      messageData.embed.fields = messageData.embed.fields.filter(field => field.id != parseInt(id))
+      const index = parseInt(id)
+
+      messageData.fieldsId = messageData.fieldsId.splice(index, index)
+      messageData.fieldsInline = messageData.fieldsInline.splice(index, index)
+      messageData.fieldsName = messageData.fieldsName.splice(index, index)
+      messageData.fieldsValue = messageData.fieldsValue.splice(index, index)
     })
 
-    if (messageData.embed.fields.length >= 1) {
+    if (messageData.fieldsId.length >= 1) {
       await this.request(client, interaction, id, type)
     }
 
