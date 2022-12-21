@@ -190,6 +190,8 @@ export default class WelcomeMessage {
   public static async save(client: NoirClient, guildId: string, type: WelcomeMessageType) {
     const cache = client.welcomeMessages.get(`${guildId}${type}`)
 
+    console.log(type)
+
     if (cache) {
       const data = await client.prisma.welcomeMessage.findFirst({ where: { guild: guildId, type: type } })
 
@@ -199,7 +201,7 @@ export default class WelcomeMessage {
 
       else {
         await client.prisma.welcomeMessage.updateMany({
-          where: { guild: cache.guild },
+          where: { guild: cache.guild, type: cache.type },
           data: cache
         })
       }

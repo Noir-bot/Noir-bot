@@ -9,7 +9,7 @@ import SettingsUtils from '../SettingsUtils'
 export default class WelcomeWebhook {
   public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     const welcomeData = await Welcome.cache(client, interaction.guildId)
-    const welcomeWebhook = await Welcome.getWebhook(client, welcomeData?.webhook ?? '')
+    const welcomeWebhook = welcomeData?.webhook ? await Welcome.getWebhook(client, welcomeData.webhook) : null
 
     const buttons = [
       [

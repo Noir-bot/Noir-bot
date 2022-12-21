@@ -1,32 +1,44 @@
-// import { GuildMember } from 'discord.js'
-// import WelcomeCollection from '../../commands/slash/utilities/settings/collections/WelcomeCollection'
-// import NoirClient from '../../structures/Client'
-// import Event from '../../structures/Event'
-// import UserUtils from './UserUtils'
+import { GuildMember, time } from 'discord.js'
+import WelcomeHelper from '../../commands/slash/utilities/settings/welcome/WelcomeHelper'
+import NoirClient from '../../structures/Client'
+import Event from '../../structures/Event'
+import Welcome from '../../structures/Welcome'
+import WelcomeMessage from '../../structures/WelcomeMessage'
 
-// export default class UserJoin extends Event {
-//   constructor(client: NoirClient) {
-//     super(client, 'guildMemberRemove', false)
-//   }
+export default class UserJoin extends Event {
+  constructor(client: NoirClient) {
+    super(client, 'guildMemberRemove', false)
+  }
 
-//   public async execute(client: NoirClient, member: GuildMember) {
-//     const welcomeData = await WelcomeCollection.getData(client, member.guild.id)
+  public async execute(client: NoirClient, member: GuildMember) {
+    const welcomeData = await Welcome.cache(client, member.guild.id)
 
-//     if (!welcomeData.data.status) return
-//     if (!welcomeData.data.webhook) return
+    if (member.roles.cache.size > 0) {
+      const roles = member.roles.cache.map(role => role.id).filter(role => !welcomeData.roles?.includes(role))
 
-//     const webhook = await welcomeData.getWebhook(client)
+      if (roles.length == 0) return
 
-//     if (!webhook) return
+      await client.prisma.welcomeRestore.create({
+        data: {
+          guild: member.guild.id,
+          user: member.id,
+          roles: roles
+        }
+      })
+    }
 
-//     if (welcomeData.data.messages.guild.status) {
-//       const data = UserUtils.buildMessage(client, member, welcomeData.data.messages, 'guild_left')
+    if (!welcomeData.status) return
+    if (!welcomeData.webhook) return
 
-//       if (data?.embeds) {
-//         webhook.send({ embeds: data.embeds, content: data?.content })
-//       } else {
-//         webhook.send({ content: data?.content })
-//       }
-//     }
-//   }
-// }
+    const webhook = await Welcome.getWebhook(client, welcomeData.webhook)
+    const data = { guild: { name: member.guild.name, icon: member.guild.iconURL(), members: member.guild.memberCount, createdAt: time(member.guild.createdTimestamp, 'd'), created: time(member.guild.createdTimestamp, 'R') }, user: { name: member.user.username, avatar: member.user.avatarURL(), createdAt: time(member.user.createdTimestamp, 'd'), created: time(member.user.createdTimestamp, 'R') }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
+
+    if (!webhook) return
+
+    const messageData = await WelcomeMessage.cache(client, member.guild.id, 'guild_left')
+
+    if (messageData) {
+      await WelcomeHelper.send(messageData, data, webhook)
+    }
+  }
+}

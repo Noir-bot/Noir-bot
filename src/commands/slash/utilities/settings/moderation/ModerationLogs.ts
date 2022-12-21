@@ -9,7 +9,7 @@ import SettingsUtils from '../SettingsUtils'
 export default class ModerationLogs {
   public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId)
-    const moderationWebhook = await Moderation.getWebhook(client, moderationData?.webhook ?? '')
+    const moderationWebhook = moderationData?.webhook ? await Moderation.getWebhook(client, moderationData?.webhook) : null
 
     const buttons = [
       [

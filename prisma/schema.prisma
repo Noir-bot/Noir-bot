@@ -58,6 +58,13 @@ model Welcome {
     webhookChannel String?  @db.VarChar(255)
 }
 
+model WelcomeRestore {
+    id    Int      @id @unique @default(autoincrement())
+    guild String   @db.VarChar(255)
+    user  String   @db.VarChar(255)
+    roles String[] @default([])
+}
+
 model WelcomeMessage {
     id             String    @id @unique @default(cuid())
     status         Boolean   @db.Boolean

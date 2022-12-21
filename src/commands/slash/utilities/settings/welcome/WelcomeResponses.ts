@@ -3,10 +3,10 @@ import NoirClient from '../../../../../structures/Client'
 import Welcome from '../../../../../structures/Welcome'
 import WelcomeMessage, { WelcomeMessageType } from '../../../../../structures/WelcomeMessage'
 import SettingsCommand from '../SettingsCommand'
-import WelcomeEditor from './editor/WelcomeEditor'
 import WelcomeRole from './WelcomeRole'
 import WelcomeSettings from './WelcomeSettings'
 import WelcomeWebhook from './WelcomeWebhook'
+import WelcomeEditor from './editor/WelcomeEditor'
 
 
 export default class WelcomeResponse {

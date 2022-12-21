@@ -67,9 +67,9 @@ export default class Welcome {
 
       else {
         await webhook.edit({
-          name: data?.webhookName ?? 'Noir Welcome',
-          avatar: data?.webhookAvatar ?? Options.clientAvatar,
-          channel: data.webhookChannel
+          name: data?.webhookName ?? webhook.name,
+          avatar: data?.webhookAvatar ?? webhook.avatarURL(),
+          channel: data.webhookChannel ?? webhook.channelId
         })
       }
     }

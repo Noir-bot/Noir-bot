@@ -1,2 +1,3 @@
-### Noir bot
-Moderationa and high-level user experience discord bot
+# Noir bot
+
+Moderation and utility discord bot with high level user experience.

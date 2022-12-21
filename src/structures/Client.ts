@@ -5,6 +5,7 @@ import { promisify } from 'util'
 import Options from '../constants/Options'
 import Reply from '../libs/Reply'
 import Utils from '../libs/Utils'
+import Case from './Case'
 import Event from './Event'
 import Moderation from './Moderation'
 import ModerationRules from './ModerationRules'
@@ -21,6 +22,7 @@ export default class NoirClient extends Client {
   public welcomeMessages = new Collection<string, WelcomeMessage>()
   public moderation = new Collection<string, Moderation>()
   public moderationRules = new Collection<string, ModerationRules>()
+  public cases = new Collection<string, Case>()
   public utils = new Utils(this)
   public reply = new Reply(this)
   public prisma = new PrismaClient()
