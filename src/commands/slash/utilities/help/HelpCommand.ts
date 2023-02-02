@@ -5,7 +5,7 @@ import NoirClient from '../../../../structures/Client'
 import ChatCommand from '../../../../structures/commands/ChatCommand'
 
 export default class HelpCommand extends ChatCommand {
-  constructor(client: NoirClient,) {
+  constructor(client: NoirClient) {
     super(
       client,
       {

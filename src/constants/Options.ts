@@ -18,6 +18,7 @@ export default class Options {
   public static readonly removeValue = '{{remove}}'
   public static readonly premiumEmoji = '⭐'
   public static readonly embedFieldsLimit = 25
+  public static readonly reasonLimit = 500
   public static readonly options: ClientOptions = {
     partials: [
       Partials.GuildMember,

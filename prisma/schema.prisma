@@ -12,18 +12,17 @@ model Premium {
     expires DateTime @default(now()) @db.Timestamp()
 }
 
-model Cases {
-    id        String    @id @unique @default(uuid())
-    mod       String    @db.VarChar(255)
-    user      String    @db.VarChar(255)
+model Case {
+    id        Int       @id @unique @default(autoincrement())
     guild     String    @db.VarChar(255)
     action    String    @db.VarChar(255)
+    user      String    @db.VarChar(255)
+    mod       String    @db.VarChar(255)
     reason    String?   @db.VarChar(255)
-    reference String?   @db.VarChar(255)
-    logs      String?   @db.VarChar(255)
     duration  Int?      @db.Integer
+    reference String?   @db.VarChar(255)
     expires   DateTime? @db.Timestamp()
-    updated   DateTime? @db.Timestamp()
+    updated   DateTime  @default(now()) @db.Timestamp()
     created   DateTime  @default(now()) @db.Timestamp()
 }
 

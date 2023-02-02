@@ -1,32 +1,68 @@
+import NoirClient from './Client'
 export default class Case {
-  public id?: string
   public guild: string
+  public action: CaseAction
   public user: string
   public mod: string
-  public action: CaseType
   public reason?: string
-  public reference?: string
-  public logs?: string
   public duration?: number
+  public reference?: string
   public expires?: Date
   public updated: Date
   public created: Date
 
   constructor(data: CaseData) {
     this.guild = data.guild
+    this.action = data.action
     this.user = data.user
     this.mod = data.mod
-    this.action = data.action
     this.reason = data.reason
-    this.reference = data.reference
-    this.logs = data.logs
     this.duration = data.duration
+    this.reference = data.reference
     this.expires = data.expires
-    this.updated = data.updated ?? new Date()
-    this.created = data.created ?? new Date()
+    this.updated = data.updated
+    this.created = data.created
+  }
+
+  public static async save(client: NoirClient, data: CaseData, id: string) {
+    const cachedCase = client.cases.get(id)
+
+    if (cachedCase) {
+      await client.prisma.case.create({
+        data: {
+          guild: cachedCase.guild,
+          action: cachedCase.action,
+          user: cachedCase.user,
+          mod: cachedCase.mod,
+          reason: cachedCase.reason,
+          duration: cachedCase.duration,
+          reference: cachedCase.reference,
+          expires: cachedCase.expires,
+          updated: cachedCase.updated,
+          created: cachedCase.created
+        }
+      })
+
+      client.cases.delete(cachedCase.created.getTime().toString())
+    }
+
+    else return
+
+    return cachedCase
   }
 }
 
-export type CaseType = 'ban' | 'kick' | 'warn' | 'restriction' | 'softban' | 'tempban'
+export interface CaseData {
+  guild: string
+  action: CaseAction
+  user: string
+  mod: string
+  reason?: string
+  duration?: number
+  reference?: string
+  expires?: Date
+  updated: Date
+  created: Date
+}
 
-export type CaseData = Omit<Case, 'created'> & { created?: Date }
+export type CaseAction = 'warn' | 'timeout' | 'ban' | 'tempban' | 'softban' | 'unban' | 'kick'

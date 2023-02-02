@@ -100,10 +100,10 @@ export default class Welcome {
     return cache
   }
 
-  public static async cache(client: NoirClient, guildId: string, restore?: boolean) {
+  public static async cache(client: NoirClient, guildId: string, force?: boolean) {
     const cache = client.welcome.get(guildId)
 
-    if (!cache || restore) {
+    if (!cache || force) {
       let data = await client.prisma.welcome.findFirst({ where: { guild: guildId } })
 
       if (!data) {
