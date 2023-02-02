@@ -1,5 +1,6 @@
 import NoirClient from './Client'
 export default class Case {
+  public id?: string
   public guild: string
   public action: CaseAction
   public user: string
@@ -12,6 +13,7 @@ export default class Case {
   public created: Date
 
   constructor(data: CaseData) {
+    this.id = data.id
     this.guild = data.guild
     this.action = data.action
     this.user = data.user
@@ -28,7 +30,7 @@ export default class Case {
     const cachedCase = client.cases.get(id)
 
     if (cachedCase) {
-      await client.prisma.case.create({
+      const data = await client.prisma.case.create({
         data: {
           guild: cachedCase.guild,
           action: cachedCase.action,
@@ -44,15 +46,16 @@ export default class Case {
       })
 
       client.cases.delete(cachedCase.created.getTime().toString())
+
+      return data
     }
 
     else return
-
-    return cachedCase
   }
 }
 
 export interface CaseData {
+  id?: string
   guild: string
   action: CaseAction
   user: string

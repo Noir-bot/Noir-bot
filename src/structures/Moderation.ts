@@ -30,7 +30,7 @@ export default class Moderation {
 
     if (!webhookData) return
 
-    const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token)
+    const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token).catch(() => undefined)
 
     return webhook
   }
@@ -54,7 +54,7 @@ export default class Moderation {
     }
 
     else {
-      const webhook = await this.getWebhook(client, data.webhook)
+      const webhook = await this.getWebhook(client, data.webhook).catch(() => undefined)
 
       if (!webhook) {
         const webhook = await channel.createWebhook({

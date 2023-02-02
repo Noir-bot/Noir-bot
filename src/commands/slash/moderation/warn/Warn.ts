@@ -3,6 +3,7 @@ import Colors from '../../../../constants/Colors'
 import Options from '../../../../constants/Options'
 import NoirClient from '../../../../structures/Client'
 import ChatCommand from '../../../../structures/commands/ChatCommand'
+import WarnConfirmation from './WarnConfirmation'
 
 export default class WarnCommand extends ChatCommand {
   constructor(client: NoirClient) {
@@ -44,6 +45,8 @@ export default class WarnCommand extends ChatCommand {
     const errorStatus = this.errorHandler(client, interaction, interaction.guild.members.cache.get(user.id), reason)
 
     if (!errorStatus) return
+
+    WarnConfirmation.confirmationMessage(client, interaction, user, reason)
   }
 
   public errorHandler(client: NoirClient, interaction: ChatInputCommandInteraction<'cached'>, member?: GuildMember, reason?: string) {
@@ -97,7 +100,7 @@ export default class WarnCommand extends ChatCommand {
       return false
     }
 
-    if (member.moderatable) {
+    if (!member.moderatable) {
       client.reply.reply({
         interaction: interaction,
         color: Colors.warning,
