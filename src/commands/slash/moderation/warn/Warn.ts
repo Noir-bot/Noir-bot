@@ -3,7 +3,9 @@ import Colors from '../../../../constants/Colors'
 import Options from '../../../../constants/Options'
 import NoirClient from '../../../../structures/Client'
 import ChatCommand from '../../../../structures/commands/ChatCommand'
-import WarnConfirmation from './WarnConfirmation'
+import WarnConfirmation from './Confirmation'
+import WarnEdit from './Edit'
+import WarnRemove from './Remove'
 
 export default class WarnCommand extends ChatCommand {
   constructor(client: NoirClient) {
@@ -21,16 +23,50 @@ export default class WarnCommand extends ChatCommand {
         defaultMemberPermissions: ['ManageMessages', 'SendMessages'],
         options: [
           {
-            name: 'user',
-            description: 'The user to warn',
-            type: ApplicationCommandOptionType.User,
-            required: true
+            name: 'add',
+            type: ApplicationCommandOptionType.Subcommand,
+            description: 'Warn a user',
+            options: [
+              {
+                name: 'user',
+                description: 'User to warn',
+                type: ApplicationCommandOptionType.User,
+                required: true
+              },
+              {
+                name: 'reason',
+                description: 'Reason for the warn',
+                type: ApplicationCommandOptionType.String,
+                max_length: 500,
+                required: true
+              }
+            ]
           },
           {
-            name: 'reason',
-            description: 'The reason for the warn',
-            type: ApplicationCommandOptionType.String,
-            required: true
+            name: 'edit',
+            type: ApplicationCommandOptionType.Subcommand,
+            description: 'Edit a warn',
+            options: [
+              {
+                name: 'id',
+                description: 'Case ID',
+                type: ApplicationCommandOptionType.Number,
+                required: true
+              },
+            ]
+          },
+          {
+            name: 'remove',
+            type: ApplicationCommandOptionType.Subcommand,
+            description: 'Remove a warn',
+            options: [
+              {
+                name: 'id',
+                description: 'Case ID',
+                type: ApplicationCommandOptionType.Number,
+                required: true
+              },
+            ]
           }
         ],
         type: ApplicationCommandType.ChatInput,
@@ -40,13 +76,25 @@ export default class WarnCommand extends ChatCommand {
   }
 
   public async execute(client: NoirClient, interaction: ChatInputCommandInteraction<'cached'>) {
-    const user = interaction.options.getUser('user', true)
-    const reason = interaction.options.getString('reason', true)
-    const errorStatus = this.errorHandler(client, interaction, interaction.guild.members.cache.get(user.id), reason)
+    const sub = interaction.options.getSubcommand(true)
 
-    if (!errorStatus) return
+    if (sub == 'add') {
+      const user = interaction.options.getUser('user', true)
+      const reason = interaction.options.getString('reason', true)
+      const errorStatus = this.errorHandler(client, interaction, interaction.guild.members.cache.get(user.id), reason)
 
-    WarnConfirmation.confirmationMessage(client, interaction, user, reason)
+      if (!errorStatus) return
+
+      WarnConfirmation.confirmationMessage(client, interaction, user, reason)
+    }
+
+    else if (sub == 'edit') {
+      WarnEdit.Edit(client, interaction, interaction.options.getNumber('id', true))
+    }
+
+    else if (sub == 'remove') {
+      WarnRemove.Remove(client, interaction, interaction.options.getNumber('id', true))
+    }
   }
 
   public errorHandler(client: NoirClient, interaction: ChatInputCommandInteraction<'cached'>, member?: GuildMember, reason?: string) {

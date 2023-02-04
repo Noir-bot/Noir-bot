@@ -2,13 +2,13 @@ import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatIn
 import Colors from '../../../../constants/Colors'
 import Case from '../../../../structures/Case'
 import NoirClient from '../../../../structures/Client'
-import WarnLogs from './WarnLogs'
+import WarnLogs from './Logs'
 
 export default class WarnConfirmation {
   public static async confirmationMessage(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction, user: User, reason: string) {
     const time = new Date()
 
-    client.cases.set(time.getTime().toString(), {
+    client.cases.set(time.getTime().toString() + interaction.user.id, {
       guild: interaction.guildId!,
       user: user.id,
       mod: interaction.user.id,
@@ -18,9 +18,21 @@ export default class WarnConfirmation {
       updated: time
     })
 
+    setTimeout(() => {
+      client.reply.reply({
+        interaction: interaction,
+        color: Colors.warning,
+        author: 'Warn Confirmation',
+        description: 'Request timed out.',
+        ephemeral: true
+      })
+      client.cases.delete(time.getTime().toString() + interaction.user.id)
+      return
+    }, 30 * 1000)
+
     const buttons = [
-      new ButtonBuilder().setCustomId(`warn-confirm-${time.getTime()}`).setLabel('Confirm').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId(`warn-cancel-${time.getTime()}`).setLabel('Cancel').setStyle(ButtonStyle.Secondary)
+      new ButtonBuilder().setCustomId(`warn-confirm-${time.getTime() + interaction.user.id}`).setLabel('Confirm').setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId(`warn-cancel-${time.getTime() + interaction.user.id}`).setLabel('Cancel').setStyle(ButtonStyle.Secondary)
     ]
 
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -31,6 +43,7 @@ export default class WarnConfirmation {
       color: Colors.primary,
       author: 'Warn Confirmation',
       description: 'Are you sure you want to warn this user ?',
+      footer: 'This request will time out in 30 seconds.',
       components: [actionRow],
       ephemeral: true
     })

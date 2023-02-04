@@ -1,4 +1,5 @@
 import { ModalMessageModalSubmitInteraction } from 'discord.js'
+import WarnEdit from '../../../commands/slash/moderation/warn/Edit'
 import SettingsResponses from '../../../commands/slash/utilities/settings/SettingsResponses'
 import NoirClient from '../../../structures/Client'
 
@@ -8,6 +9,6 @@ export default class ModalExecution {
     const name = parts[0].toLowerCase()
 
     if (name == 'settings' && interaction.inCachedGuild()) await SettingsResponses.modal(client, interaction)
-    // else if (name == 'warn') await WarnCommand.modalResponse(client, interaction)
+    else if (name == 'warn') await WarnEdit.modalResponse(client, interaction)
   }
 }
