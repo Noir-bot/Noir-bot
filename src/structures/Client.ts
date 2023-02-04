@@ -3,6 +3,7 @@ import { Client, Collection, ForumChannel, ThreadAutoArchiveDuration } from 'dis
 import glob from 'glob'
 import { promisify } from 'util'
 import Options from '../constants/Options'
+import Logs from '../libs/Logs'
 import Reply from '../libs/Reply'
 import Utils from '../libs/Utils'
 import Case from './Case'
@@ -25,6 +26,7 @@ export default class NoirClient extends Client {
   public cases = new Collection<string, Case>()
   public utils = new Utils(this)
   public reply = new Reply(this)
+  public logs = new Logs(this)
   public prisma = new PrismaClient()
 
   constructor() {

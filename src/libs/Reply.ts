@@ -1,4 +1,4 @@
-import { AnySelectMenuInteraction, APIActionRowComponent, APIMessageActionRowComponent, ButtonInteraction, ColorResolvable, CommandInteraction, ContextMenuCommandInteraction, EmbedBuilder, EmbedField, InteractionType, JSONEncodable, ModalMessageModalSubmitInteraction, ModalSubmitInteraction } from 'discord.js'
+import { APIActionRowComponent, APIMessageActionRowComponent, AnySelectMenuInteraction, ButtonInteraction, ColorResolvable, CommandInteraction, ContextMenuCommandInteraction, EmbedBuilder, EmbedField, InteractionType, JSONEncodable, Message, ModalMessageModalSubmitInteraction, ModalSubmitInteraction, Webhook } from 'discord.js'
 import Colors from '../constants/Colors'
 import NoirClient from '../structures/Client'
 
@@ -10,7 +10,10 @@ export default class Reply {
   }
 
   public async reply(properties: {
-    interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction | AnySelectMenuInteraction,
+    interaction?: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction | AnySelectMenuInteraction,
+    channel?: string,
+    webhook?: Webhook,
+    reference?: Message,
     components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
     title?: string,
     url?: string,
@@ -49,8 +52,111 @@ export default class Reply {
       components: properties.components,
       ephemeral: properties?.ephemeral,
       fetch: properties?.fetch,
-      update: properties?.update ?? true
+      update: properties?.update ?? true,
+      channel: properties?.channel,
+      webhook: properties?.webhook,
+      reference: properties?.reference
     })
+  }
+
+  private async send(
+    properties: {
+      interaction?: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction | ModalMessageModalSubmitInteraction | AnySelectMenuInteraction,
+      embed?: EmbedBuilder,
+      components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
+      ephemeral?: boolean,
+      content?: string,
+      fetch?: boolean,
+      update?: boolean,
+      channel?: string,
+      webhook?: Webhook,
+      reference?: Message
+    }
+  ) {
+    try {
+      if (properties.channel) {
+        const channelCache = this.client.channels.cache.get(properties.channel) ?? await this.client.channels.fetch(properties.channel).catch((error) => { console.log(error) })
+
+        if (channelCache?.isTextBased()) {
+          return channelCache.send({
+            embeds: properties.embed?.data ? [properties.embed.data] : [],
+            components: properties?.components ?? [],
+            content: properties?.content
+          }).catch((error) => {
+            console.log(error)
+          })
+        }
+      }
+
+      if (properties.webhook) {
+        if (properties.reference) {
+          return await properties.webhook.editMessage(properties.reference, {
+            embeds: properties.embed?.data ? [properties.embed.data] : [],
+            components: properties?.components ?? [],
+            content: properties?.content
+          }).catch((error) => {
+            console.log(error)
+          })
+        }
+
+        else {
+          return await properties.webhook.send({
+            embeds: properties.embed?.data ? [properties.embed.data] : [],
+            components: properties?.components ?? [],
+            content: properties?.content
+          }).catch((error) => {
+            console.log(error)
+          })
+        }
+      }
+
+      if (!properties.interaction) return
+
+      if (properties.update) {
+        if (properties.interaction.isButton() || properties.interaction.isAnySelectMenu() || properties.interaction.type == InteractionType.ModalSubmit && properties.interaction.isFromMessage()) {
+          return await properties.interaction.update({
+            embeds: properties.embed?.data ? [properties.embed.data] : [],
+            components: properties?.components ?? [],
+            content: properties?.content,
+            fetchReply: properties.fetch ?? false
+          })
+
+            .catch(async () => {
+              if (!properties.interaction) return
+
+              return await properties.interaction.editReply({
+                embeds: properties.embed?.data ? [properties.embed.data] : [],
+                components: properties?.components ?? [],
+                content: properties?.content
+              })
+            })
+        }
+
+        return await properties.interaction.editReply({
+          embeds: properties.embed?.data ? [properties.embed.data] : [],
+          components: properties?.components ?? [],
+          content: properties?.content
+        })
+      } else {
+        return await properties.interaction.reply({
+          embeds: properties.embed?.data ? [properties.embed.data] : [],
+          components: properties?.components ?? [],
+          content: properties?.content,
+          ephemeral: properties?.ephemeral ?? true,
+          fetchReply: properties.fetch ?? false
+        })
+      }
+    } catch (err) {
+      if (!properties.interaction) return
+
+      return await properties.interaction.reply({
+        embeds: properties.embed?.data ? [properties.embed.data] : [],
+        components: properties?.components ?? [],
+        content: properties?.content,
+        ephemeral: properties?.ephemeral ?? true,
+        fetchReply: properties.fetch ?? false
+      })
+    }
   }
 
   protected build(
@@ -82,58 +188,5 @@ export default class Reply {
     if (properties.fields) embed.addFields(properties.fields)
 
     return embed
-  }
-
-  private async send(
-    properties: {
-      interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction | ModalMessageModalSubmitInteraction | AnySelectMenuInteraction,
-      embed?: EmbedBuilder,
-      components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
-      ephemeral?: boolean,
-      content?: string,
-      fetch?: boolean,
-      update?: boolean
-    }
-  ) {
-    try {
-      if (properties.update) {
-        if (properties.interaction.isButton() || properties.interaction.isAnySelectMenu() || properties.interaction.type == InteractionType.ModalSubmit && properties.interaction.isFromMessage()) {
-          return await properties.interaction.update({
-            embeds: properties.embed?.data ? [properties.embed.data] : [],
-            components: properties?.components ?? [],
-            content: properties?.content,
-            fetchReply: properties.fetch ?? false
-          }).catch(async () => {
-            return await properties.interaction.editReply({
-              embeds: properties.embed?.data ? [properties.embed.data] : [],
-              components: properties?.components ?? [],
-              content: properties?.content
-            })
-          })
-        }
-
-        return await properties.interaction.editReply({
-          embeds: properties.embed?.data ? [properties.embed.data] : [],
-          components: properties?.components ?? [],
-          content: properties?.content
-        })
-      } else {
-        return await properties.interaction.reply({
-          embeds: properties.embed?.data ? [properties.embed.data] : [],
-          components: properties?.components ?? [],
-          content: properties?.content,
-          ephemeral: properties?.ephemeral ?? true,
-          fetchReply: properties.fetch ?? false
-        })
-      }
-    } catch (err) {
-      return await properties.interaction.reply({
-        embeds: properties.embed?.data ? [properties.embed.data] : [],
-        components: properties?.components ?? [],
-        content: properties?.content,
-        ephemeral: properties?.ephemeral ?? true,
-        fetchReply: properties.fetch ?? false
-      })
-    }
   }
 }
