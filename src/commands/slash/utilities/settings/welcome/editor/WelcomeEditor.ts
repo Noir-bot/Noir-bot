@@ -5,14 +5,14 @@ import NoirClient from '../../../../../../structures/Client'
 import Premium from '../../../../../../structures/Premium'
 import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../SettingsUtils'
-import WelcomeEditorAddField from './fields/WelcomeEditorAddField'
-import WelcomeEditorEditField from './fields/WelcomeEditorEditField'
-import WelcomeEditorRemoveField from './fields/WelcomeEditorRemoveField'
 import WelcomeEditorAuthor from './WelcomeEditorAuthor'
 import WelcomeEditorEmbed from './WelcomeEditorEmbed'
 import WelcomeEditorFooter from './WelcomeEditorFooter'
 import WelcomeEditorMessage from './WelcomeEditorMessage'
 import WelcomeEditorTitle from './WelcomeEditorTitle'
+import WelcomeEditorAddField from './fields/WelcomeEditorAddField'
+import WelcomeEditorEditField from './fields/WelcomeEditorEditField'
+import WelcomeEditorRemoveField from './fields/WelcomeEditorRemoveField'
 
 export default class WelcomeEditor {
   public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType = 'guild_join') {

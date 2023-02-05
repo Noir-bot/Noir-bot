@@ -4,8 +4,8 @@ import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-ap
 import { ChatInputCommandInteraction } from 'discord.js'
 import Colors from '../../../constants/Colors'
 import NoirClient from '../../../structures/Client'
-import ChatCommand from '../../../structures/commands/ChatCommand'
 import Premium from '../../../structures/Premium'
+import ChatCommand from '../../../structures/commands/ChatCommand'
 
 export default class PremiumCommand extends ChatCommand {
   constructor(client: NoirClient) {

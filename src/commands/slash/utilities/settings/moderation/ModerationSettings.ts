@@ -20,13 +20,11 @@ export default class ModerationSettings {
           .setLabel('Setup logs')
           .setStyle(SettingsUtils.generateStyle(moderationData.modLogs))
           .setDisabled(!moderationData.status),
-      ],
-      [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRules', 'button'))
           .setLabel(`${moderationData.roles.length > 0 ? 'Edit' : 'Setup'} moderation rules`) // TODO s ete
           .setStyle(SettingsUtils.generateStyle(moderationData.rulesLogs))
-          .setDisabled(!moderationData.status),
+          .setDisabled(!moderationData.status)
       ],
       [
         SettingsUtils.generateBack('settings', id, 'moderationBack.settings'),
@@ -37,8 +35,7 @@ export default class ModerationSettings {
 
     const actionRows = [
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[0]),
-      new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[1]),
-      new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[2])
+      new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[1])
     ]
 
     await client.reply.reply({

@@ -11,6 +11,6 @@ export default class ButtonExecution {
 
     if (name == 'help') await HelpCommandResponses.button(client, interaction)
     else if (name == 'settings' && interaction.inCachedGuild()) await SettingsResponses.button(client, interaction)
-    else if (name == 'warn') await WarnConfirmation.handleButton(client, interaction)
+    else if (name == 'warn') WarnConfirmation.handleButton(client, interaction)
   }
 }

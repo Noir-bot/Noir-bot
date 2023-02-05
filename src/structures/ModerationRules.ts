@@ -32,9 +32,9 @@ export default class ModerationRules {
   }
 }
 
-export type ModerationRuleTypes = 'ban' | 'kick' | 'timeout' | 'warn' | 'tempban' | 'softban'
+export type ModerationRuleTypes = 'ban' | 'kick' | 'timeout' | 'tempban' | 'softban'
 
-export const ModerationRuleRegex = /ban|kick|timeout|warn|tempban|softban/g
+export const ModerationRuleRegex = /ban|kick|timeout|tempban|softban/g
 
 export interface ModerationRule {
   id: number

@@ -7,11 +7,11 @@ import NoirClient from '../structures/Client'
 export default class Utils {
   public client: NoirClient
 
-  constructor(client: NoirClient) {
+  public constructor(client: NoirClient) {
     this.client = client
   }
 
-  public capitalize(string: string, underscore?: boolean) {
+  public capitalize(string: string, underscore?: boolean): string {
     string = string.charAt(0).toUpperCase() + string.slice(1)
 
     if (underscore) {
@@ -21,9 +21,8 @@ export default class Utils {
     return string
   }
 
-
-  public async wait(ms: string) {
-    const duration = new Duration(ms)
+  public async wait(rawDate: string): Promise<Duration | undefined> {
+    const duration = new Duration(rawDate)
     const wait = promisify(setTimeout)
 
     if (Number.isNaN(duration.offset)) {
@@ -35,19 +34,19 @@ export default class Utils {
     return duration
   }
 
-  public formatTime(ms: number) {
+  public formatTime(ms: number): string {
     return new DurationFormatter().format(ms)
   }
 
-  public formatURL(url: string) {
+  public formatURL(url: string): string | undefined {
     return Patterns.url.test(url) ? url : undefined
   }
 
-  public formatBoolean(boolean?: string) {
+  public formatBoolean(boolean?: string): boolean {
     return boolean?.toLowerCase() == 'true' ? true : false
   }
 
-  public formatColor(color?: string) {
+  public formatColor(color?: string): string | undefined {
     if (color) {
       if (Patterns.color.test(color)) {
         return color

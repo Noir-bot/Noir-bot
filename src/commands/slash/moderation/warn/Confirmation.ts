@@ -82,6 +82,6 @@ export default class WarnConfirmation {
       ephemeral: true
     })
 
-    WarnLogs.LogsMessage(client, interaction, data, id)
+    await WarnLogs.LogsMessage(client, interaction, data, id)
   }
 }

@@ -4,8 +4,8 @@ import glob from 'glob'
 import { promisify } from 'util'
 import Options from '../../constants/Options'
 import NoirClient from '../../structures/Client'
-import Command from '../../structures/commands/Command'
 import Event from '../../structures/Event'
+import Command from '../../structures/commands/Command'
 
 export default class ReadyEvent extends Event {
   constructor(client: NoirClient) {

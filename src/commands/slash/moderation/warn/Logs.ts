@@ -4,20 +4,11 @@ import Colors from '../../../../constants/Colors'
 import DataCase from '../../../../structures/Case'
 import NoirClient from '../../../../structures/Client'
 import Moderation from '../../../../structures/Moderation'
+import WarnRule from './Rule'
+
 
 export default class WarnLogs {
   public static async LogsMessage(client: NoirClient, interaction: ButtonInteraction, caseCache: DataCase, id: string) {
-    const moderationData = await Moderation.cache(client, interaction.guildId!)
-
-    if (!moderationData || !moderationData.modLogs || !moderationData.webhook) {
-      client.cases.delete(id)
-      return
-    }
-
-    const webhook = await Moderation.getWebhook(client, moderationData.webhook)
-
-    if (!webhook) return
-
     const sent = await client.logs.log({
       guild: interaction.guildId!,
       author: 'Warn case',
@@ -29,16 +20,10 @@ export default class WarnLogs {
         `**Updated at:** ${time(caseCache.updated, 'd')} ${time(caseCache.updated, 'R')}`
     }) as Message
 
-    if (!sent) {
-      await DataCase.save(client, caseCache, id)
-      return
-    }
+    if (sent) {
+      caseCache.reference = sent.id
+      const data = await DataCase.save(client, caseCache, id)
 
-    caseCache.reference = sent.id
-    const data = await DataCase.save(client, caseCache, id)
-    const updated = await Moderation.getWebhook(client, moderationData.webhook)
-
-    if (updated) {
       await client.logs.log({
         guild: interaction.guildId!,
         author: 'Warn case',
@@ -53,6 +38,11 @@ export default class WarnLogs {
       })
     }
 
+    else {
+      DataCase.save(client, caseCache, id)
+    }
+
+    WarnRule.check(client, interaction.guildId!, caseCache.user)
     client.cases.delete(id)
   }
 

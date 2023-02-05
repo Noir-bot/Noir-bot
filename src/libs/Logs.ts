@@ -8,23 +8,24 @@ export default class Logs {
     this.client = client
   }
 
-  public async log(properties: {
-    guild: string,
-    components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
-    title?: string,
-    url?: string,
-    author?: string,
-    authorImage?: string,
-    description?: string,
-    color?: ColorResolvable,
-    fields?: EmbedField[],
-    footer?: string,
-    footerImage?: string,
-    thumbnail?: string,
-    image?: string,
-    content?: string,
-    reference?: Message
-  }) {
+  public async log(
+    properties: {
+      guild: string,
+      components?: (APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>)[],
+      title?: string,
+      url?: string,
+      author?: string,
+      authorImage?: string,
+      description?: string,
+      color?: ColorResolvable,
+      fields?: EmbedField[],
+      footer?: string,
+      footerImage?: string,
+      thumbnail?: string,
+      image?: string,
+      content?: string,
+      reference?: Message
+    }) {
     const moderationData = await Moderation.cache(this.client, properties.guild)
 
     if (!moderationData || !moderationData.webhook) return
