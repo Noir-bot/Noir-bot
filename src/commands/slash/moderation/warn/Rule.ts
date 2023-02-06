@@ -118,7 +118,7 @@ export default class WarnRule {
       `**Reason:** User reached the limit of mod-rule\n` +
       `**Created at:** ${time(created, 'd')} ${time(created, 'R')}\n` +
       `**Updated at:** ${time(created, 'd')} ${time(created, 'R')}\n` +
-      `${duration ? `**Expires at:** ${time(new Duration(duration).offset, 'd')} ${time(new Duration(duration).offset, 'R')}\n` : ''}`
+      `${duration ? `**Expires at:** ${time(new Duration(duration).fromNow, 'd')} ${time(new Duration(duration).fromNow, 'R')}\n` : ''}`
 
     const message = await client.logs.log({
       guild: guild,

@@ -1,10 +1,10 @@
 import { ChatInputCommandInteraction } from 'discord.js'
 import Colors from '../../../../constants/Colors'
 import NoirClient from '../../../../structures/Client'
-import WarnLogs from './Logs'
+import WarnLogs from '../warn/Logs'
 
-export default class WarnRemove {
-  public static async Remove(client: NoirClient, interaction: ChatInputCommandInteraction, id: number) {
+export default class CaseRemove {
+  public static async remove(client: NoirClient, interaction: ChatInputCommandInteraction, id: number) {
     const caseData = await client.prisma.case.delete({ where: { id: id } }).catch(() => null)
 
     if (!caseData) {

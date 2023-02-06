@@ -70,6 +70,7 @@ export default class WarnLogs {
         `**Reason:** ${caseData.reason}\n` +
         `**Created at:** ${time(caseData.created, 'd')} ${time(caseData.created, 'R')}\n` +
         `**Updated at:** ${time(caseData.updated, 'd')} ${time(caseData.updated, 'R')}\n` +
+        `${caseData.expires ? `**Expire${caseData.expires.getTime() <= new Date().getTime() ? 'd' : 's'} at:** ${time(caseData.expires.getTime(), 'd')} ${time(caseData.expires.getTime(), 'R')}\n` : ''}` +
         `${deleted ? `**Removed at:** ${time(new Date(), 'd')} ${time(new Date(), 'R')}` : ''}`,
       footer: `Case ID: ${caseData.id}`,
       reference: message

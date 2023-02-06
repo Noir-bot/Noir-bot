@@ -1,10 +1,10 @@
 import { ActionRowBuilder, ChatInputCommandInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import Colors from '../../../../constants/Colors'
 import NoirClient from '../../../../structures/Client'
-import WarnLogs from './Logs'
+import WarnLogs from '../warn/Logs'
 
-export default class WarnEdit {
-  public static async Edit(client: NoirClient, interaction: ChatInputCommandInteraction, id: number) {
+export default class CaseEdit {
+  public static async edit(client: NoirClient, interaction: ChatInputCommandInteraction, id: number) {
     const caseData = await client.prisma.case.findFirst({ where: { id } })
 
     if (!caseData) {
@@ -33,7 +33,7 @@ export default class WarnEdit {
 
     const modal = new ModalBuilder()
       .addComponents(actionRow)
-      .setCustomId(`warn-edit-${caseData.id}`)
+      .setCustomId(`case-edit-${caseData.id}`)
       .setTitle('Edit reason')
 
     interaction.showModal(modal)
@@ -57,6 +57,8 @@ export default class WarnEdit {
       ephemeral: true
     })
 
-    WarnLogs.UpdateLogs(client, interaction, caseData)
+    if (caseData.action == 'warn') {
+      WarnLogs.UpdateLogs(client, interaction, caseData)
+    }
   }
 }
