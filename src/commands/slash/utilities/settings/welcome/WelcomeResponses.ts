@@ -1,5 +1,6 @@
 import { AnySelectMenuInteraction, ButtonInteraction, ModalMessageModalSubmitInteraction } from 'discord.js'
 import NoirClient from '../../../../../structures/Client'
+import Save from '../../../../../structures/Save'
 import Welcome from '../../../../../structures/Welcome'
 import WelcomeMessage, { WelcomeMessageType } from '../../../../../structures/WelcomeMessage'
 import SettingsCommand from '../SettingsCommand'
@@ -14,6 +15,8 @@ export default class WelcomeResponse {
     const id = parts[1]
     const method = parts[2]
     const methods = method.split('.')
+
+    const saves = Save.cache(client, `${interaction.guildId}-welcome`)
 
     if (method == 'welcome') {
       await WelcomeSettings.initialMessage(client, interaction, id)
@@ -51,6 +54,8 @@ export default class WelcomeResponse {
 
     else if (method.startsWith('welcomeSave')) {
       await Welcome.save(client, interaction.guildId)
+      saves.count = 0
+
       const type = methods[1]
 
       if (type == 'welcomeEditor') {
@@ -79,6 +84,8 @@ export default class WelcomeResponse {
 
     else if (method.startsWith('welcomeRestore')) {
       await Welcome.cache(client, interaction.guildId, true)
+      saves.count = 0
+
       const type = methods[1]
 
       if (type == 'welcomeEditor') {
@@ -130,12 +137,14 @@ export default class WelcomeResponse {
     else if (method == 'welcomeStatus') {
       const welcomeData = await Welcome.cache(client, interaction.guildId)
       welcomeData.status = !welcomeData.status
+      saves.count += 1
       await WelcomeSettings.initialMessage(client, interaction, id)
     }
 
     else if (method == 'welcomeRolesRestore') {
       const welcomeData = await Welcome.cache(client, interaction.guildId)
       welcomeData.restore = !welcomeData.restore
+      saves.count += 1
       await WelcomeSettings.initialMessage(client, interaction, id)
     }
 

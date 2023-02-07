@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import Colors from '../../../../../../../constants/Colors'
 import NoirClient from '../../../../../../../structures/Client'
+import Save from '../../../../../../../structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '../../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../../SettingsUtils'
 
@@ -54,7 +55,6 @@ export default class WelcomeEditorEditField {
       .setPlaceholder('Enter embed field name')
       .setValue(messageData.fieldsName[index] ?? '')
       .setMaxLength(2000)
-      .setMinLength(1)
       .setRequired(true)
     const valueInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeFieldValueNew', 'input'))
@@ -63,7 +63,6 @@ export default class WelcomeEditorEditField {
       .setPlaceholder('Enter embed field value')
       .setValue(messageData.fieldsValue[index] ?? '')
       .setMaxLength(2000)
-      .setMinLength(1)
       .setRequired(true)
     const inlineInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeFieldInlineNew', 'input'))
@@ -96,17 +95,21 @@ export default class WelcomeEditorEditField {
     const fieldNameInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldNameNew', 'input'))
     const fieldValueInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldValueNew', 'input'))
     const fieldInlineInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldInlineNew', 'input'))
+    const save = Save.cache(client, `${interaction.guildId}-welcome`)
 
     if (fieldNameInput) {
       messageData.fieldsName[index] = fieldNameInput
+      save.count += 1
     }
 
     if (fieldValueInput) {
       messageData.fieldsValue[index] = fieldValueInput
+      save.count += 1
     }
 
     if (fieldInlineInput) {
       messageData.fieldsInline[index] = client.utils.formatBoolean(fieldInlineInput)
+      save.count += 1
     }
 
     await this.listRequest(client, interaction, id, type)

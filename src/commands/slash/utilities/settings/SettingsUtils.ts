@@ -1,4 +1,6 @@
 import { ButtonBuilder, ButtonStyle } from 'discord.js'
+import NoirClient from '../../../../structures/Client'
+import Save from '../../../../structures/Save'
 export default class SettingsUtils {
   public static defaultStyle = ButtonStyle.Secondary
   public static primaryStyle = ButtonStyle.Primary
@@ -18,14 +20,18 @@ export default class SettingsUtils {
       .setCustomId(this.generateId(name, id, label, 'button'))
       .setLabel('Go back')
       .setStyle(this.defaultStyle)
+      .setEmoji('⬅️')
       .setDisabled(status)
   }
 
-  public static generateSave(name: string, id: string, label: string, status = false) {
+  public static generateSave(name: string, id: string, label: string, client: NoirClient, guild: string, type?: string, status = false) {
+    const saves = Save.cache(client, `${guild}-${type}`)
+
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
-      .setLabel('Save data')
-      .setStyle(this.primaryStyle)
+      .setLabel(`Save data ${saves?.count ? `(${saves.count})` : ''}`)
+      .setStyle(this.defaultStyle)
+      .setEmoji('❇️')
       .setDisabled(status)
   }
 
@@ -33,7 +39,8 @@ export default class SettingsUtils {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
       .setLabel('Send example')
-      .setStyle(this.primaryStyle)
+      .setStyle(this.defaultStyle)
+      .setEmoji('*️⃣')
       .setDisabled(status)
   }
 
@@ -41,15 +48,17 @@ export default class SettingsUtils {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
       .setLabel('Restore last data')
-      .setStyle(this.warningStyle)
+      .setEmoji('🔄')
+      .setStyle(this.defaultStyle)
       .setDisabled(status)
   }
 
   public static generateReset(name: string, id: string, label: string, status = false) {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
-      .setLabel('Restart all data')
+      .setLabel('Restart all changes')
       .setStyle(this.warningStyle)
+      .setEmoji('🗑️')
       .setDisabled(status)
   }
 }

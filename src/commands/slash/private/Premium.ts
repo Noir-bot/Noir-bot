@@ -12,7 +12,7 @@ export default class PremiumCommand extends ChatCommand {
     super(
       client,
       {
-        permissions: ['SendMessages', 'EmbedLinks'],
+        permissions: [],
         access: 'private',
         type: 'private',
         status: true

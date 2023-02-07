@@ -2,6 +2,7 @@ import { AnySelectMenuInteraction, ButtonInteraction, ModalMessageModalSubmitInt
 import NoirClient from '../../../../../structures/Client'
 import Moderation from '../../../../../structures/Moderation'
 import ModerationRules from '../../../../../structures/ModerationRules'
+import Save from '../../../../../structures/Save'
 import SettingsCommand from '../SettingsCommand'
 import ModerationLogs from './ModerationLogs'
 import RuleSettings from './ModerationRules'
@@ -13,6 +14,7 @@ export default class ModerationResponse {
     const id = parts[1]
     const method = parts[2]
     const methodSplit = method.split('.')
+    const saves = Save.cache(client, `${interaction.guildId}-moderation`)
 
     const moderationData = await Moderation.cache(client, interaction.guildId)
 
@@ -27,7 +29,7 @@ export default class ModerationResponse {
         await SettingsCommand.initialMessage(client, interaction, id)
       }
 
-      else if (type == 'rules') {
+      else if (type == 'moderationRules') {
         await ModerationSettings.initialMessage(client, interaction, id)
       }
 
@@ -43,6 +45,7 @@ export default class ModerationResponse {
     else if (method.startsWith('moderationSave')) {
       await Moderation.save(client, interaction.guildId)
       const type = methodSplit[1]
+      saves.count = 0
 
       if (type == 'moderationLogs') {
         await ModerationLogs.initialMessage(client, interaction, id)
@@ -52,7 +55,8 @@ export default class ModerationResponse {
         await ModerationLogs.channelRequest(client, interaction, id)
       }
 
-      else if (type == 'rules') {
+      else if (type == 'moderationRules') {
+        await ModerationRules.save(client, interaction.guildId)
         await RuleSettings.initialMessage(client, interaction, id)
       }
 
@@ -64,6 +68,7 @@ export default class ModerationResponse {
     else if (method.startsWith('moderationRestore')) {
       await Moderation.cache(client, interaction.guildId, true)
       const type = methodSplit[1]
+      saves.count = 0
 
       if (type == 'moderationLogs') {
         await ModerationLogs.initialMessage(client, interaction, id)
@@ -73,7 +78,7 @@ export default class ModerationResponse {
         await ModerationLogs.channelRequest(client, interaction, id)
       }
 
-      else if (type == 'rules') {
+      else if (type == 'moderationRules') {
         await ModerationRules.cache(client, interaction.guildId, true)
 
         await RuleSettings.initialMessage(client, interaction, id)
@@ -86,18 +91,21 @@ export default class ModerationResponse {
 
     else if (method == 'moderationStatus') {
       moderationData.status = !moderationData.status
+      saves.count += 1
 
       await ModerationSettings.initialMessage(client, interaction, id)
     }
 
     else if (method == 'moderationLogsStatus') {
       moderationData.modLogs = !moderationData.modLogs
+      saves.count += 1
 
       await ModerationLogs.initialMessage(client, interaction, id)
     }
 
     else if (method == 'moderationRulesStatus') {
       moderationData.rulesLogs = !moderationData.rulesLogs
+      saves.count += 1
 
       await RuleSettings.initialMessage(client, interaction, id)
     }
@@ -133,6 +141,8 @@ export default class ModerationResponse {
 
     else if (method.startsWith('moderationRulesEdit')) {
       const ruleId = method.split('.')[1]
+
+      console.log(ruleId)
 
       await RuleSettings.editResponse(client, interaction, id, ruleId)
     }

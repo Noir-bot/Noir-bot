@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import Options from '../../../../../../constants/Options'
 import NoirClient from '../../../../../../structures/Client'
+import Save from '../../../../../../structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditor from './WelcomeEditor'
@@ -17,7 +18,6 @@ export default class WelcomeEditorEmbed {
       .setValue(messageData.rawColor ?? '')
       .setRequired(false)
       .setMaxLength(10)
-      .setMinLength(1)
     const descriptionInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedDescription', 'input'))
       .setLabel('Embed description')
@@ -26,7 +26,6 @@ export default class WelcomeEditorEmbed {
       .setValue(messageData.description ?? '')
       .setRequired(false)
       .setMaxLength(2000)
-      .setMinLength(1)
     const imageInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedImage', 'input'))
       .setLabel('Embed image')
@@ -35,7 +34,6 @@ export default class WelcomeEditorEmbed {
       .setValue(messageData.rawImage ?? '')
       .setRequired(false)
       .setMaxLength(2000)
-      .setMinLength(1)
     const thumbnailInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedThumbnail', 'input'))
       .setLabel('Embed thumbnail')
@@ -44,7 +42,6 @@ export default class WelcomeEditorEmbed {
       .setValue(messageData.rawThumbnail ?? '')
       .setRequired(false)
       .setMaxLength(2000)
-      .setMinLength(1)
     const timestampInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedTimestamp', 'input'))
       .setLabel('Embed timestamp')
@@ -85,13 +82,17 @@ export default class WelcomeEditorEmbed {
     const thumbnailInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedThumbnail', 'input'))
     const timestampInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedTimestamp', 'input'))
 
+    const saves = Save.cache(client, `${interaction.guildId}-welcome`)
+
     if (colorInput) {
       messageData.rawColor = WelcomeMessage.formatRemove(colorInput)
       messageData.color = WelcomeMessage.formatColor(colorInput)
+      saves.count += 1
     }
 
     if (descriptionInput) {
       messageData.description = WelcomeMessage.formatRemove(descriptionInput)
+      saves.count += 1
     }
 
     if (imageInput) {
@@ -99,6 +100,7 @@ export default class WelcomeEditorEmbed {
 
       messageData.image = formatted == messageData.rawImage ? undefined : formatted
       messageData.rawImage = WelcomeMessage.formatRemove(imageInput)
+      saves.count += 1
     }
 
     if (thumbnailInput) {
@@ -106,6 +108,7 @@ export default class WelcomeEditorEmbed {
 
       messageData.thumbnail = formatted == messageData.rawThumbnail ? undefined : formatted
       messageData.rawThumbnail = WelcomeMessage.formatRemove(thumbnailInput)
+      saves.count += 1
     }
 
     if (timestampInput) {

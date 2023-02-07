@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import Options from '../../../../../../constants/Options'
 import NoirClient from '../../../../../../structures/Client'
+import Save from '../../../../../../structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditor from './WelcomeEditor'
@@ -17,7 +18,6 @@ export default class WelcomeEditorFooter {
       .setValue(messageData.footer ?? '')
       .setRequired(true)
       .setMaxLength(2000)
-      .setMinLength(1)
     const footerImageInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditorFooterImage', 'input'))
       .setLabel('Embed footer image')
@@ -26,7 +26,6 @@ export default class WelcomeEditorFooter {
       .setValue(messageData.rawFooterImage ?? '')
       .setRequired(false)
       .setMaxLength(2000)
-      .setMinLength(1)
 
     const actionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>()
@@ -45,11 +44,13 @@ export default class WelcomeEditorFooter {
 
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
+    const saves = Save.cache(client, `${interaction.guildId}-welcome`)
 
     if (!messageData) return
 
     const footerInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorFooter', 'input'))
     const footerImageInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorFooterImage', 'input'))
+    saves.count += 1
 
     messageData.footer = WelcomeMessage.formatRemove(footerInput)
 
@@ -58,6 +59,7 @@ export default class WelcomeEditorFooter {
 
       messageData.footerImage = formatted == footerImageInput ? undefined : formatted
       messageData.rawFooterImage = WelcomeMessage.formatRemove(footerImageInput)
+      saves.count += 1
     }
 
     await WelcomeEditor.initialMessage(client, interaction, id, type)

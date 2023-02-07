@@ -56,11 +56,6 @@ export default class HelpCommand extends ChatCommand {
 
     const fields = [
       {
-        name: 'How to contribute ?',
-        value: `Noir bot is open source, checkout Noir's github page [here](${Options.github})`,
-        inline: false
-      },
-      {
         name: 'How to become support team member ?',
         value: `Be active in [support server](${Options.guildInvite}) and help others to become support team member`,
         inline: false

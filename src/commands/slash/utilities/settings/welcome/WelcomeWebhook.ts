@@ -2,6 +2,7 @@ import { ActionRowBuilder, AnySelectMenuInteraction, ButtonBuilder, ButtonIntera
 import Colors from '../../../../../constants/Colors'
 import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
+import Save from '../../../../../structures/Save'
 import Welcome from '../../../../../structures/Welcome'
 import WelcomeMessage from '../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../SettingsUtils'
@@ -15,18 +16,20 @@ export default class WelcomeWebhook {
       [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookChannel', 'button'))
-          .setLabel(`${welcomeData?.webhook ? 'Change' : 'Setup'} welcome channel`)
+          .setLabel(`${welcomeData?.webhook ? 'Change' : 'Setup'} channel`)
           .setStyle(SettingsUtils.generateStyle(welcomeData?.webhook))
-          .setDisabled(!welcomeData?.status),
+          .setDisabled(!welcomeData?.status)
+          .setEmoji('🔗'),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookEdit', 'button'))
           .setLabel('Edit webhook settings')
           .setStyle(SettingsUtils.defaultStyle)
+          .setEmoji('⚙️')
           .setDisabled(!welcomeData?.status || !welcomeWebhook)
       ],
       [
         SettingsUtils.generateBack('settings', id, 'welcomeBack'),
-        SettingsUtils.generateSave('settings', id, 'welcomeSave.welcomeWebhook'),
+        SettingsUtils.generateSave('settings', id, 'welcomeSave.welcomeWebhook', client, interaction.guildId, 'welcome'),
         SettingsUtils.generateRestore('settings', id, 'welcomeRestore.welcomeWebhook')
       ]
     ]
@@ -59,7 +62,7 @@ export default class WelcomeWebhook {
 
     const buttons = [
       SettingsUtils.generateBack('settings', id, 'welcomeBack.welcomeWebhook'),
-      SettingsUtils.generateSave('settings', id, 'welcomeSave.welcomeWebhookChannel'),
+      SettingsUtils.generateSave('settings', id, 'welcomeSave.welcomeWebhookChannel', client, interaction.guildId, 'welcome'),
       SettingsUtils.generateRestore('settings', id, 'welcomeRestore.welcomeWebhookChannel')
     ]
 
@@ -120,20 +123,24 @@ export default class WelcomeWebhook {
 
   public static async channelResponse(client: NoirClient, interaction: ChannelSelectMenuInteraction<'cached'>, id: string) {
     const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const saves = Save.cache(client, `${interaction.guildId}-welcome`)
     const channelId = interaction.values[0]
 
     welcomeData.webhookChannel = channelId
+    saves.count += 1
 
     await this.channelRequest(client, interaction, id)
   }
 
   public static async editResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const saves = Save.cache(client, `${interaction.guildId}-welcome`)
     const webhookName = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeWebhookName', 'input'))
     const webhookAvatar = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'input'))
 
     welcomeData.webhookName = WelcomeMessage.formatVariable(webhookName, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
     welcomeData.webhookAvatar = WelcomeMessage.formatVariable(webhookAvatar, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
+    saves.count += 1
 
     await this.initialMessage(client, interaction, id)
   }

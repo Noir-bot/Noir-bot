@@ -3,6 +3,7 @@ import Colors from '../../../../../../constants/Colors'
 import Options from '../../../../../../constants/Options'
 import NoirClient from '../../../../../../structures/Client'
 import Premium from '../../../../../../structures/Premium'
+import Save from '../../../../../../structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditorAuthor from './WelcomeEditorAuthor'
@@ -27,20 +28,24 @@ export default class WelcomeEditor {
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEmbed.${type}`, 'button'))
           .setLabel('Embed settings')
           .setStyle(SettingsUtils.generateStyle(embedStatus))
-          .setDisabled(!messageData.status),
+          .setDisabled(!messageData.status)
+          .setEmoji('⚙️'),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorAuthor.${type}`, 'button'))
           .setLabel('Embed author')
           .setStyle(SettingsUtils.generateStyle(messageData?.author || messageData?.authorImage))
+          .setEmoji('🏷️')
           .setDisabled(!messageData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorTitle.${type}`, 'button'))
           .setLabel('Embed title')
           .setStyle(SettingsUtils.generateStyle(messageData?.title || messageData?.url))
+          .setEmoji('📰')
           .setDisabled(!messageData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorFooter.${type}`, 'button'))
           .setLabel('Embed footer')
+          .setEmoji('✒️')
           .setStyle(SettingsUtils.generateStyle(messageData?.footer || messageData?.footerImage))
           .setDisabled(!messageData.status)
       ],
@@ -68,16 +73,18 @@ export default class WelcomeEditor {
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorStatus.${type}`, 'button'))
           .setLabel(`${messageData.status ? 'Disable' : 'Enable'} auto message`)
-          .setStyle(SettingsUtils.generateStyle(messageData.status)),
+          .setStyle(SettingsUtils.generateStyle(messageData.status))
+          .setEmoji(`${messageData.status ? '✅' : '❌'}`),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorMessage.${type}`, 'button'))
           .setLabel(`${messageData?.message ? 'Edit' : 'Add'} message content`)
           .setStyle(SettingsUtils.generateStyle(messageData?.message))
+          .setEmoji('📄')
           .setDisabled(!messageData.status)
       ],
       [
         SettingsUtils.generateBack('settings', id, 'welcome'),
-        SettingsUtils.generateSave('settings', id, `welcomeSave.welcomeEditor.${type}`),
+        SettingsUtils.generateSave('settings', id, `welcomeSave.welcomeEditor.${type}`, client, interaction.guildId, 'welcome'),
         SettingsUtils.generateExample('settings', id, `welcomeExample.welcomeEditor.${type}`, !messageData.status || !exampleStatus),
         SettingsUtils.generateRestore('settings', id, `welcomeRestore.welcomeEditor.${type}`),
         SettingsUtils.generateReset('settings', id, `welcomeReset.welcomeEditor.${type}`)
@@ -94,17 +101,20 @@ export default class WelcomeEditor {
           label: 'Guild join',
           description: 'Guild join message type',
           value: 'guild_join',
+          emoji: '📥',
           default: type == 'guild_join'
         },
         {
           label: 'Guild left',
           description: 'Guild left message type',
+          emoji: '📤',
           value: 'guild_left',
           default: type == 'guild_left'
         },
         {
           label: 'Direct join',
           description: 'Direct join',
+          emoji: '📥',
           value: 'direct_join',
           default: type == 'direct_join'
         }
@@ -260,6 +270,8 @@ export default class WelcomeEditor {
       const messageData = await WelcomeMessage.cache(client, id, messageType)
 
       messageData.status = !messageData.status
+      const saves = Save.cache(client, `${interaction.guildId}-welcome`)
+      saves.count += 1
 
       await WelcomeEditor.initialMessage(client, interaction, id, messageType)
     }

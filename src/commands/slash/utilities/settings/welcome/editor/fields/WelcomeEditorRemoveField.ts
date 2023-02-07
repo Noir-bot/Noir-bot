@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
 import Colors from '../../../../../../../constants/Colors'
 import NoirClient from '../../../../../../../structures/Client'
+import Save from '../../../../../../../structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '../../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../../SettingsUtils'
 import WelcomeEditor from '../WelcomeEditor'
@@ -49,6 +50,7 @@ export default class WelcomeEditorRemoveField {
 
   public static async response(client: NoirClient, interaction: StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
+    const save = Save.cache(client, `${interaction.guildId}-welcome`)
     const ids = interaction.values
 
     ids.forEach(id => {
@@ -58,6 +60,7 @@ export default class WelcomeEditorRemoveField {
       messageData.fieldsInline = messageData.fieldsInline.splice(index, index)
       messageData.fieldsName = messageData.fieldsName.splice(index, index)
       messageData.fieldsValue = messageData.fieldsValue.splice(index, index)
+      save.count += 1
     })
 
     if (messageData.fieldsId.length >= 1) {

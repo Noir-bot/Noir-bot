@@ -14,21 +14,24 @@ export default class ModerationSettings {
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationStatus', 'button'))
           .setLabel(`${moderationData.status ? 'Disable' : 'Enable'} moderation`)
-          .setStyle(SettingsUtils.generateStyle(moderationData.status)),
+          .setStyle(SettingsUtils.generateStyle(moderationData.status))
+          .setEmoji(`${moderationData?.status ? '✅' : '❌'}`),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogs', 'button'))
           .setLabel('Setup logs')
           .setStyle(SettingsUtils.generateStyle(moderationData.modLogs))
+          .setEmoji('📃')
           .setDisabled(!moderationData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRules', 'button'))
-          .setLabel(`${moderationData.roles.length > 0 ? 'Edit' : 'Setup'} moderation rules`) // TODO s ete
+          .setLabel(`${moderationData.roles.length > 0 ? 'Edit' : 'Setup'} moderation rule${moderationData.roles.length > 1 ? 's' : ''}`)
           .setStyle(SettingsUtils.generateStyle(moderationData.rulesLogs))
+          .setEmoji('🎛️')
           .setDisabled(!moderationData.status)
       ],
       [
         SettingsUtils.generateBack('settings', id, 'moderationBack.settings'),
-        SettingsUtils.generateSave('settings', id, 'moderationSave'),
+        SettingsUtils.generateSave('settings', id, 'moderationSave', client, interaction.guildId, 'moderation'),
         SettingsUtils.generateRestore('settings', id, 'moderationRestore')
       ]
     ]

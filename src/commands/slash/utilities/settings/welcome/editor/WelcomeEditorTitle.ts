@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import NoirClient from '../../../../../../structures/Client'
+import Save from '../../../../../../structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditor from './WelcomeEditor'
@@ -18,7 +19,6 @@ export default class WelcomeEditorTitle {
       .setValue(messageData.title ?? '')
       .setRequired(true)
       .setMaxLength(2000)
-      .setMinLength(1)
     const titleImageInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditorURL', 'input'))
       .setLabel('Embed title url')
@@ -27,7 +27,6 @@ export default class WelcomeEditorTitle {
       .setValue(messageData.url ?? '')
       .setRequired(false)
       .setMaxLength(2000)
-      .setMinLength(1)
 
     const actionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>()
@@ -46,6 +45,7 @@ export default class WelcomeEditorTitle {
 
   public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
+    const saves = Save.cache(client, `${interaction.guildId}-welcome`)
 
     if (!messageData) return
 
@@ -53,9 +53,11 @@ export default class WelcomeEditorTitle {
     const urlInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorURL', 'input'))
 
     messageData.title = WelcomeMessage.formatRemove(titleInput)
+    saves.count += 1
 
     if (urlInput) {
       messageData.url = WelcomeMessage.formatRemove(client.utils.formatURL(urlInput) ?? urlInput)
+      saves.count += 1
     }
 
     await WelcomeEditor.initialMessage(client, interaction, id, type)

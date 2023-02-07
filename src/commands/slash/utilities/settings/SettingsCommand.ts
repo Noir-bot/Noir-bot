@@ -18,7 +18,7 @@ export default class SettingsCommand extends ChatCommand {
       {
         name: 'settings',
         description: 'Noir settings',
-        defaultMemberPermissions: ['ManageGuild', 'ManageChannels', 'ManageRoles', 'ManageWebhooks'],
+        defaultMemberPermissions: ['ManageGuild', 'ManageWebhooks'],
         type: ApplicationCommandType.ChatInput,
         dmPermission: false
       }
@@ -26,20 +26,20 @@ export default class SettingsCommand extends ChatCommand {
   }
 
   public async execute(client: NoirClient, interaction: ChatInputCommandInteraction<'cached'>) {
-    const guildId = interaction.guild.id
-
-    await SettingsCommand.initialMessage(client, interaction, guildId)
+    await SettingsCommand.initialMessage(client, interaction, interaction.guildId)
   }
 
   public static async initialMessage(client: NoirClient, interaction: ChatInputCommandInteraction<'cached'> | ButtonInteraction<'cached'>, id: string) {
     const buttons = [
       new ButtonBuilder()
         .setCustomId(SettingsUtils.generateId('settings', id, 'welcome', 'button'))
-        .setLabel('Welcome system configuration')
+        .setLabel('Welcome settings')
+        .setEmoji('🔗')
         .setStyle(SettingsUtils.defaultStyle),
       new ButtonBuilder()
         .setCustomId(SettingsUtils.generateId('settings', id, 'moderation', 'button'))
         .setLabel('Moderation settings')
+        .setEmoji('🔒')
         .setStyle(SettingsUtils.defaultStyle)
     ]
 
@@ -51,7 +51,7 @@ export default class SettingsCommand extends ChatCommand {
       color: Colors.primary,
       author: 'Noir settings',
       authorImage: Options.clientAvatar,
-      description: `Hello ${interaction.user.username}, welcome to Noir's settings dashboard, navigate and configure Noir as you want.`,
+      description: `Hello ${interaction.user.username}, welcome to Noir's settings, navigate and configure Noir as you want.`,
       fields: [
         {
           name: 'Support',

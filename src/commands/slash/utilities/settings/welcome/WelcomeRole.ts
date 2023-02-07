@@ -3,6 +3,7 @@ import Colors from '../../../../../constants/Colors'
 import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
 import Premium from '../../../../../structures/Premium'
+import Save from '../../../../../structures/Save'
 import Welcome from '../../../../../structures/Welcome'
 import SettingsUtils from '../SettingsUtils'
 
@@ -18,7 +19,7 @@ export default class WelcomeRole {
 
     const buttons = [
       SettingsUtils.generateBack('settings', id, 'welcomeBack'),
-      SettingsUtils.generateSave('settings', id, 'welcomeSave.welcomeRoles'),
+      SettingsUtils.generateSave('settings', id, 'welcomeSave.welcomeRoles', client, interaction.guildId, 'welcome'),
       SettingsUtils.generateRestore('settings', id, 'welcomeRestore.welcomeRoles'),
       new ButtonBuilder()
         .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeRolesClear', 'button'))
@@ -54,6 +55,9 @@ export default class WelcomeRole {
 
     welcomeData.roles = roleIds
 
+    const saves = Save.cache(client, `${interaction.guildId}-welcome`)
+    saves.count += 1
+
     await this.initialMessage(client, interaction, id)
   }
 
@@ -61,6 +65,9 @@ export default class WelcomeRole {
     const welcomeData = await Welcome.cache(client, interaction.guildId)
 
     welcomeData.roles = []
+
+    const saves = Save.cache(client, `${interaction.guildId}-welcome`)
+    saves.count += 1
 
     await this.initialMessage(client, interaction, id)
   }

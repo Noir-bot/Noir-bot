@@ -3,6 +3,7 @@ import Colors from '../../../../../constants/Colors'
 import Options from '../../../../../constants/Options'
 import NoirClient from '../../../../../structures/Client'
 import Moderation from '../../../../../structures/Moderation'
+import Save from '../../../../../structures/Save'
 import WelcomeMessage from '../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../SettingsUtils'
 
@@ -17,6 +18,7 @@ export default class ModerationLogs {
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogsStatus', 'button'))
           .setLabel(`${moderationData.modLogs ? 'Disable' : 'Enable'} moderation logs`)
           .setStyle(SettingsUtils.generateStyle(moderationData?.modLogs))
+          .setEmoji(`${moderationData?.modLogs ? '✅' : '❌'}`)
           .setDisabled(!moderationData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationWebhookChannel', 'button'))
@@ -31,7 +33,7 @@ export default class ModerationLogs {
       ],
       [
         SettingsUtils.generateBack('settings', id, 'moderationBack'),
-        SettingsUtils.generateSave('settings', id, 'moderationSave.moderationLogs'),
+        SettingsUtils.generateSave('settings', id, 'moderationSave.moderationLogs', client, interaction.guildId, 'moderation'),
         SettingsUtils.generateRestore('settings', id, 'moderationRestore.moderationLogs')
       ]
     ]
@@ -64,7 +66,7 @@ export default class ModerationLogs {
 
     const buttons = [
       SettingsUtils.generateBack('settings', id, 'moderationBack.moderationWebhook'),
-      SettingsUtils.generateSave('settings', id, 'moderationSave.moderationWebhookChannel'),
+      SettingsUtils.generateSave('settings', id, 'moderationSave.moderationWebhookChannel', client, interaction.guildId, 'moderation'),
       SettingsUtils.generateRestore('settings', id, 'moderationRestore.moderationWebhookChannel')
     ]
 
@@ -125,9 +127,11 @@ export default class ModerationLogs {
 
   public static async channelResponse(client: NoirClient, interaction: ChannelSelectMenuInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId)
+    const save = Save.cache(client, `${interaction.guildId}-moderation`)
     const channelId = interaction.values[0]
 
     moderationData.webhookChannel = channelId
+    save.count += 1
 
     await this.channelRequest(client, interaction, id)
   }
@@ -136,9 +140,11 @@ export default class ModerationLogs {
     const moderationData = await Moderation.cache(client, interaction.guildId)
     const webhookName = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationWebhookName', 'input'))
     const webhookAvatar = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationWebhookAvatar', 'input'))
+    const save = Save.cache(client, `${interaction.guildId}-moderation`)
 
     moderationData.webhookName = WelcomeMessage.formatVariable(webhookName, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
     moderationData.webhookAvatar = WelcomeMessage.formatVariable(webhookAvatar, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
+    save.count += 1
 
     await this.initialMessage(client, interaction, id)
   }

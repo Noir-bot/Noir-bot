@@ -7,10 +7,28 @@ export default class ModerationRules {
     this.rules = rules
   }
 
-  public static async cache(client: NoirClient, guildId: string, restore: boolean = false) {
+  public static async save(client: NoirClient, guildId: string) {
     const cache = client.moderationRules.get(guildId)
 
-    if (!cache || restore) {
+    if (cache) {
+      const data = await client.prisma.rule.findMany({ where: { guild: guildId } })
+
+      if (!data) {
+        await client.prisma.rule.createMany({ data: cache.rules })
+      }
+
+      else {
+        await client.prisma.rule.updateMany({ where: { guild: guildId }, data: cache.rules })
+      }
+    }
+
+    return cache
+  }
+
+  public static async cache(client: NoirClient, guildId: string, force?: boolean) {
+    const cache = client.moderationRules.get(guildId)
+
+    if (!cache || force) {
       let data = await client.prisma.rule.findMany({ where: { guild: guildId } })
 
       if (!data) return

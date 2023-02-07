@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 import NoirClient from '../../../../../../structures/Client'
+import Save from '../../../../../../structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditor from './WelcomeEditor'
@@ -16,7 +17,6 @@ export default class WelcomeEditorMessage {
       .setValue(messageData?.message ?? '')
       .setRequired(true)
       .setMaxLength(1000)
-      .setMinLength(1)
 
     const actionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>()
@@ -39,6 +39,9 @@ export default class WelcomeEditorMessage {
     const messageInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorMessage', 'input'))
 
     messageData.message = WelcomeMessage.formatRemove(messageInput)
+
+    const saves = Save.cache(client, `${interaction.guildId}-welcome`)
+    saves.count += 1
 
     await WelcomeEditor.initialMessage(client, interaction, id, type)
   }

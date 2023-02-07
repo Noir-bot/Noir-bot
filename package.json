@@ -31,7 +31,7 @@
   },
   "scripts": {
     "dev": "nodemon --watch src -e ts --exec ts-node -r dotenv/config ./src/index.ts",
-    "start": "npm i && tsc && npx prisma generate && npx prisma db push && node ./build/index.js",
+    "start": "node ./build/index.js",
     "prisma": "npx prisma generate",
     "push": "npx prisma db push",
     "build": "npm i && tsc"

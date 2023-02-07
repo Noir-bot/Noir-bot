@@ -13,7 +13,7 @@ export default class ReadyEvent extends Event {
   }
 
   public async execute(client: NoirClient) {
-    console.log(chalk.green.bold('Noir Ready!'))
+    console.info(chalk.green.bold('Noir Ready!'))
 
     client?.user?.setActivity({
       name: `${Options.activity}`,

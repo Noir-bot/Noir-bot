@@ -77,10 +77,10 @@ export default class Moderation {
     }
   }
 
-  public static async cache(client: NoirClient, guildId: string, restore: boolean = false) {
+  public static async cache(client: NoirClient, guildId: string, force?: boolean) {
     const cache = client.moderation.get(guildId)
 
-    if (!cache || restore) {
+    if (!cache || force) {
       let data = await client.prisma.moderation.findFirst({ where: { guild: guildId } })
 
       if (!data) {
