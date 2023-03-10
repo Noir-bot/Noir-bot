@@ -4,6 +4,7 @@
     "kickable",
     "moderatable",
     "rulebreakers",
+    "Serverinfo",
     "softban",
     "sotfban",
     "tempban",
