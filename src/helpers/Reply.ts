@@ -24,6 +24,7 @@ export default class Reply {
       fetch?: boolean,
       update?: boolean,
       ephemeral?: boolean,
+      timestamp?: Date | boolean,
     }) {
     const embed = this.build({
       color: properties.color,
@@ -36,7 +37,8 @@ export default class Reply {
       footerImage: properties.footerImage,
       thumbnail: properties.thumbnail,
       image: properties.image,
-      fields: properties.fields
+      fields: properties.fields,
+      timestamp: properties.timestamp
     })
 
     return await this.send({
@@ -258,8 +260,9 @@ export default class Reply {
       footerImage?: string,
       thumbnail?: string
       image?: string,
+      timestamp?: Date | boolean,
     }
-  ): EmbedBuilder {
+  ): EmbedBuilder | undefined {
     const embed = new EmbedBuilder()
       .setColor(Colors.primary)
 
@@ -272,6 +275,11 @@ export default class Reply {
     if (properties.thumbnail) embed.setThumbnail(properties.thumbnail)
     if (properties.image) embed.setImage(properties.image)
     if (properties.fields) embed.addFields(properties.fields)
+    if (properties.timestamp) embed.setTimestamp(typeof properties.timestamp == 'boolean' ? null : properties.timestamp)
+
+    if (!properties.color && !properties.author && !properties.title && !properties.url && !properties.description && !properties.footer && !properties.thumbnail && !properties.image && !properties.fields) {
+      return undefined
+    }
 
     return embed
   }
