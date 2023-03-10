@@ -1,4 +1,4 @@
-import NoirClient from './Client'
+import Client from '@structures/Client'
 export default class Save {
 
   public guild: string
@@ -9,7 +9,7 @@ export default class Save {
     this.count = count
   }
 
-  public static cache(client: NoirClient, id: string) {
+  public static cache(client: Client, id: string) {
     let saves = client.save.get(id)
 
     if (!saves) {

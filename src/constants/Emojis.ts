@@ -1,0 +1,18 @@
+export default class Emojis {
+  public static readonly enable = '<:Enable:1081260989716119612> '
+  public static readonly disable = '<:Disable:1081260988382334976>'
+  public static readonly back = '<:Back:1081260985068818442>'
+  public static readonly save = '<:Save:1081265645909463162> '
+  public static readonly reset = '<:Reset:1081265644751827035>'
+  public static readonly trash = '<:Trash:1081265640901451796>'
+  public static readonly example = '<:Example:1081265643283820618>'
+  public static readonly embedSettings = '<:Embedsettings:1081270460139966474>'
+  public static readonly embedAuthor = '<:Embedauthor:1081270455199076422>'
+  public static readonly embedTitle = '<:Embedtitle:1081270462371336242>'
+  public static readonly embedDescription = '<:Embeddescription:1081270457023615051>'
+  public static readonly embedFooter = '<:Embedfooter:1081270458336419851>'
+  public static readonly content = '<:Content:1081270682287095891>'
+  public static readonly premium = '<:Premium:1083044573359648799>'
+  public static readonly welcome = '<:Welcome:1083044574936715356>'
+  public static readonly moderation = '<:Moderation:1083044570314584155>'
+}

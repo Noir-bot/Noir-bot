@@ -1,14 +1,14 @@
+import Colors from '@constants/Colors'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import Save from '@structures/Save'
+import WelcomeMessage from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, AnySelectMenuInteraction, ButtonBuilder, ButtonInteraction, ChannelSelectMenuBuilder, ChannelSelectMenuInteraction, ChannelType, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle, channelMention } from 'discord.js'
-import Colors from '../../../../../constants/Colors'
-import Options from '../../../../../constants/Options'
-import NoirClient from '../../../../../structures/Client'
-import Save from '../../../../../structures/Save'
-import Welcome from '../../../../../structures/Welcome'
-import WelcomeMessage from '../../../../../structures/WelcomeMessage'
+import Welcome from '../../../../../structures/welcome/Welcome'
 import SettingsUtils from '../SettingsUtils'
 
 export default class WelcomeWebhook {
-  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
+  public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     const welcomeData = await Welcome.cache(client, interaction.guildId)
     const welcomeWebhook = welcomeData?.webhook ? await Welcome.getWebhook(client, welcomeData.webhook) : null
 
@@ -39,11 +39,12 @@ export default class WelcomeWebhook {
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[1])
     ]
 
-    await client.reply.reply({
+    await Reply.reply({
+      client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Welcome webhook settings',
-      authorImage: Options.clientAvatar,
+      authorImage: client.user?.avatarURL(),
       description: 'Setup custom webhook for auto-message.',
       fields: [
         {
@@ -57,7 +58,7 @@ export default class WelcomeWebhook {
     })
   }
 
-  public static async channelRequest(client: NoirClient, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'>, id: string) {
+  public static async channelRequest(client: Client, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'>, id: string) {
     const welcomeData = await Welcome.cache(client, interaction.guildId)
 
     const buttons = [
@@ -79,7 +80,8 @@ export default class WelcomeWebhook {
     const buttonActionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
       .addComponents(buttons)
 
-    await client.reply.reply({
+    await Reply.reply({
+      client,
       interaction: interaction,
       author: 'Welcome webhook channel',
       description: `${welcomeData.webhookChannel ? `Current channel ${channelMention(welcomeData.webhookChannel)}` : 'No channel'}`,
@@ -88,7 +90,7 @@ export default class WelcomeWebhook {
     })
   }
 
-  public static async editRequest(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string) {
+  public static async editRequest(client: Client, interaction: ButtonInteraction<'cached'>, id: string) {
     const welcomeData = await Welcome.cache(client, interaction.guildId)
 
     const webhookNameInput = new TextInputBuilder()
@@ -121,7 +123,7 @@ export default class WelcomeWebhook {
     await interaction.showModal(modal)
   }
 
-  public static async channelResponse(client: NoirClient, interaction: ChannelSelectMenuInteraction<'cached'>, id: string) {
+  public static async channelResponse(client: Client, interaction: ChannelSelectMenuInteraction<'cached'>, id: string) {
     const welcomeData = await Welcome.cache(client, interaction.guildId)
     const saves = Save.cache(client, `${interaction.guildId}-welcome`)
     const channelId = interaction.values[0]
@@ -132,20 +134,20 @@ export default class WelcomeWebhook {
     await this.channelRequest(client, interaction, id)
   }
 
-  public static async editResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
+  public static async editResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     const welcomeData = await Welcome.cache(client, interaction.guildId)
     const saves = Save.cache(client, `${interaction.guildId}-welcome`)
     const webhookName = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeWebhookName', 'input'))
     const webhookAvatar = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'input'))
 
-    welcomeData.webhookName = WelcomeMessage.formatVariable(webhookName, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
-    welcomeData.webhookAvatar = WelcomeMessage.formatVariable(webhookAvatar, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
+    welcomeData.webhookName = WelcomeMessage.formatVariable(webhookName, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: client.user?.avatarURL() } })
+    welcomeData.webhookAvatar = WelcomeMessage.formatVariable(webhookAvatar, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: client.user?.avatarURL() } })
     saves.count += 1
 
     await this.initialMessage(client, interaction, id)
   }
 
-  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, method: string) {
+  public static async buttonResponse(client: Client, interaction: ButtonInteraction<'cached'>, id: string, method: string) {
     if (method == 'welcomeWebhook') {
       await WelcomeWebhook.initialMessage(client, interaction, id)
     }
@@ -159,13 +161,13 @@ export default class WelcomeWebhook {
     }
   }
 
-  public static async selectResponse(client: NoirClient, interaction: AnySelectMenuInteraction<'cached'>, id: string, method: string) {
+  public static async selectResponse(client: Client, interaction: AnySelectMenuInteraction<'cached'>, id: string, method: string) {
     if (method == 'welcomeWebhookChannel' && interaction.isChannelSelectMenu()) {
       await WelcomeWebhook.channelResponse(client, interaction, id)
     }
   }
 
-  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, method: string) {
+  public static async modalResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, method: string) {
     if (method == 'welcomeWebhookEdit') {
       await WelcomeWebhook.editResponse(client, interaction, id)
     }

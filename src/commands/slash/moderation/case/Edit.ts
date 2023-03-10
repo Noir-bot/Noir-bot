@@ -1,14 +1,16 @@
+import WarnLogs from '@commands/slash/moderation/warn/Logs'
+import Colors from '@constants/Colors'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
 import { ActionRowBuilder, ChatInputCommandInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
-import Colors from '../../../../constants/Colors'
-import NoirClient from '../../../../structures/Client'
-import WarnLogs from '../warn/Logs'
 
 export default class CaseEdit {
-  public static async edit(client: NoirClient, interaction: ChatInputCommandInteraction, id: number) {
+  public static async edit(client: Client, interaction: ChatInputCommandInteraction, id: number) {
     const caseData = await client.prisma.case.findFirst({ where: { id } })
 
     if (!caseData) {
-      client.reply.reply({
+      Reply.reply({
+        client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Case error',
@@ -39,7 +41,7 @@ export default class CaseEdit {
     interaction.showModal(modal)
   }
 
-  public static async modalResponse(client: NoirClient, interaction: ModalSubmitInteraction) {
+  public static async modalResponse(client: Client, interaction: ModalSubmitInteraction) {
     const reason = interaction.fields.getTextInputValue('reason')
 
     if (!reason) return
@@ -49,7 +51,8 @@ export default class CaseEdit {
       data: { reason: reason, updated: new Date() }
     })
 
-    client.reply.reply({
+    Reply.reply({
+      client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Case updated',

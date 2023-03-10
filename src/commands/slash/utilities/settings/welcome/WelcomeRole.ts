@@ -1,14 +1,14 @@
+import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
+import Colors from '@constants/Colors'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import Premium from '@structures/Premium'
+import Save from '@structures/Save'
+import Welcome from '@structures/welcome/Welcome'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, roleMention, RoleSelectMenuBuilder, RoleSelectMenuInteraction } from 'discord.js'
-import Colors from '../../../../../constants/Colors'
-import Options from '../../../../../constants/Options'
-import NoirClient from '../../../../../structures/Client'
-import Premium from '../../../../../structures/Premium'
-import Save from '../../../../../structures/Save'
-import Welcome from '../../../../../structures/Welcome'
-import SettingsUtils from '../SettingsUtils'
 
 export default class WelcomeRole {
-  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | RoleSelectMenuInteraction<'cached'>, id: string) {
+  public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | RoleSelectMenuInteraction<'cached'>, id: string) {
     const premiumData = await Premium.cache(client, interaction.guildId)
     const welcomeData = await Welcome.cache(client, interaction.guildId)
 
@@ -32,11 +32,12 @@ export default class WelcomeRole {
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons)
     ]
 
-    await client.reply.reply({
+    await Reply.reply({
+      client: client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Welcome roles settings',
-      authorImage: Options.clientAvatar,
+      authorImage: client.user?.avatarURL(),
       description: 'Setup auto-role and automatically give roles to new users when they join.',
       fields: welcomeData.roles && welcomeData.roles.length > 0 ? [{ name: 'Current roles', value: welcomeData.roles.map(role => roleMention(role)).join(', '), inline: false }] : [],
       components: actionRows,
@@ -44,7 +45,7 @@ export default class WelcomeRole {
     })
   }
 
-  public static async rolesResponse(client: NoirClient, interaction: RoleSelectMenuInteraction<'cached'>, id: string) {
+  public static async rolesResponse(client: Client, interaction: RoleSelectMenuInteraction<'cached'>, id: string) {
     const welcomeData = await Welcome.cache(client, interaction.guildId)
     const premiumData = await Premium.cache(client, interaction.guildId)
     const roleIds = interaction.values
@@ -61,7 +62,7 @@ export default class WelcomeRole {
     await this.initialMessage(client, interaction, id)
   }
 
-  public static async clearResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string) {
+  public static async clearResponse(client: Client, interaction: ButtonInteraction<'cached'>, id: string) {
     const welcomeData = await Welcome.cache(client, interaction.guildId)
 
     welcomeData.roles = []
@@ -72,7 +73,7 @@ export default class WelcomeRole {
     await this.initialMessage(client, interaction, id)
   }
 
-  public static async selectResponse(client: NoirClient, interaction: RoleSelectMenuInteraction<'cached'>, id: string, method: string) {
+  public static async selectResponse(client: Client, interaction: RoleSelectMenuInteraction<'cached'>, id: string, method: string) {
     if (method == 'welcomeRoles') {
       await this.rolesResponse(client, interaction, id)
     }

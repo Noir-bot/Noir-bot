@@ -1,12 +1,14 @@
+import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
+import Colors from '@constants/Colors'
+import Reply from '@helpers/Reply'
+import Utils from '@helpers/Utils'
+import Client from '@structures/Client'
+import Save from '@structures/Save'
+import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
-import Colors from '../../../../../../../constants/Colors'
-import NoirClient from '../../../../../../../structures/Client'
-import Save from '../../../../../../../structures/Save'
-import WelcomeMessage, { WelcomeMessageType } from '../../../../../../../structures/WelcomeMessage'
-import SettingsUtils from '../../../SettingsUtils'
 
 export default class WelcomeEditorEditField {
-  public static async listRequest(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+  public static async listRequest(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
 
     const buttons = [
@@ -32,19 +34,20 @@ export default class WelcomeEditorEditField {
       .addComponents(buttons)
 
     try {
-      await client.reply.reply({
+      await Reply.reply({
+        client,
         interaction: interaction,
         author: 'Embed field editor',
         description: 'Edit embed fields.',
         color: Colors.primary,
         components: [selectMenuActionRow, buttonActionRow]
       })
-    } catch {
-      return
+    } catch (err) {
+      return console.log(err)
     }
   }
 
-  public static async request(client: NoirClient, interaction: StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType, fieldId: number) {
+  public static async request(client: Client, interaction: StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType, fieldId: number) {
     const messageData = await WelcomeMessage.cache(client, id, type)
     const index = messageData.fieldsId.findIndex(id => id == fieldId)
 
@@ -90,7 +93,7 @@ export default class WelcomeEditorEditField {
     await interaction.showModal(modal)
   }
 
-  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType, index: number) {
+  public static async response(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType, index: number) {
     const messageData = await WelcomeMessage.cache(client, id, type)
     const fieldNameInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldNameNew', 'input'))
     const fieldValueInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldValueNew', 'input'))
@@ -108,7 +111,7 @@ export default class WelcomeEditorEditField {
     }
 
     if (fieldInlineInput) {
-      messageData.fieldsInline[index] = client.utils.formatBoolean(fieldInlineInput)
+      messageData.fieldsInline[index] = Utils.formatBoolean(fieldInlineInput)
       save.count += 1
     }
 

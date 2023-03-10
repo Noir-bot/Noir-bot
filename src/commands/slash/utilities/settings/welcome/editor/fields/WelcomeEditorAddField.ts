@@ -1,13 +1,13 @@
+import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
+import WelcomeEditor from '@commands/slash/utilities/settings/welcome/editor/WelcomeEditor'
+import Client from '@structures/Client'
+import Premium from '@structures/Premium'
+import Save from '@structures/Save'
+import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
-import NoirClient from '../../../../../../../structures/Client'
-import Premium from '../../../../../../../structures/Premium'
-import Save from '../../../../../../../structures/Save'
-import WelcomeMessage, { WelcomeMessageType } from '../../../../../../../structures/WelcomeMessage'
-import SettingsUtils from '../../../SettingsUtils'
-import WelcomeEditor from '../WelcomeEditor'
 
 export default class WelcomeEditorAddField {
-  public static async request(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+  public static async request(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
 
     if (!messageData) return
@@ -52,7 +52,7 @@ export default class WelcomeEditorAddField {
     await interaction.showModal(modal)
   }
 
-  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+  public static async response(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
     const premiumData = await Premium.cache(client, id)
     const save = Save.cache(client, `${interaction.guildId}-welcome`)

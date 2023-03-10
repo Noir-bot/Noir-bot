@@ -1,18 +1,18 @@
+import ButtonExecution from '@events/client/interaction/ButtonExecution'
+import CommandExecution from '@events/client/interaction/CommandExecution'
+import ModalExecution from '@events/client/interaction/ModalExecution'
+import SelectMenuExecution from '@events/client/interaction/SelectMenuExecution'
+import Client from '@structures/Client'
+import Event from '@structures/Event'
+import Premium from '@structures/Premium'
 import { Interaction, ModalMessageModalSubmitInteraction } from 'discord.js'
-import NoirClient from '../../../structures/Client'
-import Event from '../../../structures/Event'
-import Premium from '../../../structures/Premium'
-import ButtonExecution from './ButtonExecution'
-import CommandExecution from './CommandExecution'
-import ModalExecution from './ModalExecution'
-import SelectMenuExecution from './SelectMenuExecution'
 
 export default class InteractionEvent extends Event {
-  constructor(client: NoirClient) {
+  constructor(client: Client) {
     super(client, 'interactionCreate', false)
   }
 
-  public async execute(client: NoirClient, interaction: Interaction) {
+  public async execute(client: Client, interaction: Interaction) {
     if (interaction.guild) {
       await Premium.cache(client, interaction.guild.id)
     }

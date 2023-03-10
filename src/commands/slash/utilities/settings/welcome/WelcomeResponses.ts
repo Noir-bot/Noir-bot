@@ -1,17 +1,16 @@
+import SettingsCommand from '@commands/slash/utilities/settings/SettingsCommand'
+import WelcomeRole from '@commands/slash/utilities/settings/welcome/WelcomeRole'
+import WelcomeSettings from '@commands/slash/utilities/settings/welcome/WelcomeSettings'
+import WelcomeWebhook from '@commands/slash/utilities/settings/welcome/WelcomeWebhook'
+import WelcomeEditor from '@commands/slash/utilities/settings/welcome/editor/WelcomeEditor'
+import Client from '@structures/Client'
+import Save from '@structures/Save'
+import Welcome from '@structures/welcome/Welcome'
+import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
 import { AnySelectMenuInteraction, ButtonInteraction, ModalMessageModalSubmitInteraction } from 'discord.js'
-import NoirClient from '../../../../../structures/Client'
-import Save from '../../../../../structures/Save'
-import Welcome from '../../../../../structures/Welcome'
-import WelcomeMessage, { WelcomeMessageType } from '../../../../../structures/WelcomeMessage'
-import SettingsCommand from '../SettingsCommand'
-import WelcomeRole from './WelcomeRole'
-import WelcomeSettings from './WelcomeSettings'
-import WelcomeWebhook from './WelcomeWebhook'
-import WelcomeEditor from './editor/WelcomeEditor'
-
 
 export default class WelcomeResponse {
-  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, parts: string[]) {
+  public static async buttonResponse(client: Client, interaction: ButtonInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
     const methods = method.split('.')
@@ -31,6 +30,10 @@ export default class WelcomeResponse {
 
       else if (type == 'welcomeEditor') {
         const messageType = methods[2] as WelcomeMessageType
+        const reg = /guild_join|guild_left|direct_join/g
+
+        if (!reg.test(messageType)) return console.log('stape')
+
         await WelcomeEditor.initialMessage(client, interaction, id, messageType)
       }
 
@@ -165,7 +168,7 @@ export default class WelcomeResponse {
     }
   }
 
-  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, parts: string[]) {
+  public static async modalResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
 
@@ -178,7 +181,7 @@ export default class WelcomeResponse {
     }
   }
 
-  public static async selectResponse(client: NoirClient, interaction: AnySelectMenuInteraction<'cached'>, parts: string[]) {
+  public static async selectResponse(client: Client, interaction: AnySelectMenuInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
 

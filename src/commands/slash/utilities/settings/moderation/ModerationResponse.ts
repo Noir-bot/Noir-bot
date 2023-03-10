@@ -1,16 +1,16 @@
+import SettingsCommand from '@commands/slash/utilities/settings/SettingsCommand'
+import ModerationLogs from '@commands/slash/utilities/settings/moderation/ModerationLogs'
+import RuleSettings from '@commands/slash/utilities/settings/moderation/ModerationRules'
+import ModerationSettings from '@commands/slash/utilities/settings/moderation/ModerationSettings'
+import Client from '@structures/Client'
+import Save from '@structures/Save'
+import Moderation from '@structures/moderation/Moderation'
+import ModerationRules from '@structures/moderation/ModerationRules'
 import { AnySelectMenuInteraction, ButtonInteraction, ModalMessageModalSubmitInteraction } from 'discord.js'
-import NoirClient from '../../../../../structures/Client'
-import Moderation from '../../../../../structures/Moderation'
-import ModerationRules from '../../../../../structures/ModerationRules'
-import Save from '../../../../../structures/Save'
-import SettingsCommand from '../SettingsCommand'
-import ModerationLogs from './ModerationLogs'
-import RuleSettings from './ModerationRules'
-import ModerationSettings from './ModerationSettings'
 
 
 export default class ModerationResponse {
-  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, parts: string[]) {
+  public static async buttonResponse(client: Client, interaction: ButtonInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
     const methodSplit = method.split('.')
@@ -97,14 +97,14 @@ export default class ModerationResponse {
     }
 
     else if (method == 'moderationLogsStatus') {
-      moderationData.modLogs = !moderationData.modLogs
+      moderationData.logs = !moderationData.logs
       saves.count += 1
 
       await ModerationLogs.initialMessage(client, interaction, id)
     }
 
     else if (method == 'moderationRulesStatus') {
-      moderationData.rulesLogs = !moderationData.rulesLogs
+      moderationData.rules = !moderationData.rules
       saves.count += 1
 
       await RuleSettings.initialMessage(client, interaction, id)
@@ -127,7 +127,7 @@ export default class ModerationResponse {
     }
   }
 
-  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, parts: string[]) {
+  public static async modalResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
 
@@ -148,7 +148,7 @@ export default class ModerationResponse {
     }
   }
 
-  public static async selectResponse(client: NoirClient, interaction: AnySelectMenuInteraction<'cached'>, parts: string[]) {
+  public static async selectResponse(client: Client, interaction: AnySelectMenuInteraction<'cached'>, parts: string[]) {
     const id = parts[1]
     const method = parts[2]
 

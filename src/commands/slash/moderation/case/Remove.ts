@@ -1,14 +1,16 @@
+import WarnLogs from '@commands/slash/moderation/warn/Logs'
+import Colors from '@constants/Colors'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
 import { ChatInputCommandInteraction } from 'discord.js'
-import Colors from '../../../../constants/Colors'
-import NoirClient from '../../../../structures/Client'
-import WarnLogs from '../warn/Logs'
 
 export default class CaseRemove {
-  public static async remove(client: NoirClient, interaction: ChatInputCommandInteraction, id: number) {
+  public static async remove(client: Client, interaction: ChatInputCommandInteraction, id: number) {
     const caseData = await client.prisma.case.delete({ where: { id: id } }).catch(() => null)
 
     if (!caseData) {
-      client.reply.reply({
+      Reply.reply({
+        client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Case error',
@@ -19,7 +21,8 @@ export default class CaseRemove {
       return
     }
 
-    client.reply.reply({
+    Reply.reply({
+      client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Case removed',

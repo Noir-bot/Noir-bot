@@ -1,13 +1,16 @@
+import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
+import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import Moderation from '@structures/moderation/Moderation'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction } from 'discord.js'
-import Colors from '../../../../../constants/Colors'
-import Options from '../../../../../constants/Options'
-import NoirClient from '../../../../../structures/Client'
-import Moderation from '../../../../../structures/Moderation'
-import SettingsUtils from '../SettingsUtils'
+import ModerationRules from '../../../../../structures/moderation/ModerationRules'
 
 export default class ModerationSettings {
-  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
+  public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId)
+    const moderationRules = await ModerationRules.cache(client, interaction.guildId)
 
     const buttons = [
       [
@@ -15,19 +18,21 @@ export default class ModerationSettings {
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationStatus', 'button'))
           .setLabel(`${moderationData.status ? 'Disable' : 'Enable'} moderation`)
           .setStyle(SettingsUtils.generateStyle(moderationData.status))
-          .setEmoji(`${moderationData?.status ? '✅' : '❌'}`),
+          .setEmoji(`${moderationData?.status ? Emojis.enable : Emojis.disable}`),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogs', 'button'))
           .setLabel('Setup logs')
-          .setStyle(SettingsUtils.generateStyle(moderationData.modLogs))
+          .setStyle(SettingsUtils.generateStyle(moderationData.logs))
           .setEmoji('📃')
           .setDisabled(!moderationData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRules', 'button'))
-          .setLabel(`${moderationData.roles.length > 0 ? 'Edit' : 'Setup'} moderation rule${moderationData.roles.length > 1 ? 's' : ''}`)
-          .setStyle(SettingsUtils.generateStyle(moderationData.rulesLogs))
+          // .setLabel(`${moderationRules?.rules ? moderationRules.rules.length > 0 ? 'Edit' : 'Setup' : 'Setup'} moderation rule${moderationRules?.rules ? moderationRules.rules?.length > 1 ? 's' : '' : ' '}`)
+          .setLabel('Rules (under development)')
+          .setStyle(SettingsUtils.generateStyle(moderationData.rules))
           .setEmoji('🎛️')
-          .setDisabled(!moderationData.status)
+          // .setDisabled(!moderationData.status)
+          .setDisabled(true)
       ],
       [
         SettingsUtils.generateBack('settings', id, 'moderationBack.settings'),
@@ -41,11 +46,12 @@ export default class ModerationSettings {
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[1])
     ]
 
-    await client.reply.reply({
+    await Reply.reply({
+      client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Moderation settings',
-      authorImage: Options.clientAvatar,
+      authorImage: client.user?.avatarURL(),
       description: 'Must have moderation tools to automate server moderation.',
       fields: [
         {

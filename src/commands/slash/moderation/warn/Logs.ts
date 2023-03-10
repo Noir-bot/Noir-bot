@@ -1,20 +1,22 @@
+import WarnRule from '@commands/slash/moderation/warn/Rule'
+import Colors from '@constants/Colors'
+import Logs from '@helpers/Logs'
 import { Case } from '@prisma/client'
+import DataCase from '@structures/Case'
+import Client from '@structures/Client'
+import Moderation from '@structures/moderation/Moderation'
 import { ButtonInteraction, ChatInputCommandInteraction, Message, ModalSubmitInteraction, time } from 'discord.js'
-import Colors from '../../../../constants/Colors'
-import DataCase from '../../../../structures/Case'
-import NoirClient from '../../../../structures/Client'
-import Moderation from '../../../../structures/Moderation'
-import WarnRule from './Rule'
 
 
 export default class WarnLogs {
-  public static async LogsMessage(client: NoirClient, interaction: ButtonInteraction, caseCache: DataCase, id: string) {
-    const sent = await client.logs.log({
+  public static async LogsMessage(client: Client, interaction: ButtonInteraction, caseCache: DataCase, id: string) {
+    const sent = await Logs.log({
+      client,
       guild: interaction.guildId!,
       author: 'Warn case',
-      color: Colors.secondary,
+      color: Colors.logsCase,
       description: `**User:** ${interaction.guild?.members.cache.get(caseCache.user)?.user.username} \`${caseCache.user}\`\n` +
-        `**Moderator:** ${interaction.guild?.members.cache.get(caseCache.mod)?.user.username} \`${caseCache.mod}\`\n` +
+        `**Moderator:** ${interaction.guild?.members.cache.get(caseCache.moderator)?.user.username} \`${caseCache.moderator}\`\n` +
         `**Reason:** ${caseCache.reason}\n` +
         `**Created at:** ${time(caseCache.created, 'd')} ${time(caseCache.created, 'R')}\n` +
         `**Updated at:** ${time(caseCache.updated, 'd')} ${time(caseCache.updated, 'R')}`
@@ -24,12 +26,13 @@ export default class WarnLogs {
       caseCache.reference = sent.id
       const data = await DataCase.save(client, caseCache, id)
 
-      await client.logs.log({
+      await Logs.log({
+        client,
         guild: interaction.guildId!,
         author: 'Warn case',
-        color: Colors.secondary,
+        color: Colors.logsCase,
         description: `**User:** ${interaction.guild?.members.cache.get(caseCache.user)?.user.username} \`${caseCache.user}\`\n` +
-          `**Moderator:** ${interaction.guild?.members.cache.get(caseCache.mod)?.user.username} \`${caseCache.mod}\`\n` +
+          `**Moderator:** ${interaction.guild?.members.cache.get(caseCache.moderator)?.user.username} \`${caseCache.moderator}\`\n` +
           `**Reason:** ${caseCache.reason}\n` +
           `**Created at:** ${time(caseCache.created, 'd')} ${time(caseCache.created, 'R')}\n` +
           `**Updated at:** ${time(caseCache.updated, 'd')} ${time(caseCache.updated, 'R')}`,
@@ -43,10 +46,10 @@ export default class WarnLogs {
     }
 
     WarnRule.check(client, interaction.guildId!, caseCache.user)
-    client.cases.delete(id)
+    client.moderationCases.delete(id)
   }
 
-  public static async UpdateLogs(client: NoirClient, interaction: ModalSubmitInteraction | ButtonInteraction | ChatInputCommandInteraction, caseData: Case, deleted?: boolean) {
+  public static async UpdateLogs(client: Client, interaction: ModalSubmitInteraction | ButtonInteraction | ChatInputCommandInteraction, caseData: Case, deleted?: boolean) {
     if (!caseData.reference) return
 
     const moderationData = await Moderation.cache(client, interaction.guildId!)
@@ -61,12 +64,13 @@ export default class WarnLogs {
 
     if (!message) return
 
-    client.logs.log({
+    Logs.log({
+      client,
       guild: interaction.guildId!,
       author: 'Warn case',
-      color: deleted ? Colors.warning : Colors.secondary,
+      color: deleted ? Colors.warning : Colors.logsCase,
       description: `**User:** ${interaction.guild?.members.cache.get(caseData.user)?.user.username} \`${caseData.user}\`\n` +
-        `**Moderator:** ${interaction.guild?.members.cache.get(caseData.mod)?.user.username} \`${caseData.mod}\`\n` +
+        `**Moderator:** ${interaction.guild?.members.cache.get(caseData.moderator)?.user.username} \`${caseData.moderator}\`\n` +
         `**Reason:** ${caseData.reason}\n` +
         `**Created at:** ${time(caseData.created, 'd')} ${time(caseData.created, 'R')}\n` +
         `**Updated at:** ${time(caseData.updated, 'd')} ${time(caseData.updated, 'R')}\n` +

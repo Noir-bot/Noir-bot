@@ -1,18 +1,21 @@
+import MaintenanceCommand from '@commands/slash/private/Maintenance'
+import Colors from '@constants/Colors'
+import Options from '@constants/Options'
+import Reply from '@helpers/Reply'
+import Utils from '@helpers/Utils'
+import Client from '@structures/Client'
+import Command from '@structures/commands/Command'
 import chalk from 'chalk'
-import { CommandInteraction, ContextMenuCommandInteraction, ForumChannel, ThreadAutoArchiveDuration } from 'discord.js'
-import MaintenanceCommand from '../../../commands/slash/private/Maintenance'
-import Colors from '../../../constants/Colors'
-import Options from '../../../constants/Options'
-import NoirClient from '../../../structures/Client'
-import Command from '../../../structures/commands/Command'
+import { CommandInteraction, ContextMenuCommandInteraction } from 'discord.js'
 
 export default class CommandExecution {
-  public static async command(client: NoirClient, interaction: CommandInteraction | ContextMenuCommandInteraction): Promise<void> {
+  public static async command(client: Client, interaction: CommandInteraction | ContextMenuCommandInteraction): Promise<void> {
     const command = client.commands.get(interaction.commandName) as Command
 
     try {
       if (Options.maintenance && command.data.name != new MaintenanceCommand(client).data.name) {
-        await client.reply.reply({
+        await Reply.reply({
+          client: client,
           interaction: interaction,
           color: Colors.warning,
           author: 'Maintenance mode',
@@ -23,7 +26,8 @@ export default class CommandExecution {
       }
 
       if (!command.options.status) {
-        await client.reply.reply({
+        await Reply.reply({
+          client: client,
           interaction: interaction,
           color: Colors.warning,
           author: 'Command error',
@@ -33,19 +37,21 @@ export default class CommandExecution {
         return
       }
 
-      if (command.options.permissions && interaction.guild?.members?.me?.permissions.has(command.options.permissions) && !interaction.guild?.members?.me?.permissions.has('Administrator')) {
-        await client.reply.reply({
+      if (command.options.permission && interaction.guild?.members?.me?.permission.has(command.options.permission) && !interaction.guild?.members?.me?.permission.has('Administrator')) {
+        await Reply.reply({
+          client: client,
           interaction: interaction,
           color: Colors.warning,
-          author: 'Permissions error',
-          description: 'Noir doesn\'t have enough permissions'
+          author: 'permission error',
+          description: 'Noir doesn\'t have enough permission'
         })
 
         return
       }
 
       if (command.options.access == 'private' && !Options.owners.includes(interaction.user.id)) {
-        await client.reply.reply({
+        await Reply.reply({
+          client: client,
           interaction: interaction,
           color: Colors.warning,
           author: 'Access denied',
@@ -60,7 +66,8 @@ export default class CommandExecution {
           const guildPremium = client.premium.get(interaction.guild.id)
 
           if (!guildPremium || !guildPremium.status) {
-            await client.reply.reply({
+            await Reply.reply({
+              client: client,
               interaction: interaction,
               color: Colors.warning,
               author: 'Premium error',
@@ -74,23 +81,15 @@ export default class CommandExecution {
 
       command.execute(client, interaction)
     } catch (error: any) {
-      await client.reply.reply({
+      await Reply.reply({
+        client: client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Execution error',
         description: `Unspecified error occurred. Please contact Noir support team, join [support server](${Options.guildInvite}) for more information`
       })
 
-      const errorChannel = client.channels.cache.get(Options.errorChannelId!) as ForumChannel
-
-      errorChannel.threads.create({
-        name: 'Execution error',
-        appliedTags: ['1051852171752243294'],
-        message: { content: `Command name \`${command.data.name}\`\n\n${client.utils.capitalize(error.stack)}` },
-        autoArchiveDuration: ThreadAutoArchiveDuration.ThreeDays
-      })
-
-      throw new Error(chalk.bgRed.white(`${client.utils.capitalize(command.data.name)} command error: \n`) + chalk.red(error.stack))
+      throw new Error(chalk.bgRed.white(`${Utils.capitalize(command.data.name)} command error: \n`) + chalk.red(error.stack))
     }
   }
 }

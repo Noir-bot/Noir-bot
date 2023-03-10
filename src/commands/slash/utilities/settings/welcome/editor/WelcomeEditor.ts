@@ -1,22 +1,24 @@
+import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
+import WelcomeEditorAuthor from '@commands/slash/utilities/settings/welcome/editor/WelcomeEditorAuthor'
+import WelcomeEditorEmbed from '@commands/slash/utilities/settings/welcome/editor/WelcomeEditorEmbed'
+import WelcomeEditorFooter from '@commands/slash/utilities/settings/welcome/editor/WelcomeEditorFooter'
+import WelcomeEditorMessage from '@commands/slash/utilities/settings/welcome/editor/WelcomeEditorMessage'
+import WelcomeEditorTitle from '@commands/slash/utilities/settings/welcome/editor/WelcomeEditorTitle'
+import WelcomeEditorAddField from '@commands/slash/utilities/settings/welcome/editor/fields/WelcomeEditorAddField'
+import WelcomeEditorEditField from '@commands/slash/utilities/settings/welcome/editor/fields/WelcomeEditorEditField'
+import WelcomeEditorRemoveField from '@commands/slash/utilities/settings/welcome/editor/fields/WelcomeEditorRemoveField'
+import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import Premium from '@structures/Premium'
+import Save from '@structures/Save'
+import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ColorResolvable, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
-import Colors from '../../../../../../constants/Colors'
-import Options from '../../../../../../constants/Options'
-import NoirClient from '../../../../../../structures/Client'
-import Premium from '../../../../../../structures/Premium'
-import Save from '../../../../../../structures/Save'
-import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
-import SettingsUtils from '../../SettingsUtils'
-import WelcomeEditorAuthor from './WelcomeEditorAuthor'
-import WelcomeEditorEmbed from './WelcomeEditorEmbed'
-import WelcomeEditorFooter from './WelcomeEditorFooter'
-import WelcomeEditorMessage from './WelcomeEditorMessage'
-import WelcomeEditorTitle from './WelcomeEditorTitle'
-import WelcomeEditorAddField from './fields/WelcomeEditorAddField'
-import WelcomeEditorEditField from './fields/WelcomeEditorEditField'
-import WelcomeEditorRemoveField from './fields/WelcomeEditorRemoveField'
+import Preferences from '../../../../../../constants/Preferences'
 
 export default class WelcomeEditor {
-  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType = 'guild_join') {
+  public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType = 'guild_join') {
     const messageData = await WelcomeMessage.cache(client, id, type)
     const premiumData = await Premium.cache(client, id)
     const embedStatus = messageData?.color ?? messageData?.description ?? messageData?.image ?? messageData?.thumbnail ?? messageData?.timestamp
@@ -29,23 +31,23 @@ export default class WelcomeEditor {
           .setLabel('Embed settings')
           .setStyle(SettingsUtils.generateStyle(embedStatus))
           .setDisabled(!messageData.status)
-          .setEmoji('⚙️'),
+          .setEmoji(Emojis.embedSettings),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorAuthor.${type}`, 'button'))
           .setLabel('Embed author')
           .setStyle(SettingsUtils.generateStyle(messageData?.author || messageData?.authorImage))
-          .setEmoji('🏷️')
+          .setEmoji(Emojis.embedAuthor)
           .setDisabled(!messageData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorTitle.${type}`, 'button'))
           .setLabel('Embed title')
           .setStyle(SettingsUtils.generateStyle(messageData?.title || messageData?.url))
-          .setEmoji('📰')
+          .setEmoji(Emojis.embedTitle)
           .setDisabled(!messageData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorFooter.${type}`, 'button'))
           .setLabel('Embed footer')
-          .setEmoji('✒️')
+          .setEmoji(Emojis.embedFooter)
           .setStyle(SettingsUtils.generateStyle(messageData?.footer || messageData?.footerImage))
           .setDisabled(!messageData.status)
       ],
@@ -55,38 +57,37 @@ export default class WelcomeEditor {
           .setLabel('Add embed field')
           .setStyle(SettingsUtils.defaultStyle)
           .setDisabled(!messageData.status || messageData.fieldsId.length >= 25 || !premiumData?.status())
-          .setEmoji(Options.premiumEmoji),
+          .setEmoji(Preferences.premiumEmoji),
         new ButtonBuilder()
-          .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorRemoveFields.${type}`, 'button'))
-          .setLabel('Remove embed fields')
-          .setStyle(SettingsUtils.defaultStyle)
-          .setDisabled(!messageData.status || messageData?.fieldsId.length == 0)
-          .setEmoji(Options.premiumEmoji),
-        new ButtonBuilder()
-          .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEditFields.${type}`, 'button'))
+          .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEditField.${type}`, 'button'))
           .setLabel('Edit embed fields')
           .setStyle(SettingsUtils.defaultStyle)
           .setDisabled(!messageData.status || messageData.fieldsId.length == 0 || !premiumData?.status())
-          .setEmoji(Options.premiumEmoji)
+          .setEmoji(Preferences.premiumEmoji),
+        new ButtonBuilder()
+          .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorRemoveField.${type}`, 'button'))
+          .setLabel('Remove embed fields')
+          .setStyle(SettingsUtils.defaultStyle)
+          .setDisabled(!messageData.status || messageData?.fieldsId.length == 0)
       ],
       [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorStatus.${type}`, 'button'))
           .setLabel(`${messageData.status ? 'Disable' : 'Enable'} auto message`)
           .setStyle(SettingsUtils.generateStyle(messageData.status))
-          .setEmoji(`${messageData.status ? '✅' : '❌'}`),
+          .setEmoji(`${messageData.status ? Emojis.enable : Emojis.disable}`),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorMessage.${type}`, 'button'))
           .setLabel(`${messageData?.message ? 'Edit' : 'Add'} message content`)
           .setStyle(SettingsUtils.generateStyle(messageData?.message))
-          .setEmoji('📄')
+          .setEmoji(Emojis.content)
           .setDisabled(!messageData.status)
       ],
       [
         SettingsUtils.generateBack('settings', id, 'welcome'),
         SettingsUtils.generateSave('settings', id, `welcomeSave.welcomeEditor.${type}`, client, interaction.guildId, 'welcome'),
-        SettingsUtils.generateExample('settings', id, `welcomeExample.welcomeEditor.${type}`, !messageData.status || !exampleStatus),
         SettingsUtils.generateRestore('settings', id, `welcomeRestore.welcomeEditor.${type}`),
+        SettingsUtils.generateExample('settings', id, `welcomeExample.welcomeEditor.${type}`, !messageData.status || !exampleStatus),
         SettingsUtils.generateReset('settings', id, `welcomeReset.welcomeEditor.${type}`)
       ]
     ]
@@ -128,23 +129,31 @@ export default class WelcomeEditor {
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[3])
     ]
 
-    await client.reply.reply({
+    await Reply.reply({
+      client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Welcome message editor',
-      authorImage: Options.clientAvatar,
+      authorImage: client.user?.avatarURL(),
       description: 'Choose message type and setup with advanced message editor.',
       components: actionRows,
-      fields: [{
-        name: 'Message variables',
-        value: `\`${Options.removeValue}\` Remove field value\n\`{{guild name}}\` Guild name\n\`{{guild icon}}\` Guild icon\n\`{{guild members}}\` Guild members count\n\`{{guild createdAt}}\` Guild created at\n\`{{guild created}}\` Guild creation date\n\`{{client name}}\` Client name\n\`{{client avatar}}\` Client avatar\n\`{{user name}}\` User name\n\`{{user avatar}}\` User avatar\n\`{{user id}}\` User id\n\`{{user joinedAt}}\` User joined at\n\`{{user joined}}\` - User join date\n\`{{user createdAt}}\` - User account created at\n\`{{user created}}\` - User account creation date`,
-        inline: false
-      }],
+      fields: [
+        {
+          name: 'Premium features',
+          value: `Premium features are indicated with this emoji ${Preferences.premiumEmoji}`,
+          inline: false
+        },
+        // {
+        //   name: 'Message variables',
+        //   value: `\`${Options.removeValue}\` Remove field value\n\`{{guild name}}\` Guild name\n\`{{guild icon}}\` Guild icon\n\`{{guild members}}\` Guild members count\n\`{{guild createdAt}}\` Guild created at\n\`{{guild created}}\` Guild creation date\n\`{{client name}}\` Client name\n\`{{client avatar}}\` Client avatar\n\`{{user name}}\` User name\n\`{{user avatar}}\` User avatar\n\`{{user id}}\` User id\n\`{{user joinedAt}}\` User joined at\n\`{{user joined}}\` - User join date\n\`{{user createdAt}}\` - User account created at\n\`{{user created}}\` - User account creation date`,
+        //   inline: false
+        // }
+      ],
       ephemeral: true
     })
   }
 
-  public static async exampleResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+  public static async exampleResponse(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
 
     interaction.deferUpdate()
@@ -154,7 +163,8 @@ export default class WelcomeEditor {
     const exampleStatus = messageData?.description ?? messageData?.image ?? messageData?.thumbnail ?? messageData?.author ?? messageData?.authorImage ?? messageData?.footer ?? messageData?.title ?? messageData.fieldsId ?? messageData.message
 
     if (!exampleStatus) {
-      await client.reply.reply({
+      await Reply.reply({
+        client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Message error',
@@ -167,7 +177,8 @@ export default class WelcomeEditor {
       const variables = { guild: { name: interaction.guild?.name, icon: interaction.guild?.iconURL(), members: interaction.guild?.memberCount, createdAt: `<t:${interaction.guild?.createdAt.getTime().toString().slice(0, -3)}:d>`, created: `<t:${interaction.guild?.createdAt.getTime().toString().slice(0, -3)}:R>` }, user: { name: interaction.user.username, avatar: interaction.user.avatarURL(), createdAt: `<t:${interaction.user?.createdAt.getTime().toString().slice(0, -3)}:d>`, created: `<t:${interaction.user?.createdAt.getTime().toString().slice(0, -3)}:R>` }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
 
       try {
-        await client.reply.reply({
+        await Reply.reply({
+          client,
           interaction: interaction,
           color: messageData.color as ColorResolvable,
           author: WelcomeMessage.formatVariable(messageData.author, variables),
@@ -179,7 +190,7 @@ export default class WelcomeEditor {
           fields: messageData.fieldsId.map(id => {
             return {
               name: WelcomeMessage.formatVariable(messageData?.fieldsName[id], variables) ?? messageData?.fieldsName[id],
-              value: WelcomeMessage.formatVariable(messageData?.fieldsName[id], variables) ?? messageData?.fieldsValue[id],
+              value: WelcomeMessage.formatVariable(messageData?.fieldsValue[id], variables) ?? messageData?.fieldsValue[id],
               inline: messageData?.fieldsInline[id]
             }
           }) ?? [],
@@ -190,7 +201,8 @@ export default class WelcomeEditor {
           components: [actionRow]
         })
       } catch (error) {
-        await client.reply.reply({
+        await Reply.reply({
+          client,
           interaction: interaction,
           color: Colors.warning,
           author: 'Message error',
@@ -203,7 +215,7 @@ export default class WelcomeEditor {
     }
   }
 
-  public static async resetRequest(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+  public static async resetRequest(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
 
     const buttons = [
@@ -219,17 +231,18 @@ export default class WelcomeEditor {
 
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons)
 
-    await client.reply.reply({
+    await Reply.reply({
+      client,
       interaction: interaction,
       color: Colors.warning,
-      authorImage: Options.clientAvatar,
+      authorImage: client.user?.avatarURL(),
       author: 'Reset confirmation',
       description: 'Are you sure you want to reset all message data. This won\'t affect saved data.',
       components: [actionRow]
     })
   }
 
-  public static async resetResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+  public static async resetResponse(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
 
     messageData.author = undefined
@@ -258,7 +271,7 @@ export default class WelcomeEditor {
     this.initialMessage(client, interaction, id, type)
   }
 
-  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, method: string) {
+  public static async buttonResponse(client: Client, interaction: ButtonInteraction<'cached'>, id: string, method: string) {
     const messageType = method.split('.')[1] as WelcomeMessageType
     const action = method.split('.')[0]
 
@@ -309,16 +322,10 @@ export default class WelcomeEditor {
     }
   }
 
-  public static async selectResponse(client: NoirClient, interaction: StringSelectMenuInteraction<'cached'>, id: string, method: string) {
+  public static async selectResponse(client: Client, interaction: StringSelectMenuInteraction<'cached'>, id: string, method: string) {
     const messageType = method.split('.')[1] as WelcomeMessageType
 
-    if (method.startsWith('welcomeEditor')) {
-      const messageType = interaction.values[0] as WelcomeMessageType
-
-      await this.initialMessage(client, interaction, id, messageType)
-    }
-
-    else if (method.startsWith('welcomeEditorRemoveField')) {
+    if (method.startsWith('welcomeEditorRemoveField')) {
       await WelcomeEditorRemoveField.response(client, interaction, id, messageType)
     }
 
@@ -326,9 +333,15 @@ export default class WelcomeEditor {
       const fieldId = parseInt(interaction.values[0])
       await WelcomeEditorEditField.request(client, interaction, id, messageType, fieldId)
     }
+
+    else if (method.startsWith('welcomeEditor')) {
+      const messageType = interaction.values[0] as WelcomeMessageType
+
+      await this.initialMessage(client, interaction, id, messageType)
+    }
   }
 
-  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, method: string) {
+  public static async modalResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, method: string) {
     const messageType = method.split('.')[1] as WelcomeMessageType
 
     if (method.startsWith('welcomeEditorEmbed')) {

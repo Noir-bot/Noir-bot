@@ -1,12 +1,13 @@
+import Colors from '@constants/Colors'
+import Options from '@constants/Options'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import ChatCommand from '@structures/commands/ChatCommand'
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
 import { ActivityType, ChatInputCommandInteraction } from 'discord.js'
-import Colors from '../../../constants/Colors'
-import Options from '../../../constants/Options'
-import NoirClient from '../../../structures/Client'
-import ChatCommand from '../../../structures/commands/ChatCommand'
 
 export default class MaintenanceCommand extends ChatCommand {
-  constructor(client: NoirClient) {
+  constructor(client: Client) {
     super(
       client,
       {
@@ -32,13 +33,14 @@ export default class MaintenanceCommand extends ChatCommand {
     )
   }
 
-  public async execute(client: NoirClient, interaction: ChatInputCommandInteraction) {
+  public async execute(client: Client, interaction: ChatInputCommandInteraction) {
     const status = interaction.options.getBoolean('status', true)
 
     Options.maintenance = status
     this.changePresence(client, status)
 
-    await client.reply.reply({
+    await Reply.reply({
+      client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Maintenance mode',
@@ -46,7 +48,7 @@ export default class MaintenanceCommand extends ChatCommand {
     })
   }
 
-  public changePresence(client: NoirClient, status: boolean) {
+  public changePresence(client: Client, status: boolean) {
     if (status) {
       client.user?.setActivity({
         name: 'Maintenance mode',

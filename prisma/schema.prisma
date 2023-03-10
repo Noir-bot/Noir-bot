@@ -8,86 +8,79 @@ datasource db {
 }
 
 model Premium {
-    guild   String   @id @unique @db.VarChar(255)
-    expires DateTime @default(now()) @db.Timestamp()
+    guild   String   @id @unique
+    expires DateTime @default(now())
 }
 
 model Case {
     id        Int       @id @unique @default(autoincrement())
-    guild     String    @db.VarChar(255)
-    action    String    @db.VarChar(255)
-    user      String    @db.VarChar(255)
-    mod       String    @db.VarChar(255)
-    reason    String?   @db.VarChar(255)
-    duration  Int?      @db.Integer
-    reference String?   @db.VarChar(255)
-    expires   DateTime? @db.Timestamp()
-    updated   DateTime  @default(now()) @db.Timestamp()
-    created   DateTime  @default(now()) @db.Timestamp()
+    guild     String
+    action    String
+    moderator String
+    user      String
+    reason    String?
+    reference String?
+    expires   DateTime?
+    duration  Int?
+    updated   DateTime  @default(now())
+    created   DateTime  @default(now())
 }
 
 model Moderation {
-    guild          String   @id @unique
-    status         Boolean  @default(false) @db.Boolean
-    roles          String[] @default([])
-    modLogs        Boolean  @default(false) @db.Boolean
-    rulesLogs      Boolean  @default(false) @db.Boolean
-    webhook        String?  @db.VarChar(255)
-    webhookName    String?  @db.VarChar(255)
-    webhookAvatar  String?  @db.VarChar(255)
-    webhookChannel String?  @db.VarChar(255)
+    guild   String  @id @unique
+    status  Boolean @default(false)
+    logs    Boolean @default(false)
+    rules   Boolean @default(false)
+    webhook String?
 }
 
 model Rule {
     id       Int     @id @unique @default(autoincrement())
-    guild    String  @db.VarChar(255)
-    action   String  @db.VarChar(255)
-    quantity Int     @db.Integer
-    duration String? @db.VarChar(255)
+    guild    String
+    action   String
+    quantity Int
+    duration String?
 }
 
 model Welcome {
-    guild          String   @id @unique
-    status         Boolean  @default(false) @db.Boolean
-    restore        Boolean  @default(false) @db.Boolean
-    roles          String[] @default([])
-    webhook        String?  @db.VarChar(255)
-    webhookName    String?  @db.VarChar(255)
-    webhookAvatar  String?  @db.VarChar(255)
-    webhookChannel String?  @db.VarChar(255)
+    guild   String   @id @unique
+    status  Boolean  @default(false)
+    restore Boolean  @default(false)
+    roles   String[] @default([])
+    webhook String?
 }
 
-model WelcomeRestore {
+model UserRestore {
     id    Int      @id @unique @default(autoincrement())
-    guild String   @db.VarChar(255)
-    user  String   @db.VarChar(255)
+    guild String
+    user  String
     roles String[] @default([])
 }
 
 model WelcomeMessage {
     id             String    @id @unique @default(cuid())
-    status         Boolean   @db.Boolean
-    guild          String    @db.VarChar(255)
-    type           String    @db.VarChar(255)
-    message        String?   @db.VarChar(255)
-    url            String?   @db.VarChar(255)
-    color          String?   @db.VarChar(255)
-    rawColor       String?   @db.VarChar(255)
-    title          String?   @db.VarChar(255)
-    author         String?   @db.VarChar(255)
-    footer         String?   @db.VarChar(255)
-    authorImage    String?   @db.VarChar(255)
-    rawAuthorImage String?   @db.VarChar(255)
-    footerImage    String?   @db.VarChar(255)
-    rawFooterImage String?   @db.VarChar(255)
-    description    String?   @db.VarChar(255)
-    thumbnail      String?   @db.VarChar(255)
-    rawThumbnail   String?   @db.VarChar(255)
-    image          String?   @db.VarChar(255)
-    rawImage       String?   @db.VarChar(255)
+    status         Boolean
+    guild          String
+    type           String
+    message        String?
+    url            String?
+    color          String?
+    rawColor       String?
+    title          String?
+    author         String?
+    footer         String?
+    authorImage    String?
+    rawAuthorImage String?
+    footerImage    String?
+    rawFooterImage String?
+    description    String?
+    thumbnail      String?
+    rawThumbnail   String?
+    image          String?
+    rawImage       String?
     fieldsId       Int[]
     fieldsName     String[]
     fieldsValue    String[]
     fieldsInline   Boolean[]
-    timestamp      Boolean   @default(false) @db.Boolean
+    timestamp      Boolean   @default(false)
 }

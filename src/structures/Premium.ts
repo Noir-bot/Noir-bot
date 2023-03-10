@@ -1,4 +1,4 @@
-import NoirClient from './Client'
+import Client from '@structures/Client'
 export default class Premium {
   public guild: string
   public expires: Date
@@ -9,10 +9,10 @@ export default class Premium {
   }
 
   public status() {
-    return this.expires.getTime() >= Date.now()
+    return this.expires.getTime() >= new Date().getTime()
   }
 
-  public static async save(client: NoirClient, guild: string) {
+  public static async save(client: Client, guild: string) {
     const cachedData = client.premium.get(guild)
 
     if (cachedData) {
@@ -38,7 +38,7 @@ export default class Premium {
     return cachedData
   }
 
-  public static async cache(client: NoirClient, guild: string) {
+  public static async cache(client: Client, guild: string) {
     const cachedData = client.premium.get(guild)
 
     if (!cachedData) {
@@ -52,9 +52,16 @@ export default class Premium {
             expires: expires
           }
         })
+
+        client.premium.set(guild, new Premium(guild, expires))
       }
 
-      return client.premium.set(guild, new Premium(guild, expires)).get(guild)
+      else {
+        client.premium.set(guild, new Premium(guild, data.expires))
+      }
+
+
+      return client.premium.get(guild)!
     }
 
     return cachedData

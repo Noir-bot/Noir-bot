@@ -1,12 +1,14 @@
+import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
+import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
+import Options from '@constants/Options'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import ChatCommand from '@structures/commands/ChatCommand'
 import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ChatInputCommandInteraction, MessageActionRowComponentBuilder } from 'discord.js'
-import Colors from '../../../../constants/Colors'
-import Options from '../../../../constants/Options'
-import NoirClient from '../../../../structures/Client'
-import ChatCommand from '../../../../structures/commands/ChatCommand'
-import SettingsUtils from './SettingsUtils'
 
 export default class SettingsCommand extends ChatCommand {
-  constructor(client: NoirClient) {
+  constructor(client: Client) {
     super(
       client,
       {
@@ -25,32 +27,33 @@ export default class SettingsCommand extends ChatCommand {
     )
   }
 
-  public async execute(client: NoirClient, interaction: ChatInputCommandInteraction<'cached'>) {
+  public async execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>) {
     await SettingsCommand.initialMessage(client, interaction, interaction.guildId)
   }
 
-  public static async initialMessage(client: NoirClient, interaction: ChatInputCommandInteraction<'cached'> | ButtonInteraction<'cached'>, id: string) {
+  public static async initialMessage(client: Client, interaction: ChatInputCommandInteraction<'cached'> | ButtonInteraction<'cached'>, id: string) {
     const buttons = [
       new ButtonBuilder()
         .setCustomId(SettingsUtils.generateId('settings', id, 'welcome', 'button'))
         .setLabel('Welcome settings')
-        .setEmoji('🔗')
+        .setEmoji(Emojis.welcome)
         .setStyle(SettingsUtils.defaultStyle),
       new ButtonBuilder()
         .setCustomId(SettingsUtils.generateId('settings', id, 'moderation', 'button'))
         .setLabel('Moderation settings')
-        .setEmoji('🔒')
+        .setEmoji(Emojis.moderation)
         .setStyle(SettingsUtils.defaultStyle)
     ]
 
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
       .addComponents(buttons)
 
-    await client.reply.reply({
+    await Reply.reply({
+      client: client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Noir settings',
-      authorImage: Options.clientAvatar,
+      authorImage: client.user?.avatarURL(),
       description: `Hello ${interaction.user.username}, welcome to Noir's settings, navigate and configure Noir as you want.`,
       fields: [
         {

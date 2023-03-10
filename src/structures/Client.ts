@@ -1,22 +1,19 @@
+import Options from '@constants/Options'
 import { PrismaClient } from '@prisma/client'
-import { Client, Collection } from 'discord.js'
+import Case from '@structures/Case'
+import Event from '@structures/Event'
+import Premium from '@structures/Premium'
+import Save from '@structures/Save'
+import Command from '@structures/commands/Command'
+import Moderation from '@structures/moderation/Moderation'
+import ModerationRules from '@structures/moderation/ModerationRules'
+import Welcome from '@structures/welcome/Welcome'
+import WelcomeMessage from '@structures/welcome/WelcomeMessage'
+import { Client as BaseClient, Collection } from 'discord.js'
 import glob from 'glob'
 import { promisify } from 'util'
-import Options from '../constants/Options'
-import Logs from '../libs/Logs'
-import Reply from '../libs/Reply'
-import Utils from '../libs/Utils'
-import Case from './Case'
-import Event from './Event'
-import Moderation from './Moderation'
-import ModerationRules from './ModerationRules'
-import Premium from './Premium'
-import Save from './Save'
-import Welcome from './Welcome'
-import WelcomeMessage from './WelcomeMessage'
-import Command from './commands/Command'
 
-export default class NoirClient extends Client {
+export default class Client extends BaseClient {
   public commands = new Collection<string, Command>()
   public events = new Collection<string, Event>()
   public premium = new Collection<string, Premium>()
@@ -25,10 +22,7 @@ export default class NoirClient extends Client {
   public welcomeMessages = new Collection<string, WelcomeMessage>()
   public moderation = new Collection<string, Moderation>()
   public moderationRules = new Collection<string, ModerationRules>()
-  public cases = new Collection<string, Case>()
-  public utils = new Utils(this)
-  public reply = new Reply(this)
-  public logs = new Logs(this)
+  public moderationCases = new Collection<string, Case>()
   public prisma = new PrismaClient()
 
   constructor() {

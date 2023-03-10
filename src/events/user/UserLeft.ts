@@ -1,16 +1,16 @@
 import { GuildMember, time } from 'discord.js'
 import WelcomeHelper from '../../commands/slash/utilities/settings/welcome/WelcomeHelper'
-import NoirClient from '../../structures/Client'
+import Client from '../../structures/Client'
 import Event from '../../structures/Event'
-import Welcome from '../../structures/Welcome'
 import WelcomeMessage from '../../structures/WelcomeMessage'
+import Welcome from '../../structures/welcome/Welcome'
 
 export default class UserJoin extends Event {
-  constructor(client: NoirClient) {
+  constructor(client: Client) {
     super(client, 'guildMemberRemove', false)
   }
 
-  public async execute(client: NoirClient, member: GuildMember) {
+  public async execute(client: Client, member: GuildMember) {
     const welcomeData = await Welcome.cache(client, member.guild.id)
 
     if (member.roles.cache.size > 0) {

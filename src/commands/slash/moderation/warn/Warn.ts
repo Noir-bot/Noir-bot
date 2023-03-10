@@ -1,12 +1,13 @@
+import WarnConfirmation from '@commands/slash/moderation/warn/Confirmation'
+import Colors from '@constants/Colors'
+import Preferences from '@constants/Preferences'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import ChatCommand from '@structures/commands/ChatCommand'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, GuildMember } from 'discord.js'
-import Colors from '../../../../constants/Colors'
-import Options from '../../../../constants/Options'
-import NoirClient from '../../../../structures/Client'
-import ChatCommand from '../../../../structures/commands/ChatCommand'
-import WarnConfirmation from './Confirmation'
 
 export default class WarnCommand extends ChatCommand {
-  constructor(client: NoirClient) {
+  constructor(client: Client) {
     super(
       client,
       {
@@ -40,7 +41,7 @@ export default class WarnCommand extends ChatCommand {
     )
   }
 
-  public async execute(client: NoirClient, interaction: ChatInputCommandInteraction<'cached'>) {
+  public async execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>) {
     const user = interaction.options.getUser('user', true)
     const reason = interaction.options.getString('reason', true)
     const errorStatus = this.errorHandler(client, interaction, interaction.guild.members.cache.get(user.id), reason)
@@ -51,11 +52,12 @@ export default class WarnCommand extends ChatCommand {
 
   }
 
-  public errorHandler(client: NoirClient, interaction: ChatInputCommandInteraction<'cached'>, member?: GuildMember, reason?: string) {
+  public errorHandler(client: Client, interaction: ChatInputCommandInteraction<'cached'>, member?: GuildMember, reason?: string) {
     const commandMention = `try again </warn:${client.application?.commands.cache.get('warn')?.id}>`
 
     if (!member) {
-      client.reply.reply({
+      Reply.reply({
+        client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Member error',
@@ -67,7 +69,8 @@ export default class WarnCommand extends ChatCommand {
     }
 
     if (member.user.bot) {
-      client.reply.reply({
+      Reply.reply({
+        client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Member error',
@@ -79,7 +82,8 @@ export default class WarnCommand extends ChatCommand {
     }
 
     if (!reason) {
-      client.reply.reply({
+      Reply.reply({
+        client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Reason error',
@@ -91,7 +95,8 @@ export default class WarnCommand extends ChatCommand {
     }
 
     if (member.id == interaction.user.id) {
-      client.reply.reply({
+      Reply.reply({
+        client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Member error',
@@ -103,7 +108,8 @@ export default class WarnCommand extends ChatCommand {
     }
 
     if (!member.moderatable) {
-      client.reply.reply({
+      Reply.reply({
+        client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Permission error',
@@ -115,7 +121,8 @@ export default class WarnCommand extends ChatCommand {
     }
 
     if (member.roles.highest.rawPosition >= (interaction.member as GuildMember).roles.highest.rawPosition) {
-      client.reply.reply({
+      Reply.reply({
+        client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Permission error',
@@ -127,7 +134,8 @@ export default class WarnCommand extends ChatCommand {
     }
 
     if (interaction.guild.members.me && !interaction.guild.members.me.roles.cache.size && member.roles.cache.size || interaction.guild.members.me && member.roles.highest.rawPosition >= interaction.guild.members.me.roles.highest.rawPosition) {
-      client.reply.reply({
+      Reply.reply({
+        client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Permission error',
@@ -138,8 +146,9 @@ export default class WarnCommand extends ChatCommand {
       return false
     }
 
-    if (reason.length > Options.reasonLimit) {
-      client.reply.reply({
+    if (reason.length > Preferences.reasonLimit) {
+      Reply.reply({
+        client,
         interaction: interaction,
         color: Colors.warning,
         author: 'Permission error',

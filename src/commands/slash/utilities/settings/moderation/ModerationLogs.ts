@@ -1,14 +1,15 @@
+import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
+import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import Save from '@structures/Save'
+import Moderation from '@structures/moderation/Moderation'
+import WelcomeMessage from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, AnySelectMenuInteraction, ButtonBuilder, ButtonInteraction, ChannelSelectMenuBuilder, ChannelSelectMenuInteraction, ChannelType, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle, channelMention } from 'discord.js'
-import Colors from '../../../../../constants/Colors'
-import Options from '../../../../../constants/Options'
-import NoirClient from '../../../../../structures/Client'
-import Moderation from '../../../../../structures/Moderation'
-import Save from '../../../../../structures/Save'
-import WelcomeMessage from '../../../../../structures/WelcomeMessage'
-import SettingsUtils from '../SettingsUtils'
 
 export default class ModerationLogs {
-  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
+  public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId)
     const moderationWebhook = moderationData?.webhook ? await Moderation.getWebhook(client, moderationData?.webhook) : null
 
@@ -16,20 +17,20 @@ export default class ModerationLogs {
       [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogsStatus', 'button'))
-          .setLabel(`${moderationData.modLogs ? 'Disable' : 'Enable'} moderation logs`)
-          .setStyle(SettingsUtils.generateStyle(moderationData?.modLogs))
-          .setEmoji(`${moderationData?.modLogs ? '✅' : '❌'}`)
+          .setLabel(`${moderationData.logs ? 'Disable' : 'Enable'} moderation logs`)
+          .setStyle(SettingsUtils.generateStyle(moderationData?.logs))
+          .setEmoji(`${moderationData?.logs ? Emojis.enable : Emojis.disable}`)
           .setDisabled(!moderationData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationWebhookChannel', 'button'))
           .setLabel(`${moderationData?.webhook ? 'Change' : 'Setup'} moderation channel`)
           .setStyle(SettingsUtils.generateStyle(moderationData?.webhook))
-          .setDisabled(!moderationData.status || !moderationData.modLogs),
+          .setDisabled(!moderationData.status || !moderationData.logs),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationWebhookEdit', 'button'))
           .setLabel('Edit webhook settings')
           .setStyle(SettingsUtils.defaultStyle)
-          .setDisabled(!moderationData.status || !moderationData.modLogs && !moderationWebhook)
+          .setDisabled(!moderationData.status || !moderationData.logs && !moderationWebhook)
       ],
       [
         SettingsUtils.generateBack('settings', id, 'moderationBack'),
@@ -43,11 +44,12 @@ export default class ModerationLogs {
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[1])
     ]
 
-    await client.reply.reply({
+    await Reply.reply({
+      client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Loggings settings',
-      authorImage: Options.clientAvatar,
+      authorImage: client.user?.avatarURL(),
       description: 'Setup channel and create webhook. Customize webhook as you want.',
       fields: [
         {
@@ -61,11 +63,11 @@ export default class ModerationLogs {
     })
   }
 
-  public static async channelRequest(client: NoirClient, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'>, id: string) {
+  public static async channelRequest(client: Client, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId)
 
     const buttons = [
-      SettingsUtils.generateBack('settings', id, 'moderationBack.moderationWebhook'),
+      SettingsUtils.generateBack('settings', id, 'moderationBack.moderationWebhookChannel'),
       SettingsUtils.generateSave('settings', id, 'moderationSave.moderationWebhookChannel', client, interaction.guildId, 'moderation'),
       SettingsUtils.generateRestore('settings', id, 'moderationRestore.moderationWebhookChannel')
     ]
@@ -83,16 +85,19 @@ export default class ModerationLogs {
     const buttonActionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
       .addComponents(buttons)
 
-    await client.reply.reply({
+    const webhookChannel = (moderationData.webhook ? await Moderation.getWebhook(client, moderationData.webhook) : undefined)?.channelId
+
+    await Reply.reply({
+      client,
       interaction: interaction,
       author: 'moderation webhook channel',
-      description: `${moderationData.webhookChannel ? `Current channel ${channelMention(moderationData.webhookChannel)}` : 'No channel'}`,
+      description: `${webhookChannel ? `Current channel ${channelMention(webhookChannel)}` : 'No channel'}`,
       color: Colors.primary,
       components: [selectActionRow, buttonActionRow]
     })
   }
 
-  public static async editRequest(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string) {
+  public static async editRequest(client: Client, interaction: ButtonInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId)
 
     const webhookNameInput = new TextInputBuilder()
@@ -125,7 +130,7 @@ export default class ModerationLogs {
     await interaction.showModal(modal)
   }
 
-  public static async channelResponse(client: NoirClient, interaction: ChannelSelectMenuInteraction<'cached'>, id: string) {
+  public static async channelResponse(client: Client, interaction: ChannelSelectMenuInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId)
     const save = Save.cache(client, `${interaction.guildId}-moderation`)
     const channelId = interaction.values[0]
@@ -136,20 +141,20 @@ export default class ModerationLogs {
     await this.channelRequest(client, interaction, id)
   }
 
-  public static async editResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
+  public static async editResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId)
     const webhookName = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationWebhookName', 'input'))
     const webhookAvatar = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationWebhookAvatar', 'input'))
     const save = Save.cache(client, `${interaction.guildId}-moderation`)
 
-    moderationData.webhookName = WelcomeMessage.formatVariable(webhookName, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
-    moderationData.webhookAvatar = WelcomeMessage.formatVariable(webhookAvatar, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
+    moderationData.webhookName = WelcomeMessage.formatVariable(webhookName, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: client.user?.avatarURL() } })
+    moderationData.webhookAvatar = WelcomeMessage.formatVariable(webhookAvatar, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: client.user?.avatarURL() } })
     save.count += 1
 
     await this.initialMessage(client, interaction, id)
   }
 
-  public static async buttonResponse(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, method: string) {
+  public static async buttonResponse(client: Client, interaction: ButtonInteraction<'cached'>, id: string, method: string) {
     if (method == 'moderationWebhook') {
       await ModerationLogs.initialMessage(client, interaction, id)
     }
@@ -163,13 +168,13 @@ export default class ModerationLogs {
     }
   }
 
-  public static async selectResponse(client: NoirClient, interaction: AnySelectMenuInteraction<'cached'>, id: string, method: string) {
+  public static async selectResponse(client: Client, interaction: AnySelectMenuInteraction<'cached'>, id: string, method: string) {
     if (method == 'moderationWebhookChannel' && interaction.isChannelSelectMenu()) {
       await ModerationLogs.channelResponse(client, interaction, id)
     }
   }
 
-  public static async modalResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, method: string) {
+  public static async modalResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, method: string) {
     if (method == 'moderationWebhookEdit') {
       await ModerationLogs.editResponse(client, interaction, id)
     }

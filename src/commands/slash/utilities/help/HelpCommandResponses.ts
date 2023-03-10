@@ -1,9 +1,9 @@
+import HelpCommand from '@commands/slash/utilities/help/HelpCommand'
+import Client from '@structures/Client'
 import { ButtonInteraction } from 'discord.js'
-import NoirClient from '../../../../structures/Client'
-import HelpCommand from './HelpCommand'
 
 export default class HelpCommandResponses {
-  public static async button(client: NoirClient, interaction: ButtonInteraction): Promise<void> {
+  public static async button(client: Client, interaction: ButtonInteraction): Promise<void> {
     const parts = interaction.customId.split('-')
     const type = parts[1].toLowerCase()
 

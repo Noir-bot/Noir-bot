@@ -1,13 +1,14 @@
+import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
+import WelcomeEditor from '@commands/slash/utilities/settings/welcome/editor/WelcomeEditor'
+import Colors from '@constants/Colors'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import Save from '@structures/Save'
+import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
-import Colors from '../../../../../../../constants/Colors'
-import NoirClient from '../../../../../../../structures/Client'
-import Save from '../../../../../../../structures/Save'
-import WelcomeMessage, { WelcomeMessageType } from '../../../../../../../structures/WelcomeMessage'
-import SettingsUtils from '../../../SettingsUtils'
-import WelcomeEditor from '../WelcomeEditor'
 
 export default class WelcomeEditorRemoveField {
-  public static async request(client: NoirClient, interaction: ButtonInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+  public static async request(client: Client, interaction: ButtonInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
 
     if (!messageData) return
@@ -36,19 +37,20 @@ export default class WelcomeEditorRemoveField {
       .addComponents(buttons)
 
     try {
-      await client.reply.reply({
+      await Reply.reply({
+        client,
         interaction: interaction,
         author: 'Embed field editor',
         description: 'Select fields to remove',
         color: Colors.primary,
         components: [selectMenuActionRow, buttonActionRow]
       })
-    } catch {
-      return
+    } catch (err) {
+      return console.log(err)
     }
   }
 
-  public static async response(client: NoirClient, interaction: StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+  public static async response(client: Client, interaction: StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
     const save = Save.cache(client, `${interaction.guildId}-welcome`)
     const ids = interaction.values

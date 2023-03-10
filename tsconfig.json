@@ -1,23 +1,35 @@
 {
-  "compilerOptions": {
-    "moduleResolution": "node",
-    "module": "CommonJS",
-    "target": "ES2016",
-    "lib": [
-      "ESNext"
+    "ts-node": {
+        "require": ["tsconfig-paths/register"]
+    },
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "module": "CommonJS",
+        "target": "ESNext",
+        "lib": [
+            "ESNext"
+        ],
+        "strict": true,
+        "allowJs": true,
+        "checkJs": true,
+        "sourceMap": true,
+        "rootDir": "./src",
+        "outDir": "./build",
+        "importHelpers": true,
+        "esModuleInterop": true,
+        "baseUrl": "src",
+        "paths": {
+            "@commands/*": ["commands/*"],
+            "@events/*": ["events/*"],
+            "@constants/*": ["constants/*"],
+            "@helpers/*": ["helpers/*"],
+            "@structures/*": ["structures/*"],
+        }
+    },
+    "include": [
+        "src"
     ],
-    "strict": true,
-    "allowJs": true,
-    "checkJs": true,
-    "sourceMap": true,
-    "outDir": "./build",
-    "importHelpers": true,
-    "esModuleInterop": true
-  },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+    "exclude": [
+        "node_modules"
+    ]
 }

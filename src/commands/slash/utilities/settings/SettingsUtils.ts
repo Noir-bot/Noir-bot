@@ -1,6 +1,7 @@
+import Emojis from '@constants/Emojis'
+import Client from '@structures/Client'
+import Save from '@structures/Save'
 import { ButtonBuilder, ButtonStyle } from 'discord.js'
-import NoirClient from '../../../../structures/Client'
-import Save from '../../../../structures/Save'
 export default class SettingsUtils {
   public static defaultStyle = ButtonStyle.Secondary
   public static primaryStyle = ButtonStyle.Primary
@@ -20,35 +21,35 @@ export default class SettingsUtils {
       .setCustomId(this.generateId(name, id, label, 'button'))
       .setLabel('Go back')
       .setStyle(this.defaultStyle)
-      .setEmoji('⬅️')
+      .setEmoji(Emojis.back)
       .setDisabled(status)
   }
 
-  public static generateSave(name: string, id: string, label: string, client: NoirClient, guild: string, type?: string, status = false) {
+  public static generateSave(name: string, id: string, label: string, client: Client, guild: string, type?: string, status = false) {
     const saves = Save.cache(client, `${guild}-${type}`)
 
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
-      .setLabel(`Save data ${saves?.count ? `(${saves.count})` : ''}`)
+      .setLabel(`Save changes ${saves?.count ? `(${saves.count})` : ''}`)
       .setStyle(this.defaultStyle)
-      .setEmoji('❇️')
+      .setEmoji(Emojis.save)
       .setDisabled(status)
   }
 
   public static generateExample(name: string, id: string, label: string, status = false) {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
-      .setLabel('Send example')
+      .setLabel('Example message')
       .setStyle(this.defaultStyle)
-      .setEmoji('*️⃣')
+      .setEmoji(Emojis.example)
       .setDisabled(status)
   }
 
   public static generateRestore(name: string, id: string, label: string, status = false) {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
-      .setLabel('Restore last data')
-      .setEmoji('🔄')
+      .setLabel('Refresh')
+      .setEmoji(Emojis.reset)
       .setStyle(this.defaultStyle)
       .setDisabled(status)
   }
@@ -56,9 +57,9 @@ export default class SettingsUtils {
   public static generateReset(name: string, id: string, label: string, status = false) {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
-      .setLabel('Restart all changes')
+      .setLabel('Clear data')
       .setStyle(this.warningStyle)
-      .setEmoji('🗑️')
+      .setEmoji(Emojis.trash)
       .setDisabled(status)
   }
 }

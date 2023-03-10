@@ -1,14 +1,15 @@
 
+import Colors from '@constants/Colors'
+import Reply from '@helpers/Reply'
 import { Duration } from '@sapphire/time-utilities'
+import Client from '@structures/Client'
+import Premium from '@structures/Premium'
+import ChatCommand from '@structures/commands/ChatCommand'
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
 import { ChatInputCommandInteraction } from 'discord.js'
-import Colors from '../../../constants/Colors'
-import NoirClient from '../../../structures/Client'
-import Premium from '../../../structures/Premium'
-import ChatCommand from '../../../structures/commands/ChatCommand'
 
 export default class PremiumCommand extends ChatCommand {
-  constructor(client: NoirClient) {
+  constructor(client: Client) {
     super(
       client,
       {
@@ -39,14 +40,15 @@ export default class PremiumCommand extends ChatCommand {
     )
   }
 
-  public async execute(client: NoirClient, interaction: ChatInputCommandInteraction) {
+  public async execute(client: Client, interaction: ChatInputCommandInteraction) {
     const guild = interaction.options.getString('guild', true)
     const rawDuration = interaction.options.getString('duration', true)
     const duration = new Duration(rawDuration).fromNow
 
     try {
       if (!client.guilds.cache.get(guild)) {
-        await client.reply.reply({
+        await Reply.reply({
+          client,
           interaction: interaction,
           color: Colors.warning,
           author: 'Guild error',
@@ -56,8 +58,9 @@ export default class PremiumCommand extends ChatCommand {
         return
       }
 
-      if (!duration.getTime()) {
-        await client.reply.reply({
+      if (!duration.getUTCDate()) {
+        await Reply.reply({
+          client,
           interaction: interaction,
           color: Colors.warning,
           author: 'Duration error',
@@ -104,7 +107,10 @@ export default class PremiumCommand extends ChatCommand {
 
     const durationMs = duration.getTime().toString().slice(0, -3)
 
-    await client.reply.reply({
+    await Premium.cache(client, guild)
+
+    await Reply.reply({
+      client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Premium success',

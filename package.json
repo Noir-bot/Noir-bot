@@ -2,7 +2,7 @@
   "author": "Loid",
   "name": "noir-bot",
   "version": "1.0.0",
-  "description": "Noir moderation discord bot",
+  "description": "Noir moderation and utilities discord bot",
   "main": "src/noir.ts",
   "license": "GPL-3.0",
   "devDependencies": {
@@ -17,6 +17,7 @@
     "eslint-plugin-modules-newline": "^0.0.6",
     "nodemon": "^2.0.15",
     "ts-node": "^10.4.0",
+    "tsconfig-paths": "^3.14.2",
     "tslib": "^2.4.0",
     "typescript": "^4.5.5"
   },

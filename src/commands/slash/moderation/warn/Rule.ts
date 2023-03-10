@@ -1,10 +1,11 @@
+import Colors from '@constants/Colors'
+import Logs from '@helpers/Logs'
 import { Duration } from '@sapphire/time-utilities'
+import Client from '@structures/Client'
 import { Message, time } from 'discord.js'
-import Colors from '../../../../constants/Colors'
-import NoirClient from '../../../../structures/Client'
 
 export default class WarnRule {
-  public static async check(client: NoirClient, guild: string, user: string) {
+  public static async check(client: Client, guild: string, user: string) {
     const rules = await client.prisma.rule.findMany({
       where: {
         guild: guild
@@ -52,7 +53,7 @@ export default class WarnRule {
     }
   }
 
-  public static async banResponse(client: NoirClient, guild: string, user: string, softban: boolean, duration?: string | null) {
+  public static async banResponse(client: Client, guild: string, user: string, softban: boolean, duration?: string | null) {
     const created = new Date()
     const guildData = client.guilds.cache.get(guild)
     const member = guildData?.members.cache.get(user)
@@ -65,10 +66,11 @@ export default class WarnRule {
       `**Updated at:** ${time(created, 'd')} ${time(created, 'R')}\n` +
       `${duration ? `**Expires at:** ${time(new Duration(duration).offset, 'd')} ${time(new Duration(duration).offset, 'R')}\n` : ''}`
 
-    const message = await client.logs.log({
+    const message = await Logs.log({
+      client,
       guild: guild,
       author: `Auto ${softban ? 'soft' : duration ? 'temp' : ''}ban case`,
-      color: Colors.tertiary,
+      color: Colors.information,
       description: description
     }) as Message
 
@@ -76,21 +78,22 @@ export default class WarnRule {
       data: {
         action: softban ? 'softban' : duration ? 'tempban' : 'ban',
         guild: guild,
-        mod: client.user?.id!,
+        moderator: client.user?.id!,
         user: user,
-        created: new Date(),
-        updated: new Date(),
         reason: 'Auto-ban for reaching the warn limit.',
         reference: message.id,
         expires: duration ? new Duration(duration).fromNow : null,
         duration: duration ? new Duration(duration).offset : null,
+        created: new Date(),
+        updated: new Date()
       }
     })
 
-    await client.logs.log({
+    await Logs.log({
+      client,
       guild: guild,
       author: `Auto ${softban ? 'soft' : duration ? 'temp' : ''}ban case`,
-      color: Colors.tertiary,
+      color: Colors.information,
       description: description,
       footer: `Case ID: ${caseData.id}`,
       reference: message
@@ -106,7 +109,7 @@ export default class WarnRule {
     }
   }
 
-  public static async timeoutResponse(client: NoirClient, guild: string, user: string, duration: string) {
+  public static async timeoutResponse(client: Client, guild: string, user: string, duration: string) {
     const created = new Date()
     const guildData = client.guilds.cache.get(guild)
     const member = guildData?.members.cache.get(user)
@@ -120,10 +123,11 @@ export default class WarnRule {
       `**Updated at:** ${time(created, 'd')} ${time(created, 'R')}\n` +
       `${duration ? `**Expires at:** ${time(new Duration(duration).fromNow, 'd')} ${time(new Duration(duration).fromNow, 'R')}\n` : ''}`
 
-    const message = await client.logs.log({
+    const message = await Logs.log({
+      client,
       guild: guild,
       author: 'Auto timeout case',
-      color: Colors.tertiary,
+      color: Colors.information,
       description: description
     }) as Message
 
@@ -131,21 +135,22 @@ export default class WarnRule {
       data: {
         action: 'timeout',
         guild: guild,
-        mod: client.user?.id!,
+        moderator: client.user?.id!,
         user: user,
         created: new Date(),
         updated: new Date(),
         reason: 'Auto-timeout for reaching the warn limit.',
         reference: message.id,
         expires: new Duration(duration).fromNow,
-        duration: new Duration(duration).offset,
+        duration: new Duration(duration).offset
       }
     })
 
-    await client.logs.log({
+    await Logs.log({
+      client,
       guild: guild,
       author: 'Auto timeout case',
-      color: Colors.tertiary,
+      color: Colors.information,
       description: description,
       footer: `Case ID: ${caseData.id}`,
       reference: message
@@ -154,7 +159,7 @@ export default class WarnRule {
     member.timeout(new Duration(duration).offset)
   }
 
-  public static async kickResponse(client: NoirClient, guild: string, user: string) {
+  public static async kickResponse(client: Client, guild: string, user: string) {
     const created = new Date()
     const guildData = client.guilds.cache.get(guild)
     const member = guildData?.members.cache.get(user)
@@ -166,10 +171,11 @@ export default class WarnRule {
       `**Created at:** ${time(created, 'd')} ${time(created, 'R')}\n` +
       `**Updated at:** ${time(created, 'd')} ${time(created, 'R')}\n`
 
-    const message = await client.logs.log({
+    const message = await Logs.log({
+      client,
       guild: guild,
       author: 'Auto kick case',
-      color: Colors.tertiary,
+      color: Colors.information,
       description: description
     }) as Message
 
@@ -177,7 +183,7 @@ export default class WarnRule {
       data: {
         action: 'timeout',
         guild: guild,
-        mod: client.user?.id!,
+        moderator: client.user?.id!,
         user: user,
         created: new Date(),
         updated: new Date(),
@@ -186,10 +192,11 @@ export default class WarnRule {
       }
     })
 
-    await client.logs.log({
+    await Logs.log({
+      client,
       guild: guild,
       author: 'Auto kick case',
-      color: Colors.tertiary,
+      color: Colors.information,
       description: description,
       footer: `Case ID: ${caseData.id}`,
       reference: message

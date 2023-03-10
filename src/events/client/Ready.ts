@@ -1,18 +1,18 @@
+import Options from '@constants/Options'
+import Client from '@structures/Client'
+import Event from '@structures/Event'
+import Command from '@structures/commands/Command'
 import chalk from 'chalk'
 import { ActivityType } from 'discord.js'
 import glob from 'glob'
 import { promisify } from 'util'
-import Options from '../../constants/Options'
-import NoirClient from '../../structures/Client'
-import Event from '../../structures/Event'
-import Command from '../../structures/commands/Command'
 
 export default class ReadyEvent extends Event {
-  constructor(client: NoirClient) {
+  constructor(client: Client) {
     super(client, 'ready', true)
   }
 
-  public async execute(client: NoirClient) {
+  public async execute(client: Client) {
     console.info(chalk.green.bold('Noir Ready!'))
 
     client?.user?.setActivity({
@@ -23,7 +23,7 @@ export default class ReadyEvent extends Event {
     await this.loadCommands(client, `${__dirname}/../../commands/**/**/*{.js,.ts}`)
   }
 
-  private async loadCommands(client: NoirClient, path: string) {
+  private async loadCommands(client: Client, path: string) {
     const globPromise = promisify(glob)
     const commandsFiles = await globPromise(path)
 

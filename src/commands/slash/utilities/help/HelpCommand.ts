@@ -1,11 +1,12 @@
+import Colors from '@constants/Colors'
+import Options from '@constants/Options'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import ChatCommand from '@structures/commands/ChatCommand'
 import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder } from 'discord.js'
-import Colors from '../../../../constants/Colors'
-import Options from '../../../../constants/Options'
-import NoirClient from '../../../../structures/Client'
-import ChatCommand from '../../../../structures/commands/ChatCommand'
 
 export default class HelpCommand extends ChatCommand {
-  constructor(client: NoirClient) {
+  constructor(client: Client) {
     super(
       client,
       {
@@ -24,11 +25,11 @@ export default class HelpCommand extends ChatCommand {
     )
   }
 
-  public async execute(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {
+  public async execute(client: Client, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {
     await HelpCommand.initialMessage(client, interaction)
   }
 
-  public static async initialMessage(client: NoirClient, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {
+  public static async initialMessage(client: Client, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {
     const button = new ButtonBuilder()
       .setCustomId('help-faq')
       .setLabel('F.A.Q.')
@@ -36,17 +37,18 @@ export default class HelpCommand extends ChatCommand {
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
       .addComponents(button)
 
-    await client.reply.reply({
+    await Reply.reply({
+      client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Help command',
-      authorImage: Options.clientAvatar,
+      authorImage: client.user?.avatarURL(),
       description: `Hey there, if you have any problems or questions contact our support team. Be sure to join [support server](${Options.guildInvite})`,
       components: [actionRow]
     })
   }
 
-  public static async faqMessage(client: NoirClient, interaction: ButtonInteraction): Promise<void> {
+  public static async faqMessage(client: Client, interaction: ButtonInteraction): Promise<void> {
     const button = new ButtonBuilder()
       .setCustomId('help-back')
       .setLabel('Back')
@@ -67,11 +69,12 @@ export default class HelpCommand extends ChatCommand {
       }
     ]
 
-    await client.reply.reply({
+    await Reply.reply({
+      client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Frequently asked questions',
-      authorImage: Options.clientAvatar,
+      authorImage: client.user?.avatarURL(),
       components: [actionRow],
       fields: fields,
       fetch: true

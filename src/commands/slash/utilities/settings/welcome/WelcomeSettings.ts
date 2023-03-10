@@ -1,12 +1,13 @@
+import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
+import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import Welcome from '@structures/welcome/Welcome'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction } from 'discord.js'
-import Colors from '../../../../../constants/Colors'
-import Options from '../../../../../constants/Options'
-import NoirClient from '../../../../../structures/Client'
-import Welcome from '../../../../../structures/Welcome'
-import SettingsUtils from '../SettingsUtils'
 
 export default class WelcomeSettings {
-  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
+  public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     let welcomeData = await Welcome.cache(client, interaction.guildId)
 
     const buttons = [
@@ -15,12 +16,12 @@ export default class WelcomeSettings {
           .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeStatus', 'button'))
           .setLabel(`${welcomeData?.status ? 'Disable' : 'Enable'} features`)
           .setStyle(SettingsUtils.generateStyle(welcomeData?.status))
-          .setEmoji(`${welcomeData?.status ? '✅' : '❌'}`),
+          .setEmoji(`${welcomeData?.status ? Emojis.enable : Emojis.disable}`),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeRolesRestore', 'button'))
           .setLabel(`${welcomeData?.restore ? 'Disable' : 'Enable'} role-restoring`)
           .setStyle(SettingsUtils.generateStyle(welcomeData?.restore))
-          .setEmoji(`${welcomeData?.restore ? '✅' : '❌'}`),
+          .setEmoji(`${welcomeData?.restore ? Emojis.enable : Emojis.disable}`),
       ],
       [
         new ButtonBuilder()
@@ -55,11 +56,12 @@ export default class WelcomeSettings {
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[2]),
     ]
 
-    await client.reply.reply({
+    await Reply.reply({
+      client: client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Welcome settings',
-      authorImage: Options.clientAvatar,
+      authorImage: client.user?.avatarURL(),
       description: 'Fully customizable welcoming features and tools.',
       fields: [
         {

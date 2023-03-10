@@ -1,11 +1,11 @@
+import CaseEdit from '@commands/slash/moderation/case/Edit'
+import CaseRemove from '@commands/slash/moderation/case/Remove'
+import Client from '@structures/Client'
+import ChatCommand from '@structures/commands/ChatCommand'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js'
-import NoirClient from '../../../../structures/Client'
-import ChatCommand from '../../../../structures/commands/ChatCommand'
-import CaseEdit from './Edit'
-import CaseRemove from './Remove'
 
 export default class CaseCommand extends ChatCommand {
-  constructor(client: NoirClient) {
+  constructor(client: Client) {
     super(
       client,
       {
@@ -52,7 +52,7 @@ export default class CaseCommand extends ChatCommand {
     )
   }
 
-  public execute(client: NoirClient, interaction: ChatInputCommandInteraction) {
+  public execute(client: Client, interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand(true)
 
     if (sub == 'edit') {

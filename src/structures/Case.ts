@@ -1,10 +1,10 @@
-import NoirClient from './Client'
+import Client from '@structures/Client'
 export default class Case {
   public id?: string
   public guild: string
   public action: CaseAction
   public user: string
-  public mod: string
+  public moderator: string
   public reason?: string
   public duration?: number
   public reference?: string
@@ -17,7 +17,7 @@ export default class Case {
     this.guild = data.guild
     this.action = data.action
     this.user = data.user
-    this.mod = data.mod
+    this.moderator = data.moderator
     this.reason = data.reason
     this.duration = data.duration
     this.reference = data.reference
@@ -26,8 +26,8 @@ export default class Case {
     this.created = data.created
   }
 
-  public static async save(client: NoirClient, data: CaseData, id: string) {
-    const cachedCase = client.cases.get(id)
+  public static async save(client: Client, data: CaseData, id: string) {
+    const cachedCase = client.moderationCases.get(id)
 
     if (cachedCase) {
       const data = await client.prisma.case.create({
@@ -35,7 +35,7 @@ export default class Case {
           guild: cachedCase.guild,
           action: cachedCase.action,
           user: cachedCase.user,
-          mod: cachedCase.mod,
+          moderator: cachedCase.moderator,
           reason: cachedCase.reason,
           duration: cachedCase.duration,
           reference: cachedCase.reference,
@@ -45,7 +45,7 @@ export default class Case {
         }
       })
 
-      client.cases.delete(cachedCase.created.getTime().toString())
+      client.moderationCases.delete(cachedCase.created.getTime().toString())
 
       return data
     }
@@ -59,7 +59,7 @@ export interface CaseData {
   guild: string
   action: CaseAction
   user: string
-  mod: string
+  moderator: string
   reason?: string
   duration?: number
   reference?: string

@@ -1,16 +1,16 @@
+import Client from '@structures/Client'
 import { ChatInputApplicationCommandData, CommandInteraction, MessageApplicationCommandData, PermissionResolvable, UserApplicationCommandData } from 'discord.js'
-import NoirClient from '../Client'
 
 export default abstract class Command {
-  public client: NoirClient
+  public client: Client
   public abstract options: CommandOptions
   public abstract data: ChatInputApplicationCommandData | UserApplicationCommandData | MessageApplicationCommandData
 
-  protected constructor(client: NoirClient) {
+  protected constructor(client: Client) {
     this.client = client
   }
 
-  public abstract execute(client: NoirClient, interaction: CommandInteraction): void
+  public abstract execute(client: Client, interaction: CommandInteraction): void
 }
 
 export interface CommandOptions {

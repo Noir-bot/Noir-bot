@@ -1,10 +1,10 @@
+import ModerationResponse from '@commands/slash/utilities/settings/moderation/ModerationResponse'
+import WelcomeResponse from '@commands/slash/utilities/settings/welcome/WelcomeResponses'
+import Client from '@structures/Client'
 import { AnySelectMenuInteraction, ButtonInteraction, ModalMessageModalSubmitInteraction } from 'discord.js'
-import NoirClient from '../../../../structures/Client'
-import ModerationResponse from './moderation/ModerationResponse'
-import WelcomeResponse from './welcome/WelcomeResponses'
 
 export default class SettingsResponses {
-  public static async button(client: NoirClient, interaction: ButtonInteraction<'cached'>) {
+  public static async button(client: Client, interaction: ButtonInteraction<'cached'>) {
     const parts = interaction.customId.split('-')
     const method = parts[2]
 
@@ -17,7 +17,7 @@ export default class SettingsResponses {
     }
   }
 
-  public static async modal(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>) {
+  public static async modal(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>) {
     const parts = interaction.customId.split('-')
     const method = parts[2]
 
@@ -30,7 +30,7 @@ export default class SettingsResponses {
     }
   }
 
-  public static async select(client: NoirClient, interaction: AnySelectMenuInteraction<'cached'>) {
+  public static async select(client: Client, interaction: AnySelectMenuInteraction<'cached'>) {
     const parts = interaction.customId.split('-')
     const method = parts[2]
 

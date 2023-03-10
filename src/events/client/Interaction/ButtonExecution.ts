@@ -1,11 +1,11 @@
+import WarnConfirmation from '@commands/slash/moderation/warn/Confirmation'
+import HelpCommandResponses from '@commands/slash/utilities/help/HelpCommandResponses'
+import SettingsResponses from '@commands/slash/utilities/settings/SettingsResponses'
+import Client from '@structures/Client'
 import { ButtonInteraction } from 'discord.js'
-import WarnConfirmation from '../../../commands/slash/moderation/warn/Confirmation'
-import HelpCommandResponses from '../../../commands/slash/utilities/help/HelpCommandResponses'
-import SettingsResponses from '../../../commands/slash/utilities/settings/SettingsResponses'
-import NoirClient from '../../../structures/Client'
 
 export default class ButtonExecution {
-  public static async button(client: NoirClient, interaction: ButtonInteraction) {
+  public static async button(client: Client, interaction: ButtonInteraction) {
     const parts = interaction.customId.split('-')
     const name = parts[0].toLowerCase()
 

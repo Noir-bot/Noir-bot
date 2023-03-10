@@ -1,13 +1,12 @@
+import Client from '@structures/Client'
+import Save from '@structures/Save'
+import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
-import Options from '../../../../../../constants/Options'
-import NoirClient from '../../../../../../structures/Client'
-import Save from '../../../../../../structures/Save'
-import WelcomeMessage, { WelcomeMessageType } from '../../../../../../structures/WelcomeMessage'
 import SettingsUtils from '../../SettingsUtils'
 import WelcomeEditor from './WelcomeEditor'
 
 export default class WelcomeEditorAuthor {
-  public static async request(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+  public static async request(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
 
     const authorInput = new TextInputBuilder()
@@ -41,7 +40,7 @@ export default class WelcomeEditorAuthor {
     await interaction.showModal(modal)
   }
 
-  public static async response(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
+  public static async response(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type)
     const saves = Save.cache(client, `${interaction.guildId}-welcome`)
 
@@ -54,7 +53,7 @@ export default class WelcomeEditorAuthor {
     saves.count += 1
 
     if (authorImageInput) {
-      const formatted = WelcomeMessage.formatVariable(authorImageInput, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: Options.clientAvatar } })
+      const formatted = WelcomeMessage.formatVariable(authorImageInput, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: client.user?.avatarURL() } })
 
       messageData.authorImage = formatted == authorImageInput ? undefined : formatted
       messageData.rawAuthorImage = WelcomeMessage.formatRemove(authorImageInput)

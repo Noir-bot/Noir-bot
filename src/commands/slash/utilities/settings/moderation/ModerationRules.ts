@@ -1,15 +1,17 @@
+import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
+import Colors from '@constants/Colors'
+import Reply from '@helpers/Reply'
+import Utils from '@helpers/Utils'
 import { Duration } from '@sapphire/time-utilities'
+import Client from '@structures/Client'
+import Premium from '@structures/Premium'
+import Save from '@structures/Save'
+import Moderation from '@structures/moderation/Moderation'
+import { default as ModerationRule, ModerationRuleRegex, default as ModerationRules } from '@structures/moderation/ModerationRules'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
-import Colors from '../../../../../constants/Colors'
-import NoirClient from '../../../../../structures/Client'
-import Moderation from '../../../../../structures/Moderation'
-import { default as ModerationRule, ModerationRuleRegex, default as ModerationRules } from '../../../../../structures/ModerationRules'
-import Premium from '../../../../../structures/Premium'
-import Save from '../../../../../structures/Save'
-import SettingsUtils from '../SettingsUtils'
 
 export default class RuleSettings {
-  public static async initialMessage(client: NoirClient, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string) {
+  public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId)
     const premiumData = await Premium.cache(client, interaction.guildId)
     const rules = await ModerationRule.cache(client, interaction.guildId)
@@ -18,8 +20,8 @@ export default class RuleSettings {
       [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesStatus', 'button'))
-          .setLabel(`${moderationData.rulesLogs ? 'Disable' : 'Enable'} moderation rule${rules?.rules && rules.rules.length > 0 ? 's' : ''}`)
-          .setStyle(SettingsUtils.generateStyle(moderationData.rulesLogs)),
+          .setLabel(`${moderationData.rules ? 'Disable' : 'Enable'} moderation rule${rules?.rules && rules.rules.length > 0 ? 's' : ''}`)
+          .setStyle(SettingsUtils.generateStyle(moderationData.rules)),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesAdd', 'button'))
           .setLabel('Add rule')
@@ -32,11 +34,11 @@ export default class RuleSettings {
       ]
     ]
 
-    if (!moderationData.rulesLogs) {
+    if (!moderationData.rules) {
       buttons[0][1].setDisabled(true)
     }
 
-    else if (premiumData?.status() && moderationData.rulesLogs && rules?.rules && rules?.rules.length >= 20) {
+    else if (premiumData?.status() && moderationData.rules && rules?.rules && rules?.rules.length >= 20) {
       buttons[0][1].setDisabled(true)
     }
 
@@ -62,8 +64,8 @@ export default class RuleSettings {
         .addOptions(
           rules.rules.map(rule => {
             return {
-              label: `#${rule.id} ${client.utils.capitalize(rule.action)}`,
-              description: `${client.utils.capitalize(rule.action)} user after ${rule.quantity} ${rule.quantity > 1 ? 'a' : ''} warning${rule.quantity > 1 ? 's' : ''}`,
+              label: `#${rule.id} ${Utils.capitalize(rule.action)}`,
+              description: `${Utils.capitalize(rule.action)} user after ${rule.quantity} ${rule.quantity > 1 ? 'a' : ''} warning${rule.quantity > 1 ? 's' : ''}`,
               value: `${rule.id}`
             }
           })
@@ -73,7 +75,8 @@ export default class RuleSettings {
     }
 
     try {
-      await client.reply.reply({
+      await Reply.reply({
+        client,
         interaction: interaction,
         author: 'Setup rules',
         description: 'Create moderation rule to punish users after specified amount of warnings. Create up to 20 rules and edit customize them as you want.',
@@ -102,7 +105,7 @@ export default class RuleSettings {
     }
   }
 
-  public static async addRequest(client: NoirClient, interaction: ButtonInteraction<'cached'>, id: string) {
+  public static async addRequest(client: Client, interaction: ButtonInteraction<'cached'>, id: string) {
     const ruleTypeInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesAction', 'input'))
       .setLabel('Action type')
@@ -140,7 +143,7 @@ export default class RuleSettings {
     await interaction.showModal(modal)
   }
 
-  public static async addResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
+  public static async addResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId)
     const save = Save.cache(client, `${interaction.guildId}-moderation`)
 
@@ -183,7 +186,7 @@ export default class RuleSettings {
     await this.initialMessage(client, interaction, id)
   }
 
-  public static async editRequest(client: NoirClient, interaction: StringSelectMenuInteraction<'cached'>, id: string) {
+  public static async editRequest(client: Client, interaction: StringSelectMenuInteraction<'cached'>, id: string) {
     const rules = await ModerationRule.cache(client, interaction.guildId)
     const ruleId = interaction.values[0]
 
@@ -231,7 +234,7 @@ export default class RuleSettings {
     await interaction.showModal(modal)
   }
 
-  public static async editResponse(client: NoirClient, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, ruleId: string) {
+  public static async editResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, ruleId: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId)
     const save = Save.cache(client, `${interaction.guildId}-moderation`)
 
