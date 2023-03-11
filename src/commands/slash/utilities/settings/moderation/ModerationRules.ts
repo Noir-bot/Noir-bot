@@ -12,7 +12,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowCom
 
 export default class RuleSettings {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string) {
-    const moderationData = await Moderation.cache(client, interaction.guildId)
+    const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
     const premiumData = await Premium.cache(client, interaction.guildId)
     const rules = await ModerationRule.cache(client, interaction.guildId)
 
@@ -144,7 +144,7 @@ export default class RuleSettings {
   }
 
   public static async addResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
-    const moderationData = await Moderation.cache(client, interaction.guildId)
+    const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
     const save = Save.cache(client, `${interaction.guildId}-moderation`)
 
     const ruleAction = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesAction', 'input')).toLowerCase()
@@ -171,7 +171,7 @@ export default class RuleSettings {
       }
     })
 
-    const rules = await ModerationRules.cache(client, interaction.guildId)
+    const rules = await ModerationRules.cache(client, interaction.guildId, false, true)
 
     rules?.rules?.push({
       id: request.id,
@@ -235,7 +235,7 @@ export default class RuleSettings {
   }
 
   public static async editResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, ruleId: string) {
-    const moderationData = await Moderation.cache(client, interaction.guildId)
+    const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
     const save = Save.cache(client, `${interaction.guildId}-moderation`)
 
     const ruleAction = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesActionUpdate', 'input')).toLowerCase()

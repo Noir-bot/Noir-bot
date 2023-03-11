@@ -2,8 +2,8 @@ import { GuildMember, time } from 'discord.js'
 import WelcomeHelper from '../../commands/slash/utilities/settings/welcome/WelcomeHelper'
 import Client from '../../structures/Client'
 import Event from '../../structures/Event'
-import WelcomeMessage from '../../structures/WelcomeMessage'
 import Welcome from '../../structures/welcome/Welcome'
+import WelcomeMessage from '../../structures/welcome/WelcomeMessage'
 
 export default class UserJoin extends Event {
   constructor(client: Client) {
@@ -18,7 +18,7 @@ export default class UserJoin extends Event {
 
       if (roles.length == 0) return
 
-      await client.prisma.welcomeRestore.create({
+      await client.prisma.userRestore.create({
         data: {
           guild: member.guild.id,
           user: member.id,
@@ -35,7 +35,7 @@ export default class UserJoin extends Event {
 
     if (!webhook) return
 
-    const messageData = await WelcomeMessage.cache(client, member.guild.id, 'guild_left')
+    const messageData = await WelcomeMessage.cache(client, member.guild.id, 'guild_left', false, true)
 
     if (messageData) {
       await WelcomeHelper.send(messageData, data, webhook)

@@ -56,7 +56,7 @@ export default class WelcomeMessage {
   }
 
   public static formatRemove(input: string) {
-    return input.trim().toLowerCase() == Options.removeValue ? undefined : input
+    return input.trim().toLowerCase() == Options.removeValue ? '' : input
   }
 
   public static formatColor(input: string) {
@@ -146,8 +146,8 @@ export default class WelcomeMessage {
     return input
   }
 
-  public static async cache(client: Client, guildId: string, type: WelcomeMessageType, restore?: boolean) {
-    const cache = client.welcomeMessages.get(`${guildId}${type}`)
+  public static async cache(client: Client, guildId: string, type: WelcomeMessageType, restore?: boolean, cached?: boolean) {
+    const cache = client.welcomeMessages.get((cached ? '(cached)' : '') + `${guildId}${type}`)
 
     if (!cache ?? restore) {
       let data = await client.prisma.welcomeMessage.findFirst({ where: { guild: guildId, type: type } })
@@ -156,7 +156,7 @@ export default class WelcomeMessage {
         data = await client.prisma.welcomeMessage.create({ data: { guild: guildId, type: type, status: false } })
       }
 
-      client.welcomeMessages.set(`${guildId}${type}`, new WelcomeMessage(guildId, type, {
+      client.welcomeMessages.set((cached ? '(cached)' : '') + `${guildId}${type}`, new WelcomeMessage(guildId, type, {
         status: data.status,
         fieldsId: data.fieldsId,
         fieldsInline: data.fieldsInline,
@@ -181,16 +181,14 @@ export default class WelcomeMessage {
         thumbnail: data.thumbnail as string | undefined
       }))
 
-      return client.welcomeMessages.get(`${guildId}${type}`)!
+      return client.welcomeMessages.get((cached ? '(cached)' : '') + `${guildId}${type}`)!
     }
 
     return cache!
   }
 
   public static async save(client: Client, guildId: string, type: WelcomeMessageType) {
-    const cache = client.welcomeMessages.get(`${guildId}${type}`)
-
-    console.log(type)
+    const cache = client.welcomeMessages.get('(cached)' + `${guildId}${type}`)
 
     if (cache) {
       const data = await client.prisma.welcomeMessage.findFirst({ where: { guild: guildId, type: type } })

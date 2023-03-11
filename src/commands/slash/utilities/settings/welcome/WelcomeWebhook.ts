@@ -9,7 +9,7 @@ import SettingsUtils from '../SettingsUtils'
 
 export default class WelcomeWebhook {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
-    const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
     const welcomeWebhook = welcomeData?.webhook ? await Welcome.getWebhook(client, welcomeData.webhook) : null
 
     const buttons = [
@@ -59,7 +59,7 @@ export default class WelcomeWebhook {
   }
 
   public static async channelRequest(client: Client, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'>, id: string) {
-    const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
 
     const buttons = [
       SettingsUtils.generateBack('settings', id, 'welcomeBack.welcomeWebhook'),
@@ -91,7 +91,7 @@ export default class WelcomeWebhook {
   }
 
   public static async editRequest(client: Client, interaction: ButtonInteraction<'cached'>, id: string) {
-    const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
 
     const webhookNameInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookName', 'input'))
@@ -124,7 +124,7 @@ export default class WelcomeWebhook {
   }
 
   public static async channelResponse(client: Client, interaction: ChannelSelectMenuInteraction<'cached'>, id: string) {
-    const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
     const saves = Save.cache(client, `${interaction.guildId}-welcome`)
     const channelId = interaction.values[0]
 
@@ -135,7 +135,7 @@ export default class WelcomeWebhook {
   }
 
   public static async editResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
-    const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
     const saves = Save.cache(client, `${interaction.guildId}-welcome`)
     const webhookName = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeWebhookName', 'input'))
     const webhookAvatar = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'input'))

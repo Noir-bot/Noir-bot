@@ -72,10 +72,13 @@ export default class Welcome {
   }
 
   public static async save(client: Client, guildId: string) {
-    const cache = client.welcome.get(guildId)
+    const cache = client.welcome.get('(cached)' + guildId)
 
     if (cache) {
       const data = await client.prisma.welcome.findFirst({ where: { guild: guildId } })
+
+      client.welcome.delete(guildId)
+      client.welcome.set(guildId, cache)
 
       if (!data) {
         await client.prisma.welcome.create({ data: { guild: guildId } })
@@ -102,8 +105,8 @@ export default class Welcome {
     return cache
   }
 
-  public static async cache(client: Client, guildId: string, force?: boolean) {
-    const cache = client.welcome.get(guildId)
+  public static async cache(client: Client, guildId: string, force?: boolean, cached?: boolean) {
+    const cache = client.welcome.get((cached ? '(cached)' : '') + guildId)
 
     if (!cache || force) {
       let data = await client.prisma.welcome.findFirst({ where: { guild: guildId } })
@@ -112,12 +115,12 @@ export default class Welcome {
         data = await client.prisma.welcome.create({ data: { guild: guildId } })
       }
 
-      return client.welcome.set(guildId, new Welcome(guildId, {
+      return client.welcome.set((cached ? '(cached)' : '') + guildId, new Welcome(guildId, {
         restore: data.restore,
         roles: data.roles,
         status: data.status,
         webhook: data.webhook as string | undefined,
-      })).get(guildId)!
+      })).get((cached ? '(cached)' : '') + guildId)!
     }
 
     return cache

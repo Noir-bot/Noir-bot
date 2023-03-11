@@ -8,7 +8,7 @@ import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, Mo
 
 export default class WelcomeEditorEmbed {
   public static async request(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
 
     const colorInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEmbedColor', 'input'))
@@ -74,7 +74,7 @@ export default class WelcomeEditorEmbed {
   }
 
   public static async response(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
 
     const colorInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedColor', 'input'))
     const descriptionInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEmbedDescription', 'input'))

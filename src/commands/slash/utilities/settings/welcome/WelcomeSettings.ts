@@ -8,7 +8,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, Messag
 
 export default class WelcomeSettings {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
-    let welcomeData = await Welcome.cache(client, interaction.guildId)
+    let welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
 
     const buttons = [
       [

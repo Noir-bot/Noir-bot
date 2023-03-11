@@ -8,7 +8,7 @@ import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, Mo
 
 export default class WelcomeEditorAddField {
   public static async request(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
 
     if (!messageData) return
 
@@ -53,7 +53,7 @@ export default class WelcomeEditorAddField {
   }
 
   public static async response(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
     const premiumData = await Premium.cache(client, id)
     const save = Save.cache(client, `${interaction.guildId}-welcome`)
 

@@ -10,7 +10,7 @@ import { ActionRowBuilder, AnySelectMenuInteraction, ButtonBuilder, ButtonIntera
 
 export default class ModerationLogs {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
-    const moderationData = await Moderation.cache(client, interaction.guildId)
+    const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
     const moderationWebhook = moderationData?.webhook ? await Moderation.getWebhook(client, moderationData?.webhook) : null
 
     const buttons = [
@@ -64,7 +64,7 @@ export default class ModerationLogs {
   }
 
   public static async channelRequest(client: Client, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'>, id: string) {
-    const moderationData = await Moderation.cache(client, interaction.guildId)
+    const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
 
     const buttons = [
       SettingsUtils.generateBack('settings', id, 'moderationBack.moderationWebhookChannel'),
@@ -98,7 +98,7 @@ export default class ModerationLogs {
   }
 
   public static async editRequest(client: Client, interaction: ButtonInteraction<'cached'>, id: string) {
-    const moderationData = await Moderation.cache(client, interaction.guildId)
+    const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
 
     const webhookNameInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'moderationWebhookName', 'input'))
@@ -131,7 +131,7 @@ export default class ModerationLogs {
   }
 
   public static async channelResponse(client: Client, interaction: ChannelSelectMenuInteraction<'cached'>, id: string) {
-    const moderationData = await Moderation.cache(client, interaction.guildId)
+    const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
     const save = Save.cache(client, `${interaction.guildId}-moderation`)
     const channelId = interaction.values[0]
 
@@ -142,7 +142,7 @@ export default class ModerationLogs {
   }
 
   public static async editResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
-    const moderationData = await Moderation.cache(client, interaction.guildId)
+    const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
     const webhookName = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationWebhookName', 'input'))
     const webhookAvatar = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationWebhookAvatar', 'input'))
     const save = Save.cache(client, `${interaction.guildId}-moderation`)

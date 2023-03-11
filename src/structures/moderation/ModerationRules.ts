@@ -8,7 +8,7 @@ export default class ModerationRules {
   }
 
   public static async save(client: Client, guildId: string) {
-    const cache = client.moderationRules.get(guildId)
+    const cache = client.moderationRules.get('(cached)' + guildId)
     console.log(cache)
 
     if (cache && cache.rules.length > 0) {
@@ -59,15 +59,15 @@ export default class ModerationRules {
     return cache
   }
 
-  public static async cache(client: Client, guildId: string, force?: boolean) {
-    const cache = client.moderationRules.get(guildId)
+  public static async cache(client: Client, guildId: string, force?: boolean, cached?: boolean) {
+    const cache = client.moderationRules.get((cached ? '(cached)' : '') + guildId)
 
     if (!cache || force) {
       let data = await client.prisma.rule.findMany({ where: { guild: guildId } })
 
       if (!data) return
 
-      client.moderationRules.set(guildId, new ModerationRules(data.map((rule) => {
+      client.moderationRules.set((cached ? '(cached)' : '') + guildId, new ModerationRules(data.map((rule) => {
         return {
           id: rule.id,
           guild: rule.guild,
@@ -77,7 +77,7 @@ export default class ModerationRules {
         }
       })))
 
-      return client.moderationRules.get(guildId)!
+      return client.moderationRules.get((cached ? '(cached)' : '') + guildId)!
     }
 
     return cache

@@ -9,7 +9,7 @@ import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, 
 
 export default class WelcomeEditorEditField {
   public static async listRequest(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
 
     const buttons = [
       SettingsUtils.generateBack('settings', id, `welcomeBack.welcomeEditor.${type}`)
@@ -48,7 +48,7 @@ export default class WelcomeEditorEditField {
   }
 
   public static async request(client: Client, interaction: StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType, fieldId: number) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
     const index = messageData.fieldsId.findIndex(id => id == fieldId)
 
     const nameInput = new TextInputBuilder()
@@ -94,7 +94,7 @@ export default class WelcomeEditorEditField {
   }
 
   public static async response(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType, index: number) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
     const fieldNameInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldNameNew', 'input'))
     const fieldValueInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldValueNew', 'input'))
     const fieldInlineInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldInlineNew', 'input'))

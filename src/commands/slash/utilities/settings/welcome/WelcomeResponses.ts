@@ -86,7 +86,7 @@ export default class WelcomeResponse {
     }
 
     else if (method.startsWith('welcomeRestore')) {
-      await Welcome.cache(client, interaction.guildId, true)
+      await Welcome.cache(client, interaction.guildId, true, true)
       saves.count = 0
 
       const type = methods[1]
@@ -94,7 +94,7 @@ export default class WelcomeResponse {
       if (type == 'welcomeEditor') {
         const messageType = methods[2] as WelcomeMessageType
 
-        await WelcomeMessage.cache(client, interaction.guildId, messageType, true)
+        await WelcomeMessage.cache(client, interaction.guildId, messageType, true, true)
         await WelcomeEditor.initialMessage(client, interaction, id, messageType)
       }
 
@@ -138,14 +138,14 @@ export default class WelcomeResponse {
     }
 
     else if (method == 'welcomeStatus') {
-      const welcomeData = await Welcome.cache(client, interaction.guildId)
+      const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
       welcomeData.status = !welcomeData.status
       saves.count += 1
       await WelcomeSettings.initialMessage(client, interaction, id)
     }
 
     else if (method == 'welcomeRolesRestore') {
-      const welcomeData = await Welcome.cache(client, interaction.guildId)
+      const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
       welcomeData.restore = !welcomeData.restore
       saves.count += 1
       await WelcomeSettings.initialMessage(client, interaction, id)

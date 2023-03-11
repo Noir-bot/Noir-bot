@@ -9,7 +9,7 @@ import { ActionRowBuilder, ButtonInteraction, MessageActionRowComponentBuilder, 
 
 export default class WelcomeEditorRemoveField {
   public static async request(client: Client, interaction: ButtonInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
 
     if (!messageData) return
 
@@ -51,7 +51,7 @@ export default class WelcomeEditorRemoveField {
   }
 
   public static async response(client: Client, interaction: StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
     const save = Save.cache(client, `${interaction.guildId}-welcome`)
     const ids = interaction.values
 

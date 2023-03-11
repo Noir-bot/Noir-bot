@@ -43,13 +43,15 @@ export default class ServerinfoCommand extends ChatCommand {
   }
 
   public async execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>) {
+    const ephemeralStatus = interaction.options.getBoolean('private') ?? false
+    const target = interaction.options.getUser('target')
+
+    await interaction.deferReply({ ephemeral: ephemeralStatus })
+
     const guild = await interaction.guild.fetch()
     const welcomeData = await Welcome.cache(client, guild.id)
     const moderationData = await Moderation.cache(client, guild.id)
     const premiumData = await Premium.cache(client, guild.id)
-
-    const ephemeralStatus = interaction.options.getBoolean('private') ?? false
-    const target = interaction.options.getUser('target')
 
     const specialChannels = `${welcomeData.webhookChannel ? `Welcome channel ${channelMention(welcomeData.webhookChannel)}\n` : ''}` +
       `${moderationData.webhookChannel ? `Logs channel ${channelMention(moderationData.webhookChannel)}\n` : ''}` +

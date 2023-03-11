@@ -10,7 +10,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, Messag
 export default class WelcomeRole {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | RoleSelectMenuInteraction<'cached'>, id: string) {
     const premiumData = await Premium.cache(client, interaction.guildId)
-    const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
 
     const selectMenu = new RoleSelectMenuBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeRoles', 'select'))
@@ -46,7 +46,7 @@ export default class WelcomeRole {
   }
 
   public static async rolesResponse(client: Client, interaction: RoleSelectMenuInteraction<'cached'>, id: string) {
-    const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
     const premiumData = await Premium.cache(client, interaction.guildId)
     const roleIds = interaction.values
 
@@ -63,7 +63,7 @@ export default class WelcomeRole {
   }
 
   public static async clearResponse(client: Client, interaction: ButtonInteraction<'cached'>, id: string) {
-    const welcomeData = await Welcome.cache(client, interaction.guildId)
+    const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
 
     welcomeData.roles = []
 

@@ -5,12 +5,11 @@ import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import Moderation from '@structures/moderation/Moderation'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction } from 'discord.js'
-import ModerationRules from '../../../../../structures/moderation/ModerationRules'
 
 export default class ModerationSettings {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
-    const moderationData = await Moderation.cache(client, interaction.guildId)
-    const moderationRules = await ModerationRules.cache(client, interaction.guildId)
+    const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
+    // const moderationRules = await ModerationRules.cache(client, interaction.guildId, false, true)
 
     const buttons = [
       [

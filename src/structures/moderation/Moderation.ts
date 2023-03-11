@@ -71,8 +71,8 @@ export default class Moderation {
     }
   }
 
-  public static async cache(client: Client, guildId: string, force?: boolean) {
-    const cache = client.moderation.get(guildId)
+  public static async cache(client: Client, guildId: string, force?: boolean, cached?: boolean) {
+    const cache = client.moderation.get((cached ? '(cached)' : '') + guildId)
 
     if (!cache || force) {
       let data = await client.prisma.moderation.findFirst({ where: { guild: guildId } })
@@ -81,19 +81,19 @@ export default class Moderation {
         data = await client.prisma.moderation.create({ data: { guild: guildId } })
       }
 
-      return client.moderation.set(guildId, new Moderation(guildId, {
+      return client.moderation.set((cached ? '(cached)' : '') + guildId, new Moderation(guildId, {
         status: data.status,
         logs: data.logs,
         rules: data.rules,
         webhook: data.webhook as string | undefined
-      })).get(guildId)!
+      })).get((cached ? '(cached)' : '') + guildId)!
     }
 
     return cache
   }
 
   public static async save(client: Client, guildId: string) {
-    const cache = client.moderation.get(guildId)
+    const cache = client.moderation.get('(cached)' + guildId)
 
     if (cache) {
       const data = await client.prisma.moderation.findFirst({ where: { guild: guildId } })

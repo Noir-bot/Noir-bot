@@ -210,13 +210,13 @@ export default class Reply {
             return await properties.interaction.update({
               embeds: properties.embed?.data ? [properties.embed.data] : [],
               components: properties?.components ?? [],
-              content: properties?.content,
+              content: properties?.content ?? '',
               fetchReply: properties.fetch ?? false
             }).catch(async () => {
               return await properties.interaction?.editReply({
                 embeds: properties.embed?.data ? [properties.embed.data] : [],
                 components: properties?.components ?? [],
-                content: properties?.content
+                content: properties?.content ?? ''
               })
             })
           }
@@ -224,13 +224,13 @@ export default class Reply {
           return await properties.interaction.editReply({
             embeds: properties.embed?.data ? [properties.embed.data] : [],
             components: properties?.components ?? [],
-            content: properties?.content
+            content: properties?.content ?? ''
           })
         } else {
           return await properties.interaction.reply({
             embeds: properties.embed?.data ? [properties.embed.data] : [],
             components: properties?.components ?? [],
-            content: properties?.content,
+            content: properties?.content ?? '',
             ephemeral: properties?.ephemeral ?? true,
             fetchReply: properties.fetch ?? false
           })
@@ -239,7 +239,7 @@ export default class Reply {
         return await properties.interaction.reply({
           embeds: properties.embed?.data ? [properties.embed.data] : [],
           components: properties?.components ?? [],
-          content: properties?.content,
+          content: properties?.content ?? '',
           ephemeral: properties?.ephemeral ?? true,
           fetchReply: properties.fetch ?? false
         })

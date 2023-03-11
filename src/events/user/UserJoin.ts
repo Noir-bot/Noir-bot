@@ -1,8 +1,8 @@
+import WelcomeMessage from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, GuildMember, MessageActionRowComponentBuilder, time } from 'discord.js'
 import WelcomeHelper from '../../commands/slash/utilities/settings/welcome/WelcomeHelper'
 import Client from '../../structures/Client'
 import Event from '../../structures/Event'
-import WelcomeMessage from '../../structures/WelcomeMessage'
 import Welcome from '../../structures/welcome/Welcome'
 
 export default class UserJoin extends Event {
@@ -18,7 +18,7 @@ export default class UserJoin extends Event {
     }
 
     if (welcomeData.restore) {
-      const roles = await client.prisma.welcomeRestore.findFirst({
+      const roles = await client.prisma.userRestore.findFirst({
         where: {
           guild: member.guild.id,
           user: member.user.id
@@ -27,7 +27,7 @@ export default class UserJoin extends Event {
 
       if (roles) {
         await member.roles.add(roles.roles)
-        await client.prisma.welcomeRestore.deleteMany({
+        await client.prisma.userRestore.deleteMany({
           where: {
             guild: member.guild.id,
             user: member.user.id
@@ -43,14 +43,14 @@ export default class UserJoin extends Event {
     const data = { guild: { name: member.guild.name, icon: member.guild.iconURL(), members: member.guild.memberCount, createdAt: time(member.guild.createdTimestamp, 'd'), created: time(member.guild.createdTimestamp, 'R') }, user: { name: member.user.username, avatar: member.user.avatarURL(), createdAt: time(member.user.createdTimestamp, 'd'), created: time(member.user.createdTimestamp, 'R') }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
 
     if (webhook) {
-      const messageData = await WelcomeMessage.cache(client, member.guild.id, 'guild_join')
+      const messageData = await WelcomeMessage.cache(client, member.guild.id, 'guild_join', false, true)
 
       if (messageData) {
         await WelcomeHelper.send(messageData, data, webhook)
       }
     }
 
-    const messageData = await WelcomeMessage.cache(client, member.guild.id, 'direct_join')
+    const messageData = await WelcomeMessage.cache(client, member.guild.id, 'direct_join', false, true)
 
     if (messageData) {
       const serverInvite = client.guilds.cache.get(welcomeData.guild)?.invites.cache.first()?.url

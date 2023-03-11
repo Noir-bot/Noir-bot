@@ -7,7 +7,7 @@ import WelcomeEditor from './WelcomeEditor'
 
 export default class WelcomeEditorAuthor {
   public static async request(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
 
     const authorInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditorAuthor', 'input'))
@@ -41,7 +41,7 @@ export default class WelcomeEditorAuthor {
   }
 
   public static async response(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
     const saves = Save.cache(client, `${interaction.guildId}-welcome`)
 
     const authorInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeEditorAuthor', 'input'))

@@ -16,7 +16,7 @@ export default class ModerationResponse {
     const methodSplit = method.split('.')
     const saves = Save.cache(client, `${interaction.guildId}-moderation`)
 
-    const moderationData = await Moderation.cache(client, interaction.guildId)
+    const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
 
     if (method == 'moderation') {
       await ModerationSettings.initialMessage(client, interaction, id)
@@ -66,7 +66,7 @@ export default class ModerationResponse {
     }
 
     else if (method.startsWith('moderationRestore')) {
-      await Moderation.cache(client, interaction.guildId, true)
+      await Moderation.cache(client, interaction.guildId, true, true)
       const type = methodSplit[1]
       saves.count = 0
 
@@ -79,7 +79,7 @@ export default class ModerationResponse {
       }
 
       else if (type == 'moderationRules') {
-        await ModerationRules.cache(client, interaction.guildId, true)
+        await ModerationRules.cache(client, interaction.guildId, true, true)
 
         await RuleSettings.initialMessage(client, interaction, id)
       }

@@ -52,7 +52,7 @@ export default class WarnLogs {
   public static async UpdateLogs(client: Client, interaction: ModalSubmitInteraction | ButtonInteraction | ChatInputCommandInteraction, caseData: Case, deleted?: boolean) {
     if (!caseData.reference) return
 
-    const moderationData = await Moderation.cache(client, interaction.guildId!)
+    const moderationData = await Moderation.cache(client, interaction.guildId!, false, true)
 
     if (!moderationData || !moderationData.webhook) return
 

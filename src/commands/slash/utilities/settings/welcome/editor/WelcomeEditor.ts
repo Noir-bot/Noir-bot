@@ -19,10 +19,10 @@ import Preferences from '../../../../../../constants/Preferences'
 
 export default class WelcomeEditor {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType = 'guild_join') {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
     const premiumData = await Premium.cache(client, id)
     const embedStatus = messageData?.color ?? messageData?.description ?? messageData?.image ?? messageData?.thumbnail ?? messageData?.timestamp
-    const exampleStatus = messageData?.description ?? messageData?.image ?? messageData?.thumbnail ?? messageData?.author ?? messageData?.authorImage ?? messageData?.footer ?? messageData?.title
+    const exampleStatus = messageData?.description || messageData?.image || messageData?.thumbnail || messageData?.author || messageData?.authorImage || messageData?.footer || messageData?.title || messageData.fieldsId || messageData.message
 
     const buttons = [
       [
@@ -142,25 +142,19 @@ export default class WelcomeEditor {
           name: 'Premium features',
           value: `Premium features are indicated with this emoji ${Preferences.premiumEmoji}`,
           inline: false
-        },
-        // {
-        //   name: 'Message variables',
-        //   value: `\`${Options.removeValue}\` Remove field value\n\`{{guild name}}\` Guild name\n\`{{guild icon}}\` Guild icon\n\`{{guild members}}\` Guild members count\n\`{{guild createdAt}}\` Guild created at\n\`{{guild created}}\` Guild creation date\n\`{{client name}}\` Client name\n\`{{client avatar}}\` Client avatar\n\`{{user name}}\` User name\n\`{{user avatar}}\` User avatar\n\`{{user id}}\` User id\n\`{{user joinedAt}}\` User joined at\n\`{{user joined}}\` - User join date\n\`{{user createdAt}}\` - User account created at\n\`{{user created}}\` - User account creation date`,
-        //   inline: false
-        // }
+        }
       ],
-      ephemeral: true
+      ephemeral: true,
+      fetch: true
     })
   }
 
   public static async exampleResponse(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
-
-    interaction.deferUpdate()
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
 
     const button = SettingsUtils.generateBack('settings', id, `welcomeBack.welcomeEditor.${type}`)
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(button)
-    const exampleStatus = messageData?.description ?? messageData?.image ?? messageData?.thumbnail ?? messageData?.author ?? messageData?.authorImage ?? messageData?.footer ?? messageData?.title ?? messageData.fieldsId ?? messageData.message
+    const exampleStatus = messageData?.description || messageData?.image || messageData?.thumbnail || messageData?.author || messageData?.authorImage || messageData?.footer || messageData?.title || messageData.fieldsId || messageData.message
 
     if (!exampleStatus) {
       await Reply.reply({
@@ -198,7 +192,7 @@ export default class WelcomeEditor {
           footerImage: messageData.footerImage ?? WelcomeMessage.formatVariable(messageData.rawFooterImage, variables),
           image: messageData.image ?? WelcomeMessage.formatVariable(messageData.rawImage, variables),
           thumbnail: messageData.thumbnail ?? WelcomeMessage.formatVariable(messageData.rawThumbnail, variables),
-          components: [actionRow]
+          components: [actionRow],
         })
       } catch (error) {
         await Reply.reply({
@@ -216,7 +210,7 @@ export default class WelcomeEditor {
   }
 
   public static async resetRequest(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
 
     const buttons = [
       new ButtonBuilder()
@@ -243,7 +237,7 @@ export default class WelcomeEditor {
   }
 
   public static async resetResponse(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type)
+    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
 
     messageData.author = undefined
     messageData.authorImage = undefined
@@ -280,7 +274,7 @@ export default class WelcomeEditor {
     }
 
     else if (action == 'welcomeEditorStatus') {
-      const messageData = await WelcomeMessage.cache(client, id, messageType)
+      const messageData = await WelcomeMessage.cache(client, id, messageType, false, true)
 
       messageData.status = !messageData.status
       const saves = Save.cache(client, `${interaction.guildId}-welcome`)
