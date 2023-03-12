@@ -13,7 +13,7 @@ export default class ReadyEvent extends Event {
   }
 
   public async execute(client: Client) {
-    console.info(chalk.green.bold('Noir Ready!'))
+    console.info(chalk.green.bold('[✨] Noir Ready!'))
 
     client?.user?.setActivity({
       name: `${Options.activity}`,
@@ -26,6 +26,8 @@ export default class ReadyEvent extends Event {
   private async loadCommands(client: Client, path: string) {
     const globPromise = promisify(glob)
     const commandsFiles = await globPromise(path)
+
+    console.info(chalk.cyan.bold('[🛩️] Commands loaded'))
 
     // Reset guild commands
     // client.guilds.cache.get(Options.guildId)?.commands.set([])
@@ -47,8 +49,8 @@ export default class ReadyEvent extends Event {
         }
 
         client.commands.set(command.data.name, command)
-      } catch {
-        return
+      } catch (error) {
+        console.log(error)
       }
     })
   }

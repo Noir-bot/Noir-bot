@@ -3,12 +3,12 @@ import Reply from '@helpers/Reply'
 import Utils from '@helpers/Utils'
 import Client from "@structures/Client"
 import ChatCommand from "@structures/commands/ChatCommand"
+import { AccessType, CommandType } from '@structures/commands/Command'
 import Welcome from '@structures/welcome/Welcome'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, ChatInputCommandInteraction, channelMention, roleMention, userMention } from 'discord.js'
 import Emojis from '../../../constants/Emojis'
 import Premium from '../../../structures/Premium'
 import Moderation from '../../../structures/moderation/Moderation'
-import {AccessType,CommandType} from '@structures/commands/Command'
 
 export default class ServerinfoCommand extends ChatCommand {
   constructor(client: Client) {
@@ -123,7 +123,7 @@ export default class ServerinfoCommand extends ChatCommand {
     Reply.reply({
       client: client,
       interaction: interaction,
-      content: target ? `Information for you ${userMention(target.id)}` : undefined,
+      content: target ? `Information for ${userMention(target.id)}` : undefined,
       color: Colors.primary,
       ephemeral: ephemeralStatus,
       author: 'Server info',
