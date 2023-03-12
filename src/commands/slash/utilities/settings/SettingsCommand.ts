@@ -6,6 +6,7 @@ import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
 import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ChatInputCommandInteraction, MessageActionRowComponentBuilder } from 'discord.js'
+import {AccessType,CommandType} from '@structures/commands/Command'
 
 export default class SettingsCommand extends ChatCommand {
   constructor(client: Client) {
@@ -13,8 +14,8 @@ export default class SettingsCommand extends ChatCommand {
       client,
       {
         permissions: ['SendMessages', 'EmbedLinks', 'ManageWebhooks'],
-        access: 'public',
-        type: 'public',
+        access: AccessType.Public,
+        type: CommandType.Public,
         status: true
       },
       {

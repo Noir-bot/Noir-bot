@@ -4,6 +4,7 @@ import Preferences from '@constants/Preferences'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
+import {AccessType, CommandType} from '@structures/commands/Command'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, GuildMember } from 'discord.js'
 
 export default class WarnCommand extends ChatCommand {
@@ -12,8 +13,8 @@ export default class WarnCommand extends ChatCommand {
       client,
       {
         permissions: ['SendMessages', 'EmbedLinks'],
-        access: 'moderation',
-        type: 'public',
+        access: AccessType.Moderation,
+        type: CommandType.Public,
         status: true
       },
       {

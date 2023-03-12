@@ -2,6 +2,7 @@ import CaseEdit from '@commands/slash/moderation/case/Edit'
 import CaseRemove from '@commands/slash/moderation/case/Remove'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
+import {AccessType, CommandType} from '@structures/commands/Command'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js'
 
 export default class CaseCommand extends ChatCommand {
@@ -10,8 +11,8 @@ export default class CaseCommand extends ChatCommand {
       client,
       {
         permissions: ['SendMessages', 'EmbedLinks'],
-        access: 'moderation',
-        type: 'public',
+        access: AccessType.Moderation,
+        type: CommandType.Public,
         status: true
       },
       {

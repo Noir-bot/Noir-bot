@@ -13,9 +13,21 @@ export default abstract class Command {
   public abstract execute(client: Client, interaction: CommandInteraction): void
 }
 
+export const enum AccessType {
+  Public = "public",
+  Private = "prviate",
+  Moderation = "moderation",
+  Premium = "premium",
+}
+
+export const enum CommandType {
+  Public = "public",
+  Private = "private",
+}
+
 export interface CommandOptions {
   permissions: PermissionResolvable
-  access: 'public' | 'private' | 'moderation' | 'premium'
-  type: 'public' | 'private'
+  access: AccessType
+  type: CommandType
   status: boolean
 }

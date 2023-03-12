@@ -4,7 +4,7 @@ import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Utils from '@helpers/Utils'
 import Client from '@structures/Client'
-import Command from '@structures/commands/Command'
+import Command, { AccessType } from '@structures/commands/Command'
 import chalk from 'chalk'
 import { CommandInteraction, ContextMenuCommandInteraction } from 'discord.js'
 
@@ -37,7 +37,7 @@ export default class CommandExecution {
         return
       }
 
-      if (command.options.permission && interaction.guild?.members?.me?.permission.has(command.options.permission) && !interaction.guild?.members?.me?.permission.has('Administrator')) {
+      if (command.options.permissions && interaction.guild?.members?.me?.permissions.has(command.options.permissions) && !interaction.guild?.members?.me?.permissions.has('Administrator')) {
         await Reply.reply({
           client: client,
           interaction: interaction,
@@ -49,7 +49,7 @@ export default class CommandExecution {
         return
       }
 
-      if (command.options.access == 'private' && !Options.owners.includes(interaction.user.id)) {
+      if (command.options.access === AccessType.Private && !Options.owners.includes(interaction.user.id)) {
         await Reply.reply({
           client: client,
           interaction: interaction,

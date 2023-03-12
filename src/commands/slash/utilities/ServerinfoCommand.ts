@@ -8,6 +8,7 @@ import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, Chat
 import Emojis from '../../../constants/Emojis'
 import Premium from '../../../structures/Premium'
 import Moderation from '../../../structures/moderation/Moderation'
+import {AccessType,CommandType} from '@structures/commands/Command'
 
 export default class ServerinfoCommand extends ChatCommand {
   constructor(client: Client) {
@@ -15,8 +16,8 @@ export default class ServerinfoCommand extends ChatCommand {
       client,
       {
         permissions: ['SendMessages'],
-        access: 'public',
-        type: 'public',
+        access: AccessType.Public,
+        type: CommandType.Public,
         status: true
       },
       {

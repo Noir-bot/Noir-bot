@@ -33,9 +33,9 @@
   "scripts": {
     "dev": "nodemon --watch src -e ts --exec ts-node -r dotenv/config ./src/index.ts",
     "start": "node ./build/index.js",
-    "prisma": "npx prisma generate",
-    "push": "npx prisma db push",
-    "build": "npm i && tsc"
+    "prisma": "prisma generate",
+    "push": "prisma db push",
+    "build": "tsc --project ."
   },
   "keywords": [],
   "repository": "https://github.com/noir-development/noir-bot/"
