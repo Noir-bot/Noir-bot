@@ -1,7 +1,7 @@
 {
   "author": "Loid",
   "name": "noir-bot",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Noir moderation and utilities discord bot",
   "main": "src/noir.ts",
   "license": "GPL-3.0",
