@@ -1,4 +1,4 @@
-import UserinfoCommand from '@commands/slash/utilities/UserinfoCommand'
+import UserinfoCommand from '@commands/slash/utilities/Userinfo'
 import Client from '@structures/Client'
 import { AccessType, CommandType } from '@structures/commands/Command'
 import ContextMenuCommand from '@structures/commands/ContextMenuCommand'

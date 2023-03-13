@@ -68,4 +68,4 @@ export interface CaseData {
   created: Date
 }
 
-export type CaseAction = 'warn' | 'timeout' | 'ban' | 'tempban' | 'softban' | 'unban' | 'kick'
+export type CaseAction = 'warn' | 'timeout' | 'ban' | 'tempban' | 'softban' | 'unban' | 'kick' | 'channel_lock'

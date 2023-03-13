@@ -17,6 +17,7 @@
     "eslint-plugin-modules-newline": "^0.0.6",
     "nodemon": "^2.0.15",
     "ts-node": "^10.4.0",
+    "tsc-alias": "^1.8.3",
     "tsconfig-paths": "^3.14.2",
     "tslib": "^2.4.0",
     "typescript": "^4.5.5"
@@ -32,10 +33,10 @@
   },
   "scripts": {
     "dev": "nodemon --watch src -e ts --exec ts-node -r dotenv/config ./src/index.ts",
-    "start": "node ./build/index.js",
+    "start": "node -r tsconfig-paths/register ./build/index.js",
     "prisma": "prisma generate",
     "push": "prisma db push",
-    "build": "tsc --project ."
+    "build": "tsc --project . && tsc-alias"
   },
   "keywords": [],
   "repository": "https://github.com/noir-development/noir-bot/"
