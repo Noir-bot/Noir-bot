@@ -15,7 +15,7 @@ export default class UserInfoContext extends ContextMenuCommand {
         status: true
       },
       {
-        name: 'get info',
+        name: 'get information',
         type: ApplicationCommandType.User,
         dmPermission: false
       }
