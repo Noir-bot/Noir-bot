@@ -15,7 +15,7 @@ export default class UserinfoCommand extends ChatCommand {
         status: true
       },
       {
-        name: 'user',
+        name: 'userinfo',
         description: 'Get information about the server',
         dmPermission: false,
         type: ApplicationCommandType.ChatInput,
@@ -60,9 +60,7 @@ export default class UserinfoCommand extends ChatCommand {
     const description = `User: ${userMention(member.id)} \`${member.id}\`\n` +
       `Hoist role: ${member.roles.hoist}\n` +
       `Accent color: \`${member.user.hexAccentColor ?? fetchedUser.hexAccentColor ?? member.displayHexColor ?? 'No color'}\`\n` +
-      `${fetchedUser.bannerURL() ? `Banner: [open](${fetchedUser.bannerURL({ size: 4096 })})\n` : ''}` +
-      `${fetchedUser.displayAvatarURL() ? `Avatar: [open](${fetchedUser.avatarURL({ size: 4096 })})\n` : ''}` +
-      `${member.avatarURL() ? `Server avatar: [open](${fetchedUser.displayAvatarURL({ size: 4096 })})\n` : ''}` +
+      `${member.avatarURL() ? `Server avatar: [open](${member.avatarURL({ size: 4096 })})\n` : ''}` +
       `Created at: ${time(member.user.createdAt, 'd')} (${time(member.user.createdAt, 'R')})\n` +
       `${member.joinedAt ? `Joined at: ${time(member.joinedAt, 'd')} (${time(member.joinedAt, 'R')})\n` : ''}`
 

@@ -20,7 +20,7 @@ export default class Botinfo extends ChatCommand {
         status: true
       },
       {
-        name: 'bot',
+        name: 'botinfo',
         description: 'Bot information',
         type: ApplicationCommandType.ChatInput,
         dmPermission: false,

@@ -26,14 +26,14 @@ export default class HelpCommand extends ChatCommand {
     )
   }
 
-  public async execute(client: Client, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {
+  public async execute(client: Client, interaction: ChatInputCommandInteraction | ButtonInteraction) {
     await HelpCommand.initialMessage(client, interaction)
   }
 
-  public static async initialMessage(client: Client, interaction: ChatInputCommandInteraction | ButtonInteraction): Promise<void> {
+  public static async initialMessage(client: Client, interaction: ChatInputCommandInteraction | ButtonInteraction) {
     const button = new ButtonBuilder()
       .setURL(Options.docsLink)
-      .setLabel('Documentation')
+      .setLabel('Noir docs')
       .setStyle(ButtonStyle.Link)
 
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -45,7 +45,7 @@ export default class HelpCommand extends ChatCommand {
       color: Colors.primary,
       author: 'Help command',
       authorImage: client.user?.avatarURL(),
-      description: `Hey there, if you have any problems or questions contact our support team. Be sure to join [support server](${Options.guildInvite})`,
+      description: `Hey there, in case of any questions or problems contact in our [support server](${Options.guildInvite})`,
       components: [actionRow]
     })
   }

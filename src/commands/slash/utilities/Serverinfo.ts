@@ -21,7 +21,7 @@ export default class ServerinfoCommand extends ChatCommand {
         status: true
       },
       {
-        name: 'server',
+        name: 'serverinfo',
         description: 'Get information about the server',
         dmPermission: false,
         type: ApplicationCommandType.ChatInput,
