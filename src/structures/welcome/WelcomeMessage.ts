@@ -92,7 +92,7 @@ export default class WelcomeMessage {
     }
   }
 
-  public static formatVariable(input?: string, options?: { guild?: { name?: string, icon?: string | null, members?: number, createdAt?: string | null, created?: string | null }, user?: { name?: string, avatar?: string | null, createdAt?: string | null, created?: string | null }, client?: { name?: string, avatar?: string | null } }) {
+  public static formatVariable(input?: string, options?: { guild?: { name?: string, icon?: string | null, members?: number, createdAt?: string | null, created?: string | null }, user?: { name?: string, avatar?: string | null, createdAt?: string | null, created?: string | null, joinedAt?: string | null, joined?: string | null }, client?: { name?: string, avatar?: string | null } }) {
     input = input?.trim()
 
     if (input?.trim().toLowerCase() == Options.removeValue) {
@@ -100,23 +100,23 @@ export default class WelcomeMessage {
     }
 
     if (options?.guild?.name) {
-      input = input?.replace(/\{\{guild name\}\}/g, options.guild.name)
+      input = input?.replace(/\{\{server name\}\}/g, options.guild.name)
     }
 
     if (options?.guild?.members) {
-      input = input?.replace(/\{\{guild members\}\}/g, options.guild.members.toString())
+      input = input?.replace(/\{\{server members\}\}/g, options.guild.members.toString())
     }
 
     if (options?.guild?.icon) {
-      input = input?.replace(/\{\{guild icon\}\}/g, options.guild.icon)
+      input = input?.replace(/\{\{server icon\}\}/g, options.guild.icon)
     }
 
     if (options?.guild?.createdAt) {
-      input = input?.replace(/\{\{guild createdAt\}\}/g, options.guild.createdAt)
+      input = input?.replace(/\{\{server created at\}\}/g, options.guild.createdAt)
     }
 
     if (options?.guild?.created) {
-      input = input?.replace(/\{\{guild created\}\}/g, options.guild.created)
+      input = input?.replace(/\{\{server created\}\}/g, options.guild.created)
     }
 
     if (options?.user?.avatar) {
@@ -128,7 +128,15 @@ export default class WelcomeMessage {
     }
 
     if (options?.user?.createdAt) {
-      input = input?.replace(/\{\{user createdAt\}\}/g, options.user.createdAt)
+      input = input?.replace(/\{\{user created at\}\}/g, options.user.createdAt)
+    }
+
+    if (options?.user?.joined) {
+      input = input?.replace(/\{\{user joined\}\}/g, options.user.joined)
+    }
+
+    if (options?.user?.joinedAt) {
+      input = input?.replace(/\{\{user joined at\}\}/g, options.user.joinedAt)
     }
 
     if (options?.user?.name) {
@@ -136,11 +144,11 @@ export default class WelcomeMessage {
     }
 
     if (options?.client?.name) {
-      input = input?.replace(/\{\{client name\}\}/g, options.client.name)
+      input = input?.replace(/\{\{bot name\}\}/g, options.client.name)
     }
 
     if (options?.client?.avatar) {
-      input = input?.replace(/\{\{client avatar\}\}/g, options.client.avatar)
+      input = input?.replace(/\{\{bot avatar\}\}/g, options.client.avatar)
     }
 
     return input

@@ -14,7 +14,7 @@ import Client from '@structures/Client'
 import Premium from '@structures/Premium'
 import Save from '@structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ColorResolvable, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ColorResolvable, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, time } from 'discord.js'
 import Preferences from '../../../../../../constants/Preferences'
 
 export default class WelcomeEditor {
@@ -168,7 +168,12 @@ export default class WelcomeEditor {
     }
 
     else {
-      const variables = { guild: { name: interaction.guild?.name, icon: interaction.guild?.iconURL(), members: interaction.guild?.memberCount, createdAt: `<t:${interaction.guild?.createdAt.getTime().toString().slice(0, -3)}:d>`, created: `<t:${interaction.guild?.createdAt.getTime().toString().slice(0, -3)}:R>` }, user: { name: interaction.user.username, avatar: interaction.user.avatarURL(), createdAt: `<t:${interaction.user?.createdAt.getTime().toString().slice(0, -3)}:d>`, created: `<t:${interaction.user?.createdAt.getTime().toString().slice(0, -3)}:R>` }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
+      const variables = { guild: { name: interaction.guild?.name, icon: interaction.guild?.iconURL(), members: interaction.guild?.memberCount, createdAt: time(interaction.guild.createdTimestamp, 'd'), created: time(interaction.guild.createdTimestamp, 'R') }, user: { name: interaction.user.username, avatar: interaction.user.avatarURL(), createdAt: time(interaction.user.createdTimestamp, 'd'), created: time(interaction.user.createdTimestamp, 'R'), joinedAt: 'Unspecified', joined: 'Unspecified' }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
+
+      if (interaction.member.joinedTimestamp) {
+        variables.user.joinedAt = time(interaction.member.joinedTimestamp, 'd')
+        variables.user.joined = time(interaction.member.joinedTimestamp, 'R')
+      }
 
       try {
         await Reply.reply({
@@ -210,7 +215,7 @@ export default class WelcomeEditor {
   }
 
   public static async resetRequest(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
-    const messageData = await WelcomeMessage.cache(client, id, type, false, true)
+    await WelcomeMessage.cache(client, id, type, false, true)
 
     const buttons = [
       new ButtonBuilder()
