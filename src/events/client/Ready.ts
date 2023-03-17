@@ -29,10 +29,6 @@ export default class ReadyEvent extends Event {
 
     console.info(chalk.cyan.bold('[🛩️] Commands loaded'))
 
-    // Reset guild commands
-    // client.guilds.cache.get(Options.guildId)?.commands.set([])
-    // client.application?.commands.set([])
-
     commandsFiles.forEach(async (commandFile: string) => {
       try {
         const file = await import(commandFile)

@@ -45,6 +45,8 @@ export default class UserJoin extends Event {
     if (webhook) {
       const messageData = await WelcomeMessage.cache(client, member.guild.id, 'guild_join', false, true)
 
+      if (!messageData.status) return
+
       if (messageData) {
         await WelcomeHelper.send(messageData, data, webhook)
       }
@@ -52,7 +54,7 @@ export default class UserJoin extends Event {
 
     const messageData = await WelcomeMessage.cache(client, member.guild.id, 'direct_join', false, true)
 
-    if (messageData) {
+    if (messageData.status) {
       const serverInvite = client.guilds.cache.get(welcomeData.guild)?.invites.cache.first()?.url
       const button = new ButtonBuilder().setCustomId(`sentFrom-${member.guild.id}`).setLabel(`Sent from ${member.guild.name}`)
 

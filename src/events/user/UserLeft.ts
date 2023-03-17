@@ -13,18 +13,22 @@ export default class UserJoin extends Event {
   public async execute(client: Client, member: GuildMember) {
     const welcomeData = await Welcome.cache(client, member.guild.id)
 
-    if (member.roles.cache.size > 0) {
-      const roles = member.roles.cache.map(role => role.id).filter(role => !welcomeData.roles?.includes(role))
+    if (welcomeData.restore) {
+      const memberRoles = member.roles.cache
 
-      if (roles.length == 0) return
+      if (memberRoles.size > 0) {
+        const roles = memberRoles.map(role => role.id).filter(role => !welcomeData.roles?.includes(role) && role != member.guild.roles.everyone.id)
 
-      await client.prisma.userRestore.create({
-        data: {
-          guild: member.guild.id,
-          user: member.id,
-          roles: roles
-        }
-      })
+        if (!roles || roles.length == 0) return
+
+        await client.prisma.userRestore.create({
+          data: {
+            guild: member.guild.id,
+            user: member.id,
+            roles: roles
+          }
+        })
+      }
     }
 
     if (!welcomeData.status) return

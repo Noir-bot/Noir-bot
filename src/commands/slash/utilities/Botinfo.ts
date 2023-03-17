@@ -29,7 +29,7 @@ export default class Botinfo extends ChatCommand {
   }
 
   public execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>) {
-    const timeMS = client.uptime ? parseInt((new Date().getTime() + client.uptime).toString().slice(0, -3)) : undefined
+    const uptime = client.uptime ? parseInt((Date.now() - client.uptime).toString().slice(0, -3)) : undefined
 
     const fields: EmbedField[] = [
       {
@@ -49,7 +49,7 @@ export default class Botinfo extends ChatCommand {
       },
       {
         name: 'Uptime',
-        value: `${timeMS ? time(timeMS, 'R') : '\`Unexpected error\`'}`,
+        value: `${uptime ? time(uptime, 'R') : '\`Unexpected error\`'}`,
         inline: true
       },
       {
