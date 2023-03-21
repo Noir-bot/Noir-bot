@@ -6,10 +6,10 @@ import Utils from '@helpers/Utils'
 import Client from '@structures/Client'
 import Command, { AccessType } from '@structures/commands/Command'
 import chalk from 'chalk'
-import { CommandInteraction, ContextMenuCommandInteraction } from 'discord.js'
+import { CommandInteraction, ContextMenuCommandInteraction, PermissionResolvable } from 'discord.js'
 
 export default class CommandExecution {
-  public static async command(client: Client, interaction: CommandInteraction | ContextMenuCommandInteraction): Promise<void> {
+  public static async command(client: Client, interaction: CommandInteraction | ContextMenuCommandInteraction) {
     const command = client.commands.get(interaction.commandName) as Command
 
     try {
@@ -37,13 +37,24 @@ export default class CommandExecution {
         return
       }
 
-      if (command.options.permissions && interaction.guild?.members?.me?.permissions.has(command.options.permissions) && !interaction.guild?.members?.me?.permissions.has('Administrator')) {
+      if (!interaction.guild?.members?.me?.permissions.has(command.options.permissions ?? 'Administrator')) {
+        const fields = [
+          {
+            name: 'Required permission',
+            value: `${command.options.permissions.toString().split(',').filter(perm => {
+              return !interaction.guild?.members.me?.permissions.has(perm as PermissionResolvable)
+            })}`,
+            inline: false
+          }
+        ]
+
         await Reply.reply({
           client: client,
           interaction: interaction,
           color: Colors.warning,
-          author: 'permission error',
-          description: 'Noir doesn\'t have enough permission'
+          author: 'Permission error',
+          description: 'Noir doesn\'t have enough permission',
+          fields: fields ? fields : undefined
         })
 
         return
