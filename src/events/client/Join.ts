@@ -36,7 +36,7 @@ export default class ReadyEvent extends Event {
       footer: `Made with 💚 by ${client.users.cache.get(Options.owners[0])?.tag}`,
       author: 'Noir',
       thumbnail: client.user?.displayAvatarURL(),
-      description: 'Hello there, I am Noir an advanced moderation and utility bot designed to provide unparalleled user experience and simplicity.\n\nWhether you’re looking for a powerful way to manage your server or a simple way to stay connected with your friends, Noir has the perfect solution for you.',
+      description: 'Hey there, I am Noir` advanced moderation and utility bot designed to provide great user experience and simplicity.\n\nWhether you’re looking for a powerful way to manage your server or a simple way to stay connected with your friends, Noir has the perfect solution for you.',
       components: [actionRow]
     })
   }
