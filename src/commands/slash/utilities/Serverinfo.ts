@@ -85,9 +85,7 @@ export default class ServerinfoCommand extends ChatCommand {
       },
       {
         name: `Members (${guild.memberCount})`,
-        value: `Online \`${guild.memberCount - guild.members.cache.filter(member => member.presence?.status == undefined).size}\`\n` +
-          `Offline \`${guild.members.cache.filter(member => member.presence?.status == undefined).size}\`\n` +
-          `Bot \`${guild.members.cache.filter(member => member.user.bot).size}\``,
+        value: `Bot \`${guild.members.cache.filter(member => member.user.bot).size}\``,
         inline: true
       },
       {
