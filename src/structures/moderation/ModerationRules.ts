@@ -9,7 +9,6 @@ export default class ModerationRules {
 
   public static async save(client: Client, guildId: string) {
     const cache = client.moderationRules.get('(cached)' + guildId)
-    console.log(cache)
 
     if (cache && cache.rules.length > 0) {
       const data = await client.prisma.rule.findMany({ where: { guild: guildId } })
@@ -28,20 +27,15 @@ export default class ModerationRules {
       }
 
       else {
-        await client.prisma.rule.createMany({
-          data: cache.rules.map(rule => {
-            return {
-              guild: rule.guild,
-              action: rule.action,
-              quantity: rule.quantity,
-              duration: rule.duration
-            }
-          })
+        await client.prisma.rule.deleteMany({
+          where: {
+            guild: guildId
+          }
         })
 
         try {
-          await client.prisma.rule.updateMany({
-            where: { guild: guildId }, data: cache.rules.map(rule => {
+          await client.prisma.rule.createMany({
+            data: cache.rules.map(rule => {
               return {
                 guild: rule.guild,
                 action: rule.action,
@@ -53,6 +47,8 @@ export default class ModerationRules {
         } catch (err) {
           console.log(err)
         }
+
+        console.log('saved rules')
       }
     }
 
@@ -89,7 +85,6 @@ export type ModerationRuleTypes = 'ban' | 'kick' | 'timeout' | 'tempban' | 'soft
 export const ModerationRuleRegex = /ban|kick|timeout|tempban|softban/g
 
 export interface ModerationRule {
-  id: number
   guild: string
   action: string
   quantity: number

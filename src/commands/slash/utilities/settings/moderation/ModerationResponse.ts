@@ -57,6 +57,7 @@ export default class ModerationResponse {
 
       else if (type == 'moderationRules') {
         await ModerationRules.save(client, interaction.guildId)
+        await ModerationRules.cache(client, interaction.guildId, true, true)
         await RuleSettings.initialMessage(client, interaction, id)
       }
 
@@ -141,9 +142,6 @@ export default class ModerationResponse {
 
     else if (method.startsWith('moderationRulesEdit')) {
       const ruleId = method.split('.')[1]
-
-      console.log(ruleId)
-
       await RuleSettings.editResponse(client, interaction, id, ruleId)
     }
   }

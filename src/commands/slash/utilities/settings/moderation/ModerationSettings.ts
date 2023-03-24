@@ -4,12 +4,13 @@ import Emojis from '@constants/Emojis'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import Moderation from '@structures/moderation/Moderation'
+import ModerationRules from '@structures/moderation/ModerationRules'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction } from 'discord.js'
 
 export default class ModerationSettings {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
-    // const moderationRules = await ModerationRules.cache(client, interaction.guildId, false, true)
+    const moderationRules = await ModerationRules.cache(client, interaction.guildId, false, true)
 
     const buttons = [
       [
@@ -26,10 +27,11 @@ export default class ModerationSettings {
           .setDisabled(!moderationData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRules', 'button'))
+          .setLabel('(Under development)')
           // .setLabel(`${moderationRules?.rules ? moderationRules.rules.length > 0 ? 'Edit' : 'Setup' : 'Setup'} moderation rule${moderationRules?.rules ? moderationRules.rules?.length > 1 ? 's' : '' : ' '}`)
-          .setLabel('Rules (under development)')
           .setStyle(SettingsUtils.generateStyle(moderationData.rules))
-          .setEmoji('🎛️')
+          // .setEmoji('🎛️')
+          .setEmoji('🚧')
           // .setDisabled(!moderationData.status)
           .setDisabled(true)
       ],

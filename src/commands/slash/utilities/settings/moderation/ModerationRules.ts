@@ -7,20 +7,20 @@ import Client from '@structures/Client'
 import Premium from '@structures/Premium'
 import Save from '@structures/Save'
 import Moderation from '@structures/moderation/Moderation'
-import { default as ModerationRule, ModerationRuleRegex, default as ModerationRules } from '@structures/moderation/ModerationRules'
+import ModerationRules, { ModerationRuleRegex } from '@structures/moderation/ModerationRules'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 
 export default class RuleSettings {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
+    const rulesData = await ModerationRules.cache(client, interaction.guildId, false, true)
     const premiumData = await Premium.cache(client, interaction.guildId)
-    const rules = await ModerationRule.cache(client, interaction.guildId)
 
     const buttons = [
       [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesStatus', 'button'))
-          .setLabel(`${moderationData.rules ? 'Disable' : 'Enable'} moderation rule${rules?.rules && rules.rules.length > 0 ? 's' : ''}`)
+          .setLabel(`${moderationData.rules ? 'Disable' : 'Enable'} moderation rule${rulesData?.rules && rulesData.rules.length > 0 ? 's' : ''}`)
           .setStyle(SettingsUtils.generateStyle(moderationData.rules)),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesAdd', 'button'))
@@ -38,11 +38,11 @@ export default class RuleSettings {
       buttons[0][1].setDisabled(true)
     }
 
-    else if (premiumData?.status() && moderationData.rules && rules?.rules && rules?.rules.length >= 20) {
+    else if (premiumData?.status() && moderationData.rules && rulesData?.rules && rulesData?.rules.length >= 20) {
       buttons[0][1].setDisabled(true)
     }
 
-    else if (interaction.guildId && !premiumData?.status() && rules?.rules.length && rules.rules.length >= 5) {
+    else if (interaction.guildId && !premiumData?.status() && rulesData?.rules.length && rulesData.rules.length >= 5) {
       buttons[0][1].setDisabled(true)
     }
 
@@ -55,18 +55,17 @@ export default class RuleSettings {
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[1])
     ]
 
-    if (rules?.rules && rules.rules.length >= 1) {
+    if (rulesData?.rules && rulesData.rules.length >= 1) {
       const selectMenu = new StringSelectMenuBuilder()
         .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRules', 'select'))
         .setPlaceholder(`Select to edit`)
-        .setMinValues(1)
-        .setDisabled(rules.rules.length == 0)
+        .setDisabled(rulesData.rules.length == 0)
         .addOptions(
-          rules.rules.map(rule => {
+          rulesData.rules.map(rule => {
             return {
-              label: `#${rule.id} ${Utils.capitalize(rule.action)}`,
+              label: `${Utils.capitalize(rule.action)}`,
               description: `${Utils.capitalize(rule.action)} user after ${rule.quantity} ${rule.quantity > 1 ? 'a' : ''} warning${rule.quantity > 1 ? 's' : ''}`,
-              value: `${rule.id}`
+              value: `${rule.quantity}`
             }
           })
         )
@@ -145,6 +144,7 @@ export default class RuleSettings {
 
   public static async addResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
+    const rulesData = await ModerationRules.cache(client, interaction.guildId, false, true)
     const save = Save.cache(client, `${interaction.guildId}-moderation`)
 
     const ruleAction = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesAction', 'input')).toLowerCase()
@@ -155,30 +155,18 @@ export default class RuleSettings {
 
     if (!moderationData) return
     if (!ModerationRuleRegex.test(ruleAction)) return
-    if (!ruleQuantity || ruleQuantity == 0) return
+    if (ruleQuantity == 0 || rulesData?.rules.some(rule => rule.quantity == ruleQuantity)) return
     if (ruleAction != 'ban' && ruleAction != 'softban' && ruleAction != 'kick') {
       if (ruleDuration != 'permanent' && parseInt(ruleDuration) != 0 && isNaN(duration.offset)) return
       if (ruleAction == 'restriction' && duration.offset > 1209600000) return
       if (duration.offset > 31556952000) return
     }
 
-    const request = await client.prisma.rule.create({
-      data: {
-        guild: interaction.guildId,
-        action: ruleAction,
-        quantity: ruleQuantity,
-        duration: ruleDuration
-      }
-    })
-
-    const rules = await ModerationRules.cache(client, interaction.guildId, false, true)
-
-    rules?.rules?.push({
-      id: request.id,
-      guild: request.guild,
-      action: request.action,
-      quantity: request.quantity,
-      duration: request.duration as string | undefined
+    rulesData?.rules?.push({
+      guild: interaction.guildId,
+      action: ruleAction,
+      quantity: ruleQuantity,
+      duration: ruleDuration
     })
 
     save.count += 1
@@ -187,12 +175,12 @@ export default class RuleSettings {
   }
 
   public static async editRequest(client: Client, interaction: StringSelectMenuInteraction<'cached'>, id: string) {
-    const rules = await ModerationRule.cache(client, interaction.guildId)
+    const rulesData = await ModerationRules.cache(client, interaction.guildId, false, true)
     const ruleId = interaction.values[0]
 
     if (!ruleId) return
 
-    const ruleData = rules?.rules.find(rule => rule.id == parseInt(ruleId))
+    const ruleData = rulesData?.rules.find(rule => rule.quantity == parseInt(ruleId))
 
     const ruleActionInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesActionUpdate', 'input'))
@@ -254,26 +242,30 @@ export default class RuleSettings {
       if (duration.offset > 31556952000) return
     }
 
-    const rules = await ModerationRule.cache(client, interaction.guildId)
+    const rulesData = await ModerationRules.cache(client, interaction.guildId, false, true)
 
-    if (ruleQuantity == 0 && rules?.rules) {
-      rules.rules = rules.rules.filter(rule => rule.id != parseInt(ruleId))
+    if (rulesData?.rules && rulesData.rules.some(rule => rule.quantity == ruleQuantity)) return
+
+    if (ruleQuantity == 0 && rulesData?.rules) {
+      rulesData.rules = rulesData.rules.filter(rule => rule.quantity != parseInt(ruleId))
     }
 
     else {
-      const index = rules?.rules.findIndex(rule => rule.id == parseInt(ruleId))
+      const index = rulesData?.rules.findIndex(rule => rule.quantity == parseInt(ruleId))
 
-      if (index && rules?.rules) {
-        rules.rules[index] = {
+      console.log('Index: ' + index)
+
+      if ((index == 0 || index) && rulesData?.rules) {
+        console.log('Updated from: ' + rulesData.rules[index].action + ' => ' + ruleAction)
+
+        rulesData.rules[index] = {
           guild: interaction.guildId,
-          id: rules.rules[index].id,
           action: ruleAction,
           quantity: ruleQuantity,
           duration: ruleDuration.replace(/$0^|$permanent^/, 'permanent') ?? undefined
         }
       }
 
-      console.log('updated')
     }
 
     save.count += 1
