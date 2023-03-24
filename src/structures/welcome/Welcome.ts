@@ -19,56 +19,25 @@ export default class Welcome {
     this.webhook = options?.webhook
   }
 
-  public static async getWebhook(client: Client, webhookURL: string) {
-    const webhookData = parseWebhookURL(webhookURL)
+  public static async cache(client: Client, guildId: string, force?: boolean, cached?: boolean) {
+    const cache = client.welcome.get((cached ? '(cached)' : '') + guildId)
 
-    if (!webhookData) return
+    if (!cache || force) {
+      let data = await client.prisma.welcome.findFirst({ where: { guild: guildId } })
 
-    const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token)
-
-    return webhook
-  }
-
-  private static async saveWebhook(client: Client, guildId: string, channelId: string) {
-    const channel = client.channels.cache.get(channelId)
-
-    if (channel?.type != ChannelType.GuildText) return
-
-    const data = await this.cache(client, guildId)
-
-    if (!data.webhook) {
-      const webhook = await channel.createWebhook({
-        name: data?.webhookName ?? 'Noir Welcome',
-        avatar: data?.webhookAvatar ?? client.user?.avatarURL()
-      })
-
-      data.webhook = webhook.url
-      data.webhookAvatar = data.webhookAvatar ?? webhook.avatarURL() ?? undefined
-      data.webhookName = data.webhookName ?? 'Noir Welcome'
-    }
-
-    else {
-      const webhook = await this.getWebhook(client, data.webhook)
-
-      if (!webhook) {
-        const webhook = await channel.createWebhook({
-          name: data.webhookName ?? 'Noir Welcome',
-          avatar: data.webhookAvatar ?? client.user?.avatarURL()
-        })
-
-        data.webhook = webhook.url
-        data.webhookAvatar = webhook.avatarURL() as string | undefined
-        data.webhookName = webhook.name ?? 'Noir Welcome'
+      if (!data) {
+        data = await client.prisma.welcome.create({ data: { guild: guildId } })
       }
 
-      else {
-        await webhook.edit({
-          name: data?.webhookName ?? webhook.name ?? 'Noir Welcome',
-          avatar: data?.webhookAvatar ?? webhook.avatarURL() ?? client.user?.avatarURL(),
-          channel: data.webhookChannel ?? webhook.channelId
-        })
-      }
+      return client.welcome.set((cached ? '(cached)' : '') + guildId, new Welcome(guildId, {
+        restore: data.restore,
+        roles: data.roles,
+        status: data.status,
+        webhook: data.webhook as string | undefined,
+      })).get((cached ? '(cached)' : '') + guildId)!
     }
+
+    return cache
   }
 
   public static async save(client: Client, guildId: string) {
@@ -105,24 +74,55 @@ export default class Welcome {
     return cache
   }
 
-  public static async cache(client: Client, guildId: string, force?: boolean, cached?: boolean) {
-    const cache = client.welcome.get((cached ? '(cached)' : '') + guildId)
+  private static async saveWebhook(client: Client, guildId: string, channelId: string) {
+    const channel = client.channels.cache.get(channelId)
 
-    if (!cache || force) {
-      let data = await client.prisma.welcome.findFirst({ where: { guild: guildId } })
+    if (channel?.type != ChannelType.GuildText) return
 
-      if (!data) {
-        data = await client.prisma.welcome.create({ data: { guild: guildId } })
-      }
+    const data = await this.cache(client, '(cached)' + guildId)
 
-      return client.welcome.set((cached ? '(cached)' : '') + guildId, new Welcome(guildId, {
-        restore: data.restore,
-        roles: data.roles,
-        status: data.status,
-        webhook: data.webhook as string | undefined,
-      })).get((cached ? '(cached)' : '') + guildId)!
+    if (!data.webhook) {
+      const webhook = await channel.createWebhook({
+        name: data?.webhookName ?? 'Noir Welcome',
+        avatar: data?.webhookAvatar ?? client.user?.avatarURL()
+      })
+
+      data.webhook = webhook.url
+      data.webhookAvatar = data.webhookAvatar ?? webhook.avatarURL() ?? undefined
+      data.webhookName = data.webhookName ?? 'Noir Welcome'
     }
 
-    return cache
+    else {
+      const webhook = await this.getWebhook(client, data.webhook)
+
+      if (!webhook) {
+        const webhook = await channel.createWebhook({
+          name: data.webhookName ?? 'Noir Welcome',
+          avatar: data.webhookAvatar ?? client.user?.avatarURL()
+        })
+
+        data.webhook = webhook.url
+        data.webhookAvatar = webhook.avatarURL() as string | undefined
+        data.webhookName = webhook.name ?? 'Noir Welcome'
+      }
+
+      else {
+        await webhook.edit({
+          name: data?.webhookName ?? webhook.name ?? 'Noir Welcome',
+          avatar: data?.webhookAvatar ?? webhook.avatarURL() ?? client.user?.avatarURL(),
+          channel: data.webhookChannel ?? webhook.channelId
+        })
+      }
+    }
+  }
+
+  public static async getWebhook(client: Client, webhookURL: string) {
+    const webhookData = parseWebhookURL(webhookURL)
+
+    if (!webhookData) return
+
+    const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token)
+
+    return webhook
   }
 }

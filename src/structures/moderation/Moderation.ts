@@ -19,58 +19,6 @@ export default class Moderation {
     this.webhook = options.webhook
   }
 
-  public static async getWebhook(client: Client, webhookURL: string) {
-    const webhookData = parseWebhookURL(webhookURL)
-
-    if (!webhookData) return
-
-    const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token).catch(() => undefined)
-
-    return webhook
-  }
-
-  private static async saveWebhook(client: Client, guildId: string, channelId: string) {
-    const channel = client.channels.cache.get(channelId)
-
-    if (channel?.type != ChannelType.GuildText) return
-
-    const data = await this.cache(client, guildId)
-
-    if (!data.webhook) {
-      const webhook = await channel.createWebhook({
-        name: data.webhookName ?? 'Noir Moderation',
-        avatar: data.webhookAvatar ?? client.user?.avatarURL()
-      })
-
-      data.webhook = webhook.url
-      data.webhookAvatar = data.webhookAvatar ?? webhook.avatarURL() ?? undefined
-      data.webhookName = data.webhookName ?? 'Noir Moderation'
-    }
-
-    else {
-      const webhook = await this.getWebhook(client, data.webhook).catch(() => undefined)
-
-      if (!webhook) {
-        const webhook = await channel.createWebhook({
-          name: data.webhookName ?? 'Noir Moderation',
-          avatar: data.webhookAvatar ?? client.user?.avatarURL()
-        })
-
-        data.webhook = webhook.url
-        data.webhookAvatar = webhook.avatarURL() as string | undefined
-        data.webhookName = data.webhookName ?? 'Noir Moderation'
-      }
-
-      else {
-        await webhook.edit({
-          name: data.webhookName ?? webhook.name ?? 'Noir Moderation',
-          avatar: webhook.avatarURL() ?? client.user?.avatarURL(),
-          channel: data.webhookChannel ?? webhook.channelId
-        })
-      }
-    }
-  }
-
   public static async cache(client: Client, guildId: string, force?: boolean, cached?: boolean) {
     const cache = client.moderation.get((cached ? '(cached)' : '') + guildId)
 
@@ -121,6 +69,58 @@ export default class Moderation {
     }
 
     return cache
+  }
+
+  public static async getWebhook(client: Client, webhookURL: string) {
+    const webhookData = parseWebhookURL(webhookURL)
+
+    if (!webhookData) return
+
+    const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token).catch(() => undefined)
+
+    return webhook
+  }
+
+  private static async saveWebhook(client: Client, guildId: string, channelId: string) {
+    const channel = client.channels.cache.get(channelId)
+
+    if (channel?.type != ChannelType.GuildText) return
+
+    const data = await this.cache(client, '(cached)' + guildId)
+
+    if (!data.webhook) {
+      const webhook = await channel.createWebhook({
+        name: data.webhookName ?? 'Noir Moderation',
+        avatar: data.webhookAvatar ?? client.user?.avatarURL()
+      })
+
+      data.webhook = webhook.url
+      data.webhookAvatar = data.webhookAvatar ?? webhook.avatarURL() ?? undefined
+      data.webhookName = data.webhookName ?? 'Noir Moderation'
+    }
+
+    else {
+      const webhook = await this.getWebhook(client, data.webhook).catch(() => undefined)
+
+      if (!webhook) {
+        const webhook = await channel.createWebhook({
+          name: data.webhookName ?? 'Noir Moderation',
+          avatar: data.webhookAvatar ?? client.user?.avatarURL()
+        })
+
+        data.webhook = webhook.url
+        data.webhookAvatar = webhook.avatarURL() as string | undefined
+        data.webhookName = data.webhookName ?? 'Noir Moderation'
+      }
+
+      else {
+        await webhook.edit({
+          name: data.webhookName ?? webhook.name ?? 'Noir Moderation',
+          avatar: webhook.avatarURL() ?? client.user?.avatarURL(),
+          channel: data.webhookChannel ?? webhook.channelId
+        })
+      }
+    }
   }
 }
 
