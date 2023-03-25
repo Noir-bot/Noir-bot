@@ -1,4 +1,5 @@
 import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import Save from '@structures/Save'
@@ -19,12 +20,12 @@ export default class WelcomeWebhook {
           .setLabel(`${welcomeData?.webhook ? 'Change' : 'Setup'} channel`)
           .setStyle(SettingsUtils.generateStyle(welcomeData?.webhook))
           .setDisabled(!welcomeData?.status)
-          .setEmoji('🔗'),
+          .setEmoji(Emojis.chain),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookEdit', 'button'))
           .setLabel('Edit webhook settings')
           .setStyle(SettingsUtils.defaultStyle)
-          .setEmoji('⚙️')
+          .setEmoji(Emojis.gear)
           .setDisabled(!welcomeData?.status || !welcomeWebhook)
       ],
       [

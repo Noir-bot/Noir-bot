@@ -15,7 +15,7 @@ export default abstract class Command {
 
 export const enum AccessType {
   Public = "public",
-  Private = "prviate",
+  Private = "private",
   Moderation = "moderation",
   Premium = "premium",
 }

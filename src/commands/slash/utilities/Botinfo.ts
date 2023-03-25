@@ -70,7 +70,7 @@ export default class Botinfo extends ChatCommand {
       author: 'Bot Information',
       authorImage: client.user?.displayAvatarURL(),
       fields: fields,
-      color: Colors.information,
+      color: Colors.primary,
       thumbnail: client.user?.displayAvatarURL(),
       footer: `© 2023 | Created by ${client.users.cache.get(Options.owners[0])?.tag} `
     })

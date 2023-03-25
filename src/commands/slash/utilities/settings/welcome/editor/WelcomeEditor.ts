@@ -30,25 +30,26 @@ export default class WelcomeEditor {
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEmbed.${type}`, 'button'))
           .setLabel('Embed settings')
           .setStyle(SettingsUtils.generateStyle(embedStatus))
-          .setDisabled(!messageData.status)
-          .setEmoji(Emojis.embedSettings),
+          .setDisabled(!messageData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorAuthor.${type}`, 'button'))
           .setLabel('Embed author')
           .setStyle(SettingsUtils.generateStyle(messageData?.author || messageData?.authorImage))
-          .setEmoji(Emojis.embedAuthor)
           .setDisabled(!messageData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorTitle.${type}`, 'button'))
           .setLabel('Embed title')
           .setStyle(SettingsUtils.generateStyle(messageData?.title || messageData?.url))
-          .setEmoji(Emojis.embedTitle)
           .setDisabled(!messageData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorFooter.${type}`, 'button'))
           .setLabel('Embed footer')
-          .setEmoji(Emojis.embedFooter)
           .setStyle(SettingsUtils.generateStyle(messageData?.footer || messageData?.footerImage))
+          .setDisabled(!messageData.status),
+        new ButtonBuilder()
+          .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorMessage.${type}`, 'button'))
+          .setLabel(`${messageData?.message ? 'Edit' : 'Add'} message content`)
+          .setStyle(SettingsUtils.generateStyle(messageData?.message))
           .setDisabled(!messageData.status)
       ],
       [
@@ -76,19 +77,13 @@ export default class WelcomeEditor {
           .setLabel(`${messageData.status ? 'Disable' : 'Enable'} auto message`)
           .setStyle(SettingsUtils.generateStyle(messageData.status))
           .setEmoji(`${messageData.status ? Emojis.enable : Emojis.disable}`),
-        new ButtonBuilder()
-          .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorMessage.${type}`, 'button'))
-          .setLabel(`${messageData?.message ? 'Edit' : 'Add'} message content`)
-          .setStyle(SettingsUtils.generateStyle(messageData?.message))
-          .setEmoji(Emojis.content)
-          .setDisabled(!messageData.status)
+        SettingsUtils.generateExample('settings', id, `welcomeExample.welcomeEditor.${type}`, !messageData.status || !exampleStatus),
+        SettingsUtils.generateReset('settings', id, `welcomeReset.welcomeEditor.${type}`)
       ],
       [
         SettingsUtils.generateBack('settings', id, 'welcome'),
         SettingsUtils.generateSave('settings', id, `welcomeSave.welcomeEditor.${type}`, client, interaction.guildId, 'welcome'),
-        SettingsUtils.generateRestore('settings', id, `welcomeRestore.welcomeEditor.${type}`),
-        SettingsUtils.generateExample('settings', id, `welcomeExample.welcomeEditor.${type}`, !messageData.status || !exampleStatus),
-        SettingsUtils.generateReset('settings', id, `welcomeReset.welcomeEditor.${type}`)
+        SettingsUtils.generateRestore('settings', id, `welcomeRestore.welcomeEditor.${type}`)
       ]
     ]
 
@@ -102,20 +97,20 @@ export default class WelcomeEditor {
           label: 'Guild join',
           description: 'Guild join message type',
           value: 'guild_join',
-          emoji: '📥',
+          emoji: Emojis.openDoor,
           default: type == 'guild_join'
         },
         {
           label: 'Guild left',
           description: 'Guild left message type',
-          emoji: '📤',
+          emoji: Emojis.closeDoor,
           value: 'guild_left',
           default: type == 'guild_left'
         },
         {
           label: 'Direct join',
           description: 'Direct join',
-          emoji: '📥',
+          emoji: Emojis.direct,
           value: 'direct_join',
           default: type == 'direct_join'
         }
@@ -133,7 +128,7 @@ export default class WelcomeEditor {
       client,
       interaction: interaction,
       color: Colors.primary,
-      author: 'Welcome message editor',
+      author: 'Message editor',
       authorImage: client.user?.avatarURL(),
       description: 'Choose message type and setup with advanced message editor.',
       components: actionRows,
@@ -151,7 +146,6 @@ export default class WelcomeEditor {
 
   public static async exampleResponse(client: Client, interaction: ButtonInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type, false, true)
-
     const button = SettingsUtils.generateBack('settings', id, `welcomeBack.welcomeEditor.${type}`)
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(button)
     const exampleStatus = messageData?.description || messageData?.image || messageData?.thumbnail || messageData?.author || messageData?.authorImage || messageData?.footer || messageData?.title || messageData.fieldsId || messageData.message
@@ -179,13 +173,13 @@ export default class WelcomeEditor {
         await Reply.reply({
           client,
           interaction: interaction,
-          color: messageData.color as ColorResolvable,
-          author: WelcomeMessage.formatVariable(messageData.author, variables),
-          title: WelcomeMessage.formatVariable(messageData.title, variables),
-          url: WelcomeMessage.formatVariable(messageData.url, variables),
-          authorImage: messageData.authorImage ?? WelcomeMessage.formatVariable(messageData.rawAuthorImage, variables),
-          content: WelcomeMessage.formatVariable(messageData.message, variables),
-          description: WelcomeMessage.formatVariable(messageData.description, variables),
+          color: messageData.color as ColorResolvable ?? 'Default',
+          author: WelcomeMessage.formatVariable(messageData.author, variables) ?? undefined,
+          title: WelcomeMessage.formatVariable(messageData.title, variables) ?? undefined,
+          url: WelcomeMessage.formatVariable(messageData.url, variables) ?? undefined,
+          authorImage: messageData.authorImage ?? WelcomeMessage.formatVariable(messageData.rawAuthorImage, variables) ?? undefined,
+          content: WelcomeMessage.formatVariable(messageData.message, variables) ?? undefined,
+          description: WelcomeMessage.formatVariable(messageData.description, variables) ?? undefined,
           fields: messageData.fieldsId.map(id => {
             return {
               name: WelcomeMessage.formatVariable(messageData?.fieldsName[id], variables) ?? messageData?.fieldsName[id],
@@ -193,10 +187,10 @@ export default class WelcomeEditor {
               inline: messageData?.fieldsInline[id]
             }
           }) ?? [],
-          footer: WelcomeMessage.formatVariable(messageData.footer, variables),
-          footerImage: messageData.footerImage ?? WelcomeMessage.formatVariable(messageData.rawFooterImage, variables),
-          image: messageData.image ?? WelcomeMessage.formatVariable(messageData.rawImage, variables),
-          thumbnail: messageData.thumbnail ?? WelcomeMessage.formatVariable(messageData.rawThumbnail, variables),
+          footer: WelcomeMessage.formatVariable(messageData.footer, variables) ?? undefined,
+          footerImage: messageData.footerImage ?? WelcomeMessage.formatVariable(messageData.rawFooterImage, variables) ?? undefined,
+          image: messageData.image ?? WelcomeMessage.formatVariable(messageData.rawImage, variables) ?? undefined,
+          thumbnail: messageData.thumbnail ?? WelcomeMessage.formatVariable(messageData.rawThumbnail, variables) ?? undefined,
           components: [actionRow],
         })
       } catch (error) {

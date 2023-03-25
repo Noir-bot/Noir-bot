@@ -36,7 +36,7 @@ export default class Reset extends ChatCommand {
       interaction,
       author: 'Command restart',
       authorImage: client.user?.displayAvatarURL(),
-      color: Colors.information,
+      color: Colors.primary,
       description: 'All commands have been successfully restarted'
     })
   }

@@ -36,7 +36,7 @@ export default class ReadyEvent extends Event {
 
         if (!command.execute) return
 
-        if (command.options.type == 'private') {
+        if (command.options.type == 'private' && client.user?.id == Options.clientId) {
           client.guilds.cache.get(Options.guildId)?.commands.create(command.data)
         }
 

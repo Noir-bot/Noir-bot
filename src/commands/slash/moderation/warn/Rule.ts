@@ -70,7 +70,7 @@ export default class WarnRule {
       client,
       guild: guild,
       author: `Auto ${softban ? 'soft' : duration ? 'temp' : ''}ban case`,
-      color: Colors.information,
+      color: Colors.primary,
       description: description
     }) as Message
 
@@ -93,7 +93,7 @@ export default class WarnRule {
       client,
       guild: guild,
       author: `Auto ${softban ? 'soft' : duration ? 'temp' : ''}ban case`,
-      color: Colors.information,
+      color: Colors.primary,
       description: description,
       footer: `Case ID: ${caseData.id}`,
       reference: message
@@ -127,7 +127,7 @@ export default class WarnRule {
       client,
       guild: guild,
       author: 'Auto timeout case',
-      color: Colors.information,
+      color: Colors.primary,
       description: description
     }) as Message
 
@@ -150,7 +150,7 @@ export default class WarnRule {
       client,
       guild: guild,
       author: 'Auto timeout case',
-      color: Colors.information,
+      color: Colors.primary,
       description: description,
       footer: `Case ID: ${caseData.id}`,
       reference: message
@@ -175,7 +175,7 @@ export default class WarnRule {
       client,
       guild: guild,
       author: 'Auto kick case',
-      color: Colors.information,
+      color: Colors.primary,
       description: description
     }) as Message
 
@@ -196,7 +196,7 @@ export default class WarnRule {
       client,
       guild: guild,
       author: 'Auto kick case',
-      color: Colors.information,
+      color: Colors.primary,
       description: description,
       footer: `Case ID: ${caseData.id}`,
       reference: message

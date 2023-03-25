@@ -17,13 +17,13 @@ export default class ModerationLogs {
       [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationLogsStatus', 'button'))
-          .setLabel(`${moderationData.logs ? 'Disable' : 'Enable'} moderation logs`)
+          .setLabel(`${moderationData.logs ? 'Disable' : 'Enable'} logs`)
           .setStyle(SettingsUtils.generateStyle(moderationData?.logs))
           .setEmoji(`${moderationData?.logs ? Emojis.enable : Emojis.disable}`)
           .setDisabled(!moderationData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationWebhookChannel', 'button'))
-          .setLabel(`${moderationData?.webhook ? 'Change' : 'Setup'} moderation channel`)
+          .setLabel(`${moderationData?.webhook ? 'Change' : 'Setup'} channel`)
           .setStyle(SettingsUtils.generateStyle(moderationData?.webhook))
           .setDisabled(!moderationData.status || !moderationData.logs),
         new ButtonBuilder()

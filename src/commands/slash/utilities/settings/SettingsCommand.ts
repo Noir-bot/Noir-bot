@@ -5,8 +5,8 @@ import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
+import { AccessType, CommandType } from '@structures/commands/Command'
 import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ChatInputCommandInteraction, MessageActionRowComponentBuilder } from 'discord.js'
-import {AccessType,CommandType} from '@structures/commands/Command'
 
 export default class SettingsCommand extends ChatCommand {
   constructor(client: Client) {
@@ -55,16 +55,16 @@ export default class SettingsCommand extends ChatCommand {
       color: Colors.primary,
       author: 'Noir settings',
       authorImage: client.user?.avatarURL(),
-      description: `Hello ${interaction.user.username}, welcome to Noir's settings, navigate and configure Noir as you want.`,
+      description: `Hello ${interaction.user.username}, welcome to Noir's settings. Learn [how to quickly setup Noir here](${Options.docsLink}/quick-guide).`,
       fields: [
         {
-          name: 'Support',
-          value: `In case you have issue, contact to our [support server](${Options.guildInvite}).`,
+          name: 'Noir support',
+          value: `Got any trouble or have question. Join our [support server](${Options.guildInvite}) and easily contact moderators for any kind of help.`,
           inline: false
         },
         {
           name: 'Data and usage',
-          value: 'All collected data is strictly used only across Noir\'s ecosystem. It is fully controlled by the user and can be permanently deleted.',
+          value: 'All stored data is well protected and only used across Noir\'s ecosystem. It is fully controlled by user and user can always request for permanent data deletion.',
           inline: false
         }
       ],

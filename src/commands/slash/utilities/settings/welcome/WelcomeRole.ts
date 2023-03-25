@@ -6,6 +6,7 @@ import Premium from '@structures/Premium'
 import Save from '@structures/Save'
 import Welcome from '@structures/welcome/Welcome'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, roleMention, RoleSelectMenuBuilder, RoleSelectMenuInteraction } from 'discord.js'
+import Emojis from '../../../../../constants/Emojis'
 
 export default class WelcomeRole {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | RoleSelectMenuInteraction<'cached'>, id: string) {
@@ -24,6 +25,7 @@ export default class WelcomeRole {
       new ButtonBuilder()
         .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeRolesClear', 'button'))
         .setLabel('Clear roles')
+        .setEmoji(Emojis.trash)
         .setStyle(ButtonStyle.Danger)
     ]
 

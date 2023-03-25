@@ -41,7 +41,7 @@ export default class SettingsUtils {
       .setCustomId(this.generateId(name, id, label, 'button'))
       .setLabel('Example message')
       .setStyle(this.defaultStyle)
-      .setEmoji(Emojis.example)
+      .setEmoji(Emojis.preview)
       .setDisabled(status)
   }
 
@@ -49,7 +49,7 @@ export default class SettingsUtils {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
       .setLabel('Refresh')
-      .setEmoji(Emojis.reset)
+      .setEmoji(Emojis.refresh)
       .setStyle(this.defaultStyle)
       .setDisabled(status)
   }
