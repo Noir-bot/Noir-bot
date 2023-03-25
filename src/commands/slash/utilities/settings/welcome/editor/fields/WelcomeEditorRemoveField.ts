@@ -23,8 +23,10 @@ export default class WelcomeEditorRemoveField {
       .setMaxValues(messageData.fieldsId.length)
       .setMinValues(1)
       .addOptions(messageData.fieldsId.map(id => {
+        const index = messageData.fieldsId.indexOf(id)
+
         return {
-          label: messageData.fieldsName[id],
+          label: messageData.fieldsName[index],
           description: 'Select to remove',
           value: `${id}`
         }
@@ -53,17 +55,24 @@ export default class WelcomeEditorRemoveField {
   public static async response(client: Client, interaction: StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type, false, true)
     const save = Save.cache(client, `${interaction.guildId}-welcome`)
-    const ids = interaction.values
+    const ids = interaction.values.map(id => parseInt(id)).sort((a, b) => b - a)
+
+    console.log('ids', ids)
+    console.log(messageData.fieldsId)
 
     ids.forEach(id => {
-      const index = parseInt(id)
+      messageData.fieldsId.splice(id, 1)
+      messageData.fieldsName.splice(id, 1)
+      messageData.fieldsValue.splice(id, 1)
+      messageData.fieldsInline.splice(id, 1)
 
-      messageData.fieldsId = messageData.fieldsId.splice(index, index)
-      messageData.fieldsInline = messageData.fieldsInline.splice(index, index)
-      messageData.fieldsName = messageData.fieldsName.splice(index, index)
-      messageData.fieldsValue = messageData.fieldsValue.splice(index, index)
       save.count += 1
     })
+    console.log(messageData.fieldsId)
+
+    messageData.fieldsId = messageData.fieldsId.map((id, index) => index)
+
+    console.log(messageData.fieldsId)
 
     if (messageData.fieldsId.length >= 1) {
       await this.request(client, interaction, id, type)

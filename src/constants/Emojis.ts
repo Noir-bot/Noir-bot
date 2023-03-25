@@ -21,4 +21,11 @@ export default class Emojis {
   public static readonly closeDoor = '<:Close:1089276466165989507>'
   public static readonly openDoor = '<:Open:1089276464375013409>'
   public static readonly direct = '<:Direct:1089276462051377152>'
+  public static readonly addField = '<:AddField:1089283762413645859>'
+  public static readonly removeField = '<:RemoveField:1089283775374049413>'
+  public static readonly editField = '<:EditField:1089283771188129905>'
+  public static readonly embedAuthor = '<:Author:1089283767065137162>'
+  public static readonly content = '<:Content:1089283769929834536>'
+  public static readonly footer = '<:Footer:1089283773918621729>'
+  public static readonly title = '<:Title:1089283777878032426>'
 }

@@ -157,7 +157,7 @@ export default class WelcomeMessage {
   public static async cache(client: Client, guildId: string, type: WelcomeMessageType, restore?: boolean, cached?: boolean) {
     const cache = client.welcomeMessages.get((cached ? '(cached)' : '') + `${guildId}${type}`)
 
-    if (!cache ?? restore) {
+    if (!cache || restore) {
       let data = await client.prisma.welcomeMessage.findFirst({ where: { guild: guildId, type: type } })
 
       if (!data) {

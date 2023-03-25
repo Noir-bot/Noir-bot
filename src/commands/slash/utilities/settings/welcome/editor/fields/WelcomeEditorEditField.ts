@@ -21,8 +21,10 @@ export default class WelcomeEditorEditField {
       .setMaxValues(1)
       .setMinValues(1)
       .addOptions(messageData.fieldsId.map(id => {
+        const index = messageData.fieldsId.indexOf(id)
+
         return {
-          label: messageData.fieldsName[id],
+          label: messageData.fieldsName[index],
           description: 'Select to edit',
           value: `${id}`
         }

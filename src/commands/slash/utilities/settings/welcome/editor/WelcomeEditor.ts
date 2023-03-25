@@ -9,13 +9,13 @@ import WelcomeEditorEditField from '@commands/slash/utilities/settings/welcome/e
 import WelcomeEditorRemoveField from '@commands/slash/utilities/settings/welcome/editor/fields/WelcomeEditorRemoveField'
 import Colors from '@constants/Colors'
 import Emojis from '@constants/Emojis'
+import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import Premium from '@structures/Premium'
 import Save from '@structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ColorResolvable, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, time } from 'discord.js'
-import Preferences from '../../../../../../constants/Preferences'
 
 export default class WelcomeEditor {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType = 'guild_join') {
@@ -30,46 +30,52 @@ export default class WelcomeEditor {
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEmbed.${type}`, 'button'))
           .setLabel('Embed settings')
           .setStyle(SettingsUtils.generateStyle(embedStatus))
-          .setDisabled(!messageData.status),
+          .setDisabled(!messageData.status)
+          .setEmoji(Emojis.gear),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorAuthor.${type}`, 'button'))
           .setLabel('Embed author')
           .setStyle(SettingsUtils.generateStyle(messageData?.author || messageData?.authorImage))
-          .setDisabled(!messageData.status),
+          .setDisabled(!messageData.status)
+          .setEmoji(Emojis.embedAuthor),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorTitle.${type}`, 'button'))
           .setLabel('Embed title')
           .setStyle(SettingsUtils.generateStyle(messageData?.title || messageData?.url))
-          .setDisabled(!messageData.status),
+          .setDisabled(!messageData.status)
+          .setEmoji(Emojis.title),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorFooter.${type}`, 'button'))
           .setLabel('Embed footer')
           .setStyle(SettingsUtils.generateStyle(messageData?.footer || messageData?.footerImage))
-          .setDisabled(!messageData.status),
+          .setDisabled(!messageData.status)
+          .setEmoji(Emojis.footer),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorMessage.${type}`, 'button'))
           .setLabel(`${messageData?.message ? 'Edit' : 'Add'} message content`)
           .setStyle(SettingsUtils.generateStyle(messageData?.message))
           .setDisabled(!messageData.status)
+          .setEmoji(Emojis.content)
       ],
       [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorAddField.${type}`, 'button'))
           .setLabel('Add embed field')
           .setStyle(SettingsUtils.defaultStyle)
-          .setDisabled(!messageData.status || messageData.fieldsId.length >= 25 || !premiumData?.status())
-          .setEmoji(Preferences.premiumEmoji),
+          .setDisabled(!messageData.status || messageData.fieldsId.length >= 25)
+          .setEmoji(Emojis.addField),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorEditField.${type}`, 'button'))
           .setLabel('Edit embed fields')
           .setStyle(SettingsUtils.defaultStyle)
-          .setDisabled(!messageData.status || messageData.fieldsId.length == 0 || !premiumData?.status())
-          .setEmoji(Preferences.premiumEmoji),
+          .setDisabled(!messageData.status || messageData.fieldsId.length == 0)
+          .setEmoji(Emojis.editField),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, `welcomeEditorRemoveField.${type}`, 'button'))
           .setLabel('Remove embed fields')
           .setStyle(SettingsUtils.defaultStyle)
           .setDisabled(!messageData.status || messageData?.fieldsId.length == 0)
+          .setEmoji(Emojis.removeField)
       ],
       [
         new ButtonBuilder()
@@ -124,21 +130,19 @@ export default class WelcomeEditor {
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[3])
     ]
 
+    const links = [
+      `[Editor docs](${Options.docsLink}/welcome/message-editor)`,
+      `[Message variables](${Options.docsLink}/welcome/editor-variables)`
+    ].map(link => `${Emojis.point} ${link}`).join('\n')
+
     await Reply.reply({
       client,
       interaction: interaction,
       color: Colors.primary,
       author: 'Message editor',
       authorImage: client.user?.avatarURL(),
-      description: 'Choose message type and setup with advanced message editor.',
+      description: `Choose message type and setup with advanced message editor.\n${links}`,
       components: actionRows,
-      fields: [
-        {
-          name: 'Premium features',
-          value: `Premium features are indicated with this emoji ${Preferences.premiumEmoji}`,
-          inline: false
-        }
-      ],
       ephemeral: true,
       fetch: true
     })

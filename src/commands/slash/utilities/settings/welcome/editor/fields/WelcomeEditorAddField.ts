@@ -1,7 +1,6 @@
 import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
 import WelcomeEditor from '@commands/slash/utilities/settings/welcome/editor/WelcomeEditor'
 import Client from '@structures/Client'
-import Premium from '@structures/Premium'
 import Save from '@structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, ButtonInteraction, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
@@ -54,11 +53,9 @@ export default class WelcomeEditorAddField {
 
   public static async response(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, type: WelcomeMessageType) {
     const messageData = await WelcomeMessage.cache(client, id, type, false, true)
-    const premiumData = await Premium.cache(client, id)
     const save = Save.cache(client, `${interaction.guildId}-welcome`)
 
     if (!messageData) return
-    if (messageData.fieldsId.length > 5 && !premiumData?.status()) return
     if (messageData.fieldsId.length >= 25) return
 
     const fieldNameInput = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeFieldName', 'input'))
