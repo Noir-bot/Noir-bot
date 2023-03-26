@@ -53,7 +53,11 @@ export default class WelcomeEditorAuthor {
     saves.count += 1
 
     if (authorImageInput) {
-      const formatted = WelcomeMessage.formatVariable(authorImageInput, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: client.user?.avatarURL() } })
+      const formatted = WelcomeMessage.formatImage(authorImageInput, { guild: interaction.guild.iconURL(), client: client.user?.avatarURL(), user: client.user?.avatarURL() })
+
+      console.log(formatted)
+
+      if (!formatted) return
 
       messageData.authorImage = formatted == authorImageInput ? undefined : formatted
       messageData.rawAuthorImage = WelcomeMessage.formatRemove(authorImageInput)

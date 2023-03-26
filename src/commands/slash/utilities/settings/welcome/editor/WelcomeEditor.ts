@@ -173,28 +173,43 @@ export default class WelcomeEditor {
         variables.user.joined = time(interaction.member.joinedTimestamp, 'R')
       }
 
+      const author = WelcomeMessage.formatVariable(messageData.author, variables) ?? undefined
+      const title = WelcomeMessage.formatVariable(messageData.title, variables) ?? undefined
+      const url = WelcomeMessage.formatVariable(messageData.url, variables) ?? undefined
+      const authorImage = messageData.authorImage ?? WelcomeMessage.formatVariable(messageData.rawAuthorImage, variables) ?? undefined
+      const content = WelcomeMessage.formatVariable(messageData.message, variables) ?? undefined
+      const description = WelcomeMessage.formatVariable(messageData.description, variables) ?? undefined
+      const fields = messageData.fieldsId.map(id => {
+        return {
+          name: WelcomeMessage.formatVariable(messageData?.fieldsName[id], variables) ?? messageData?.fieldsName[id],
+          value: WelcomeMessage.formatVariable(messageData?.fieldsValue[id], variables) ?? messageData?.fieldsValue[id],
+          inline: messageData?.fieldsInline[id]
+        }
+      })
+      const footer = WelcomeMessage.formatVariable(messageData.footer, variables) ?? undefined
+      const footerImage = messageData.footerImage ?? WelcomeMessage.formatVariable(messageData.rawFooterImage, variables) ?? undefined
+      const image = messageData.image ?? WelcomeMessage.formatVariable(messageData.rawImage, variables) ?? undefined
+      const thumbnail = messageData.thumbnail ?? WelcomeMessage.formatVariable(messageData.rawThumbnail, variables) ?? undefined
+      const color = messageData.color as ColorResolvable ?? 'Default'
+      const timestamp = messageData.timestamp ? new Date() : undefined
+
       try {
         await Reply.reply({
           client,
           interaction: interaction,
-          color: messageData.color as ColorResolvable ?? 'Default',
-          author: WelcomeMessage.formatVariable(messageData.author, variables) ?? undefined,
-          title: WelcomeMessage.formatVariable(messageData.title, variables) ?? undefined,
-          url: WelcomeMessage.formatVariable(messageData.url, variables) ?? undefined,
-          authorImage: messageData.authorImage ?? WelcomeMessage.formatVariable(messageData.rawAuthorImage, variables) ?? undefined,
-          content: WelcomeMessage.formatVariable(messageData.message, variables) ?? undefined,
-          description: WelcomeMessage.formatVariable(messageData.description, variables) ?? undefined,
-          fields: messageData.fieldsId.map(id => {
-            return {
-              name: WelcomeMessage.formatVariable(messageData?.fieldsName[id], variables) ?? messageData?.fieldsName[id],
-              value: WelcomeMessage.formatVariable(messageData?.fieldsValue[id], variables) ?? messageData?.fieldsValue[id],
-              inline: messageData?.fieldsInline[id]
-            }
-          }) ?? [],
-          footer: WelcomeMessage.formatVariable(messageData.footer, variables) ?? undefined,
-          footerImage: messageData.footerImage ?? WelcomeMessage.formatVariable(messageData.rawFooterImage, variables) ?? undefined,
-          image: messageData.image ?? WelcomeMessage.formatVariable(messageData.rawImage, variables) ?? undefined,
-          thumbnail: messageData.thumbnail ?? WelcomeMessage.formatVariable(messageData.rawThumbnail, variables) ?? undefined,
+          title,
+          url,
+          author,
+          authorImage: authorImage ? authorImage : undefined,
+          content,
+          description,
+          fields,
+          footer,
+          footerImage: footerImage ? footerImage : undefined,
+          image: image ? image : undefined,
+          thumbnail: thumbnail ? thumbnail : undefined,
+          color,
+          timestamp,
           components: [actionRow],
         })
       } catch (error) {

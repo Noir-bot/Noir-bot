@@ -12,11 +12,11 @@ export default class WelcomeEditorMessage {
     const messageInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeEditorMessage', 'input'))
       .setLabel('Message content')
-      .setStyle(TextInputStyle.Short)
+      .setStyle(TextInputStyle.Paragraph)
       .setPlaceholder('Enter unembeded message content')
       .setValue(messageData?.message ?? '')
       .setRequired(true)
-      .setMaxLength(1000)
+      .setMaxLength(2000)
 
     const actionRows = [
       new ActionRowBuilder<ModalActionRowComponentBuilder>()

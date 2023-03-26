@@ -1,6 +1,5 @@
 import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
 import WelcomeEditor from '@commands/slash/utilities/settings/welcome/editor/WelcomeEditor'
-import Utils from '@helpers/Utils'
 import Client from '@structures/Client'
 import Save from '@structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
@@ -55,7 +54,9 @@ export default class WelcomeEditorFooter {
     messageData.footer = WelcomeMessage.formatRemove(footerInput)
 
     if (footerImageInput) {
-      const formatted = WelcomeMessage.formatVariable(Utils.formatURL(footerImageInput), { client: { avatar: client.user?.avatarURL() }, guild: { icon: interaction.guild.iconURL() } })
+      const formatted = WelcomeMessage.formatImage(footerImageInput, { guild: interaction.guild.iconURL(), client: client.user?.avatarURL(), user: client.user?.avatarURL() })
+
+      if (!formatted) return
 
       messageData.footerImage = formatted == footerImageInput ? undefined : formatted
       messageData.rawFooterImage = WelcomeMessage.formatRemove(footerImageInput)

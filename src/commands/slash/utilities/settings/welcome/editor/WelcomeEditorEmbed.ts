@@ -96,7 +96,9 @@ export default class WelcomeEditorEmbed {
     }
 
     if (imageInput) {
-      const formatted = WelcomeMessage.formatVariable(imageInput, { client: { avatar: client.user?.avatarURL() }, guild: { icon: interaction.guild.iconURL() } })
+      const formatted = WelcomeMessage.formatImage(imageInput, { guild: interaction.guild.iconURL(), client: client.user?.avatarURL(), user: client.user?.avatarURL() })
+
+      if (!formatted) return
 
       messageData.image = formatted == messageData.rawImage ? undefined : formatted
       messageData.rawImage = WelcomeMessage.formatRemove(imageInput)
@@ -104,7 +106,9 @@ export default class WelcomeEditorEmbed {
     }
 
     if (thumbnailInput) {
-      const formatted = WelcomeMessage.formatVariable(thumbnailInput, { client: { avatar: client.user?.avatarURL() }, guild: { icon: interaction.guild.iconURL() } })
+      const formatted = WelcomeMessage.formatImage(thumbnailInput, { guild: interaction.guild.iconURL(), client: client.user?.avatarURL(), user: client.user?.avatarURL() })
+
+      if (!formatted) return
 
       messageData.thumbnail = formatted == messageData.rawThumbnail ? undefined : formatted
       messageData.rawThumbnail = WelcomeMessage.formatRemove(thumbnailInput)

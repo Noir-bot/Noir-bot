@@ -92,6 +92,29 @@ export default class WelcomeMessage {
     }
   }
 
+  public static formatImage(input?: string, options?: { guild?: string | null, user?: string | null, client?: string | null }) {
+    let result: string | undefined | null = undefined
+    input = input?.trim()
+
+    if (options?.guild && input?.match(/\{\{server icon\}\}/g)) {
+      result = input?.replace(/\{\{server icon\}\}/g, options.guild)
+    }
+
+    else if (options?.user && input?.match(/\{\{user avatar\}\}/g)) {
+      result = input?.replace(/\{\{user avatar\}\}/g, options.user)
+    }
+
+    else if (options?.client && input?.match(/\{\{bot avatar\}\}/g)) {
+      result = input?.replace(/\{\{bot avatar\}\}/g, options.client)
+    }
+
+    else if (input?.startsWith('http://') || input?.startsWith('https://')) {
+      result = input
+    }
+
+    return result
+  }
+
   public static formatVariable(input?: string, options?: { guild?: { name?: string, icon?: string | null, members?: number, createdAt?: string | null, created?: string | null }, user?: { name?: string, avatar?: string | null, createdAt?: string | null, created?: string | null, joinedAt?: string | null, joined?: string | null }, client?: { name?: string, avatar?: string | null } }) {
     input = input?.trim()
 
