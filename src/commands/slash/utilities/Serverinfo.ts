@@ -1,11 +1,10 @@
 import Colors from "@constants/Colors"
 import Reply from '@helpers/Reply'
-import Utils from '@helpers/Utils'
 import Client from "@structures/Client"
 import ChatCommand from "@structures/commands/ChatCommand"
 import { AccessType, CommandType } from '@structures/commands/Command'
 import Welcome from '@structures/welcome/Welcome'
-import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, ChatInputCommandInteraction, channelMention, roleMention, userMention } from 'discord.js'
+import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, userMention } from 'discord.js'
 import Emojis from '../../../constants/Emojis'
 import Premium from '../../../structures/Premium'
 import Moderation from '../../../structures/moderation/Moderation'
@@ -54,11 +53,6 @@ export default class ServerinfoCommand extends ChatCommand {
     const moderationData = await Moderation.cache(client, guild.id)
     const premiumData = await Premium.cache(client, guild.id)
 
-    const specialChannels = `${welcomeData.webhookChannel ? `Welcome channel ${channelMention(welcomeData.webhookChannel)}\n` : ''}` +
-      `${moderationData.webhookChannel ? `Logs channel ${channelMention(moderationData.webhookChannel)}\n` : ''}` +
-      `${guild.afkChannelId ? `AFK channel ${channelMention(guild.afkChannelId)}\n` : ''}` +
-      `${guild.rulesChannelId ? `Rules channel ${channelMention(guild.rulesChannelId)}\n` : ''}`
-
     enum VerificationLevel {
       None = 0,
       Low = 1,
@@ -67,56 +61,35 @@ export default class ServerinfoCommand extends ChatCommand {
       Very_High = 4
     }
 
+    const description = `${Emojis.user} members: \`${guild.memberCount}\`\n` +
+      `${Emojis.bot} bots: \`${guild.members.cache.filter(m => m.user.bot).size}\`\n` +
+      `${Emojis.channel} channels: \`${guild.channels.cache.size}\`\n` +
+      `${Emojis.role} roles: \`${guild.roles.cache.size}\`\n`
+
+
     const fields = [
       {
-        name: 'Server owner',
-        value: client.users.cache.get(guild.ownerId)?.username ?? 'Unknown',
+        name: 'Information',
+        value: `${Emojis.user} members: \`${guild.memberCount}\`\n` +
+          `${Emojis.channel} channels: \`${guild.channels.cache.size}\`\n` +
+          `${Emojis.role} roles: \`${guild.roles.cache.size}\`\n` +
+          `${Emojis.bot} bots: \`${guild.members.cache.filter(m => m.user.bot).size}\``,
         inline: true
       },
       {
-        name: 'Server ID',
-        value: guild.id,
+        name: 'Owner',
+        value: Emojis.crown + ' ' + client.users.cache.get(guild.ownerId)?.tag ?? 'Unknown',
         inline: true
       },
       {
-        name: 'Verification level',
-        value: Utils.capitalize(VerificationLevel[guild.verificationLevel], true),
-        inline: true
-      },
-      {
-        name: `Members (${guild.memberCount})`,
-        value: `Bot \`${guild.members.cache.filter(member => member.user.bot).size}\``,
-        inline: true
-      },
-      {
-        name: `Channels (${guild.channels.cache.size - guild.channels.cache.filter(channel => channel.type == ChannelType.GuildCategory).size})`,
-        value: `Categories \`${guild.channels.cache.filter(channel => channel.type == ChannelType.GuildCategory).size}\`\n` +
-          `Forum \`${guild.channels.cache.filter(channel => channel.type == ChannelType.GuildForum).size}\`\n` +
-          `Text \`${guild.channels.cache.filter(channel => channel.type == ChannelType.GuildText).size}\`\n` +
-          `Voice \`${guild.channels.cache.filter(channel => channel.type == ChannelType.GuildVoice).size}\`\n`,
-        inline: true
-      },
-      {
-        name: `Roles (${guild.roles.cache.size})`,
-        value: `Welcome roles ${welcomeData.roles?.map(role => roleMention(role))}`,
-        inline: true
-      },
-      {
-        name: 'Premium tier',
+        name: 'Server features',
         value: `Boost level \`${guild.premiumTier}\`\n` +
           `Boost count \`${guild.premiumSubscriptionCount}\`\n` +
-          `Noir premium ${premiumData?.status() ? Emojis.enable : Emojis.disable}`,
+          `Noir ${premiumData?.status() ? `\`premium\` ${Emojis.premium}` : '\`basic\`'}`,
         inline: true
       }
     ]
 
-    if (specialChannels) {
-      fields.push({
-        name: 'Special channels',
-        value: specialChannels,
-        inline: true
-      })
-    }
 
     Reply.reply({
       client: client,
@@ -124,14 +97,13 @@ export default class ServerinfoCommand extends ChatCommand {
       content: target ? `Information for ${userMention(target.id)}` : undefined,
       color: Colors.primary,
       ephemeral: ephemeralStatus,
-      author: 'Server info',
+      author: guild.name,
       authorImage: client.user?.avatarURL(),
       thumbnail: guild.iconURL() ?? undefined,
       image: guild.bannerURL() ?? undefined,
-      description: guild.description ?? 'No server description',
+      description: guild.description ? guild.description : 'No server description',
       timestamp: guild.createdAt,
       footer: 'Created at',
-      footerImage: guild.iconURL() ?? undefined,
       fields: fields
     })
   }

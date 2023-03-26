@@ -1,11 +1,11 @@
 import Colors from '@constants/Colors'
 import Options from '@constants/Options'
 import ReadyEvent from '@events/client/Ready'
+import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js'
-import Reply from '../../../helpers/Reply'
 
 export default class Reset extends ChatCommand {
   constructor(client: Client) {

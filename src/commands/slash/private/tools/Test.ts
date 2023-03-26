@@ -1,10 +1,9 @@
+import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandType } from '@structures/commands/Command'
-import ModerationRules from '@structures/moderation/ModerationRules'
+import ModerationRules, { ModerationRule } from '@structures/moderation/ModerationRules'
 import { ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js'
-import Reply from '../../../helpers/Reply'
-import { ModerationRule } from '../../../structures/moderation/ModerationRules'
 
 export default class Reset extends ChatCommand {
   constructor(client: Client) {

@@ -5,7 +5,7 @@ import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandType } from 'discord-api-types/v10'
 import { ApplicationCommandOptionType, ChatInputCommandInteraction } from 'discord.js'
-import Reply from '../../../helpers/Reply'
+import Reply from '../../../../helpers/Reply'
 
 export default class DeleteCommand extends ChatCommand {
   constructor(client: Client) {

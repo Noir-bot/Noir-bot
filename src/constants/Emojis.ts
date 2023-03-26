@@ -28,4 +28,9 @@ export default class Emojis {
   public static readonly content = '<:Content:1089283769929834536>'
   public static readonly footer = '<:Footer:1089283773918621729>'
   public static readonly title = '<:Title:1089283777878032426>'
+  public static readonly user = '<:User:1089567952283648050>'
+  public static readonly shield = '<:Shield:1089567949511217154>'
+  public static readonly crown = '<:Crown:1089567948487790612>'
+  public static readonly bot = '<:Bot:1089567944503201963>'
+  public static readonly channel = '<:Channel:1089567946931703962>'
 }
