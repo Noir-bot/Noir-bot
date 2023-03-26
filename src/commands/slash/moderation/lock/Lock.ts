@@ -1,4 +1,5 @@
 import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
@@ -48,6 +49,25 @@ export default class LockCommand extends ChatCommand {
     if (!channel) return
     if (channel.type != ChannelType.GuildText) return
 
+    const lockData = client.channelLocks.get(channel.id)
+
+    if (lockData) {
+      Reply.reply({
+        client,
+        interaction,
+        color: Colors.warning,
+        author: 'Channel error',
+        authorImage: client.user?.avatarURL(),
+        description: `${channelMention(channel.id)} is already locked.`,
+      })
+
+      return
+    }
+
+    else {
+      client.channelLocks.set(channel.id, true)
+    }
+
     channel.permissionOverwrites.edit(interaction.guild.roles.everyone, {
       SendMessages: false,
       AttachFiles: false,
@@ -61,8 +81,9 @@ export default class LockCommand extends ChatCommand {
       client,
       interaction,
       author: 'Channel lock',
+      color: Colors.success,
       authorImage: client.user?.avatarURL(),
-      description: `${channelMention(channel.id)} has been successfully locked`,
+      description: `${channelMention(channel.id)} has been successfully locked.`,
     })
 
     const modData = await Moderation.cache(client, interaction.guildId)
@@ -71,10 +92,10 @@ export default class LockCommand extends ChatCommand {
       const webhook = await Moderation.getWebhook(client, modData.webhook)
 
       if (webhook) {
-        const description = `**Channel:** ${channelMention(channel.id)}\n` +
-          `**Moderator:**: ${interaction.user.username} \`${interaction.user.id}\`\n` +
-          `${reason ? `\n**Reason:** ${reason}\n` : ''}` +
-          `**Locked at:** ${time(new Date(), 'd')} (${time(new Date(), 'R')})`
+        const description = `${Emojis.channel} Channel:${channelMention(channel.id)}\n` +
+          `${Emojis.user} Moderator: ${interaction.user.username} \`${interaction.user.id}\`\n` +
+          `${reason ? `${Emojis.document} Reason: ${reason}\n` : ''}` +
+          `${Emojis.lock} Locked at: ${time(new Date(), 'd')} (${time(new Date(), 'R')})`
 
         try {
           Reply.sendWebhook({
