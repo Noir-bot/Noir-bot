@@ -39,7 +39,7 @@ export default class SettingsUtils {
   public static generateExample(name: string, id: string, label: string, status = false) {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
-      .setLabel('Example message')
+      .setLabel('Preview message')
       .setStyle(this.defaultStyle)
       .setEmoji(Emojis.preview)
       .setDisabled(status)

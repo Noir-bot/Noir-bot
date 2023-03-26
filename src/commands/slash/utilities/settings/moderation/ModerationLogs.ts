@@ -7,6 +7,7 @@ import Save from '@structures/Save'
 import Moderation from '@structures/moderation/Moderation'
 import WelcomeMessage from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, AnySelectMenuInteraction, ButtonBuilder, ButtonInteraction, ChannelSelectMenuBuilder, ChannelSelectMenuInteraction, ChannelType, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle, channelMention } from 'discord.js'
+import Options from './../../../../../constants/Options'
 
 export default class ModerationLogs {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
@@ -44,20 +45,17 @@ export default class ModerationLogs {
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[1])
     ]
 
+    const links = [
+      `[Image variables](${Options.docsLink}/welcome/image-variables)`
+    ].map(link => `${Emojis.point} ${link}`).join('\n')
+
     await Reply.reply({
       client,
       interaction: interaction,
       color: Colors.primary,
-      author: 'Loggings settings',
+      author: 'Logs settings',
       authorImage: client.user?.avatarURL(),
       description: 'Setup channel and create webhook. Customize webhook as you want.',
-      fields: [
-        {
-          name: 'Image variables',
-          value: '`{{client avatar}}` Client avatar\n`{{guild icon}}` Server icon',
-          inline: false,
-        }
-      ],
       components: actionRows,
       ephemeral: true,
     })

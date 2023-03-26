@@ -39,8 +39,8 @@ export default class WelcomeEditorEditField {
       await Reply.reply({
         client,
         interaction: interaction,
-        author: 'Embed field editor',
-        description: 'Edit embed fields.',
+        author: 'Field editor',
+        description: 'Select field to edit.',
         color: Colors.primary,
         components: [selectMenuActionRow, buttonActionRow]
       })

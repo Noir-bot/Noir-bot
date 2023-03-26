@@ -38,10 +38,9 @@ export default class WelcomeRole {
       client: client,
       interaction: interaction,
       color: Colors.primary,
-      author: 'Welcome roles settings',
+      author: 'Roles settings',
       authorImage: client.user?.avatarURL(),
-      description: 'Setup auto-role and automatically give roles to new users when they join.',
-      fields: welcomeData.roles && welcomeData.roles.length > 0 ? [{ name: 'Current roles', value: welcomeData.roles.map(role => roleMention(role)).join(', '), inline: false }] : [],
+      description: welcomeData.roles && welcomeData.roles.length > 0 ? `Current roles ${welcomeData.roles.map(role => roleMention(role)).join(', ')}` : 'No roles',
       components: actionRows,
       ephemeral: true,
     })

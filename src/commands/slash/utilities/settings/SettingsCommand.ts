@@ -55,11 +55,11 @@ export default class SettingsCommand extends ChatCommand {
       color: Colors.primary,
       author: 'Noir settings',
       authorImage: client.user?.avatarURL(),
-      description: `Hello ${interaction.user.username}, welcome to Noir's settings. Learn [how to quickly setup Noir here](${Options.docsLink}/quick-guide).`,
+      description: `Hello ${interaction.user.username}, welcome to Noir's settings. Checkout our [quick guide](${Options.docsLink}/quick-guide) about Noir\'s setup.`,
       fields: [
         {
           name: 'Noir support',
-          value: `Got any trouble or have question. Join our [support server](${Options.guildInvite}) and easily contact moderators for any kind of help.`,
+          value: `Got into trouble or have question. Join [support server](${Options.guildInvite}) and contact our moderators for any kind of help.`,
           inline: false
         },
         {

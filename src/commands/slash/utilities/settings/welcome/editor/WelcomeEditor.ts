@@ -132,7 +132,8 @@ export default class WelcomeEditor {
 
     const links = [
       `[Editor docs](${Options.docsLink}/welcome/message-editor)`,
-      `[Message variables](${Options.docsLink}/welcome/editor-variables)`
+      `[Message variables](${Options.docsLink}/welcome/message-variables)`,
+      `[Image variables](${Options.docsLink}/welcome/image-variables)`
     ].map(link => `${Emojis.point} ${link}`).join('\n')
 
     await Reply.reply({
@@ -141,7 +142,8 @@ export default class WelcomeEditor {
       color: Colors.primary,
       author: 'Message editor',
       authorImage: client.user?.avatarURL(),
-      description: `Choose message type and setup with advanced message editor.\n${links}`,
+      description: 'Powerful message editor for your welcome messages.',
+      fields: [{ name: 'Useful links', value: links, inline: false }],
       components: actionRows,
       ephemeral: true,
       fetch: true

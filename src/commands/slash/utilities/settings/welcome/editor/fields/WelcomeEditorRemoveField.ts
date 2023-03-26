@@ -42,8 +42,8 @@ export default class WelcomeEditorRemoveField {
       await Reply.reply({
         client,
         interaction: interaction,
-        author: 'Embed field editor',
-        description: 'Select fields to remove',
+        author: 'Field editor',
+        description: 'Select fields to remove.',
         color: Colors.primary,
         components: [selectMenuActionRow, buttonActionRow]
       })

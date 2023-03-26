@@ -40,7 +40,7 @@ export default class WelcomeSettings {
           .setEmoji(Emojis.webhook),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeRoles', 'button'))
-          .setLabel(`${welcomeData?.roles?.length ? 'Edit' : 'Setup'} role${welcomeData?.roles && welcomeData.roles.length > 1 ? 's' : ''}`)
+          .setLabel(`${welcomeData?.roles?.length ? 'Edit' : 'Setup'} roles`)
           .setStyle(SettingsUtils.generateStyle(welcomeData.roles?.length))
           .setDisabled(!welcomeData?.status)
           .setEmoji(Emojis.role),
@@ -59,8 +59,9 @@ export default class WelcomeSettings {
     ]
 
     const links = [
-      `[Auto role](${Options.docsLink}/guide/welcome-setup#what-is-auto-role)`,
-      `[Role restoring](${Options.docsLink}/guide/welcome-setup#what-is-auto-role)`
+      `[Welcome docs](${Options.docsLink}/welcome)`,
+      `[Auto role](${Options.docsLink}/guide/welcome-setup#auto-role)`,
+      `[Role restoring](${Options.docsLink}/guide/welcome-setup#role-restoring)`
     ].map(link => `${Emojis.point} ${link}`).join('\n')
 
     await Reply.reply({
@@ -69,7 +70,8 @@ export default class WelcomeSettings {
       color: Colors.primary,
       author: 'Welcome settings',
       authorImage: client.user?.avatarURL(),
-      description: `Fully customizable welcoming features and tools. Checkout [welcome docs](${Options.docsLink}/welcome) for more information.\n${links}`,
+      description: `Highly customizable tools to welcome new users in the best way.`,
+      fields: [{ name: 'Useful links', value: links, inline: false }],
       components: actionRows,
       ephemeral: true,
     })

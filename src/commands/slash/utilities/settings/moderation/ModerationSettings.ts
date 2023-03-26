@@ -32,7 +32,7 @@ export default class ModerationSettings {
           // .setStyle(SettingsUtils.generateStyle(moderationData.rules))
           // .setEmoji('🎛️')
           // .setDisabled(!moderationData.status)
-          .setLabel('Setup rules (WIP)')
+          .setLabel('Setup rules (in development)')
           .setStyle(ButtonStyle.Secondary)
           .setEmoji(Emojis.development)
           .setDisabled(true)
@@ -50,9 +50,9 @@ export default class ModerationSettings {
     ]
 
     const links = [
+      `[Docs](${Options.docsLink}/moderation)`,
       `[Logs](${Options.docsLink}/moderation/logs)`,
-      `[Rules](${Options.docsLink}/moderation/rules)`,
-      `[Cases](${Options.docsLink}/guide/user-punishments)`
+      `[Rules](${Options.docsLink}/moderation/rules)`
     ].map(link => `${Emojis.point} ${link}`).join('\n')
 
     await Reply.reply({
@@ -61,7 +61,8 @@ export default class ModerationSettings {
       color: Colors.primary,
       author: 'Moderation settings',
       authorImage: client.user?.avatarURL(),
-      description: `Must have moderation tools to automate server moderation. Checkout [moderation docs](${Options.docsLink}/moderation) for more information.\n${links}`,
+      description: `Great tools to automate server and keep track of activities going in the server.`,
+      fields: [{ name: 'Useful links', value: links, inline: false }],
       // fields: [
       //   {
       //     name: 'Moderation logs',

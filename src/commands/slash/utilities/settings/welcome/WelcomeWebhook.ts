@@ -7,6 +7,7 @@ import WelcomeMessage from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, AnySelectMenuInteraction, ButtonBuilder, ButtonInteraction, ChannelSelectMenuBuilder, ChannelSelectMenuInteraction, ChannelType, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle, channelMention } from 'discord.js'
 import Welcome from '../../../../../structures/welcome/Welcome'
 import SettingsUtils from '../SettingsUtils'
+import Options from './../../../../../constants/Options'
 
 export default class WelcomeWebhook {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
@@ -40,20 +41,18 @@ export default class WelcomeWebhook {
       new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(buttons[1])
     ]
 
+    const links = [
+      `[Image variables](${Options.docsLink}/welcome/image-variables)`
+    ].map(link => `${Emojis.point} ${link}`).join('\n')
+
     await Reply.reply({
       client,
       interaction: interaction,
       color: Colors.primary,
-      author: 'Welcome webhook settings',
+      author: 'Webhook settings',
       authorImage: client.user?.avatarURL(),
-      description: 'Setup custom webhook for auto-message.',
-      fields: [
-        {
-          name: 'Image variables',
-          value: '`{{client avatar}}` Client avatar\n`{{guild icon}}` Server icon',
-          inline: false,
-        }
-      ],
+      description: 'Customizable webhook for your welcome messages.',
+      fields: [{ name: 'Useful links', value: links, inline: false }],
       components: actionRows,
       ephemeral: true,
     })
@@ -84,7 +83,7 @@ export default class WelcomeWebhook {
     await Reply.reply({
       client,
       interaction: interaction,
-      author: 'Welcome webhook channel',
+      author: 'Webhook channel',
       description: `${welcomeData.webhookChannel ? `Current channel ${channelMention(welcomeData.webhookChannel)}` : 'No channel'}`,
       color: Colors.primary,
       components: [selectActionRow, buttonActionRow]
@@ -97,14 +96,14 @@ export default class WelcomeWebhook {
     const webhookNameInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookName', 'input'))
       .setLabel('Webhook name')
-      .setPlaceholder('Enter new webhook name')
+      .setPlaceholder('Enter new name')
       .setValue(welcomeData.webhookName ?? '')
       .setStyle(TextInputStyle.Short)
       .setRequired(false)
     const webhookAvatarInput = new TextInputBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'input'))
       .setLabel('Webhook avatar')
-      .setPlaceholder('Enter a valid image URL or use variables')
+      .setPlaceholder('Enter a valid image URL or a variable')
       .setValue(welcomeData?.webhookAvatar ?? '')
       .setStyle(TextInputStyle.Short)
       .setRequired(false)
@@ -118,7 +117,7 @@ export default class WelcomeWebhook {
 
     const modal = new ModalBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookEdit', 'modal'))
-      .setTitle('Welcome webhook editor')
+      .setTitle('Webhook editor')
       .addComponents(actionRows)
 
     await interaction.showModal(modal)
