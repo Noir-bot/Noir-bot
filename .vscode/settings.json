@@ -3,6 +3,8 @@
     "bannable",
     "kickable",
     "moderatable",
+    "rolesadd",
+    "rolesremove",
     "rulebreakers",
     "Serverinfo",
     "softban",
@@ -10,6 +12,6 @@
     "tempban",
     "unban",
     "unembeded"
-],
+  ],
 "prisma.fileWatcher": false
 }

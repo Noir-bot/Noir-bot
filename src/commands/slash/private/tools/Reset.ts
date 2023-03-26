@@ -15,12 +15,12 @@ export default class Reset extends ChatCommand {
         permissions: ['SendMessages'],
         access: AccessType.Private,
         type: CommandType.Private,
-        defaultMemberPermissions: ['Administrator'],
         status: true
       },
       {
         name: 'reset',
         description: 'Reset commands',
+        defaultMemberPermissions: ['Administrator'],
         type: ApplicationCommandType.ChatInput,
       }
     )
