@@ -66,7 +66,7 @@ export default class PurgeCommand extends ChatCommand {
 
       const description = `${Emojis.channel} Channel: ${channelMention(interaction.channelId)}\n` +
         `${Emojis.user} Moderator: ${interaction.user}\n` +
-        `${Emojis.webhook} Amount: \`${amount}\`\n` +
+        `${Emojis.welcome} Amount: \`${amount}\`\n` +
         `${reason ? `${Emojis.document} Reason: ${reason}\n` : ''}` +
         `${Emojis.time} Purged at: ${time(deletedAt, 'd')} (${time(deletedAt, 'R')})`
 
