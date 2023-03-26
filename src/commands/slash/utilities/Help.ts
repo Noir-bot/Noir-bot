@@ -45,7 +45,7 @@ export default class HelpCommand extends ChatCommand {
       color: Colors.primary,
       author: 'Help command',
       authorImage: client.user?.avatarURL(),
-      description: `Hey there, in case of any questions or problems contact in our [support server](${Options.guildInvite})`,
+      description: `Hey there, do not know where to start check out our [official guide](${Options.docsLink}/quick-guide) and quickly setup Noir for your server. If you got any question contact moderators in [the support server](${Options.guildInvite})`,
       components: [actionRow]
     })
   }

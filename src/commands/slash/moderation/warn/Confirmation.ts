@@ -1,5 +1,6 @@
 import WarnLogs from '@commands/slash/moderation/warn/Logs'
 import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
 import Reply from '@helpers/Reply'
 import Case from '@structures/Case'
 import Client from '@structures/Client'
@@ -23,7 +24,7 @@ export default class WarnConfirmation {
       Reply.reply({
         client,
         interaction: interaction,
-        color: Colors.warning,
+        color: Colors.primary,
         author: 'Warn Confirmation',
         description: 'Request timed out.',
         ephemeral: true
@@ -33,8 +34,16 @@ export default class WarnConfirmation {
     }, 30 * 1000)
 
     const buttons = [
-      new ButtonBuilder().setCustomId(`warn-confirm-${time.getTime() + interaction.user.id}`).setLabel('Confirm').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId(`warn-cancel-${time.getTime() + interaction.user.id}`).setLabel('Cancel').setStyle(ButtonStyle.Secondary)
+      new ButtonBuilder()
+        .setCustomId(`warn-confirm-${time.getTime() + interaction.user.id}`)
+        .setLabel('Confirm')
+        .setEmoji(Emojis.check)
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId(`warn-cancel-${time.getTime() + interaction.user.id}`)
+        .setLabel('Cancel')
+        .setEmoji(Emojis.uncheck)
+        .setStyle(ButtonStyle.Secondary)
     ]
 
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
@@ -70,7 +79,7 @@ export default class WarnConfirmation {
     Reply.reply({
       client,
       interaction: interaction,
-      color: Colors.primary,
+      color: Colors.success,
       author: 'Warn cancelation',
       description: 'Request successfully canceled.',
       ephemeral: true
@@ -81,7 +90,7 @@ export default class WarnConfirmation {
     await Reply.reply({
       client,
       interaction: interaction,
-      color: Colors.primary,
+      color: Colors.success,
       author: 'Warn confirmation',
       description: 'Request successfully confirmed.',
       ephemeral: true

@@ -1,5 +1,6 @@
 import WarnRule from '@commands/slash/moderation/warn/Rule'
 import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
 import Logs from '@helpers/Logs'
 import { Case } from '@prisma/client'
 import DataCase from '@structures/Case'
@@ -15,11 +16,11 @@ export default class WarnLogs {
       guild: interaction.guildId!,
       author: 'Warn case',
       color: Colors.logsCase,
-      description: `**User:** ${interaction.guild?.members.cache.get(caseCache.user)?.user.username} \`${caseCache.user}\`\n` +
-        `**Moderator:** ${interaction.guild?.members.cache.get(caseCache.moderator)?.user.username} \`${caseCache.moderator}\`\n` +
-        `**Reason:** ${caseCache.reason}\n` +
-        `**Created at:** ${time(caseCache.created, 'd')} ${time(caseCache.created, 'R')}\n` +
-        `**Updated at:** ${time(caseCache.updated, 'd')} ${time(caseCache.updated, 'R')}`
+      description: `${Emojis.rulebrekaer} User: ${interaction.guild?.members.cache.get(caseCache.user)?.user.username} \`${caseCache.user}\`\n` +
+        `${Emojis.user} Moderator: ${interaction.guild?.members.cache.get(caseCache.moderator)?.user.username} \`${caseCache.moderator}\`\n` +
+        `${Emojis.document} Reason: ${caseCache.reason}\n` +
+        `${Emojis.time} Created at: ${time(caseCache.created, 'd')} ${time(caseCache.created, 'R')}\n` +
+        `${Emojis.time} Updated at: ${time(caseCache.updated, 'd')} ${time(caseCache.updated, 'R')}`
     }) as Message
 
     if (sent) {
@@ -31,11 +32,11 @@ export default class WarnLogs {
         guild: interaction.guildId!,
         author: 'Warn case',
         color: Colors.logsCase,
-        description: `**User:** ${interaction.guild?.members.cache.get(caseCache.user)?.user.username} \`${caseCache.user}\`\n` +
-          `**Moderator:** ${interaction.guild?.members.cache.get(caseCache.moderator)?.user.username} \`${caseCache.moderator}\`\n` +
-          `**Reason:** ${caseCache.reason}\n` +
-          `**Created at:** ${time(caseCache.created, 'd')} ${time(caseCache.created, 'R')}\n` +
-          `**Updated at:** ${time(caseCache.updated, 'd')} ${time(caseCache.updated, 'R')}`,
+        description: `${Emojis.rulebrekaer} User: ${interaction.guild?.members.cache.get(caseCache.user)?.user.username} \`${caseCache.user}\`\n` +
+          `${Emojis.uncheck} Moderator: ${interaction.guild?.members.cache.get(caseCache.moderator)?.user.username} \`${caseCache.moderator}\`\n` +
+          `${Emojis.document} Reason: ${caseCache.reason}\n` +
+          `${Emojis.time} Created at: ${time(caseCache.created, 'd')} ${time(caseCache.created, 'R')}\n` +
+          `${Emojis.time} Updated at: ${time(caseCache.updated, 'd')} ${time(caseCache.updated, 'R')}`,
         footer: data ? `Case ID: ${data?.id}` : undefined,
         reference: sent
       })
@@ -69,13 +70,13 @@ export default class WarnLogs {
       guild: interaction.guildId!,
       author: 'Warn case',
       color: deleted ? Colors.warning : Colors.logsCase,
-      description: `**User:** ${interaction.guild?.members.cache.get(caseData.user)?.user.username} \`${caseData.user}\`\n` +
-        `**Moderator:** ${interaction.guild?.members.cache.get(caseData.moderator)?.user.username} \`${caseData.moderator}\`\n` +
-        `**Reason:** ${caseData.reason}\n` +
-        `**Created at:** ${time(caseData.created, 'd')} ${time(caseData.created, 'R')}\n` +
-        `**Updated at:** ${time(caseData.updated, 'd')} ${time(caseData.updated, 'R')}\n` +
-        `${caseData.expires ? `**Expire${caseData.expires.getTime() <= new Date().getTime() ? 'd' : 's'} at:** ${time(caseData.expires.getTime(), 'd')} ${time(caseData.expires.getTime(), 'R')}\n` : ''}` +
-        `${deleted ? `**Removed at:** ${time(new Date(), 'd')} ${time(new Date(), 'R')}` : ''}`,
+      description: `${Emojis.rulebrekaer} User: ${interaction.guild?.members.cache.get(caseData.user)?.user.username} \`${caseData.user}\`\n` +
+        `${Emojis.user} Moderator: ${interaction.guild?.members.cache.get(caseData.moderator)?.user.username} \`${caseData.moderator}\`\n` +
+        `${Emojis.document} Reason: ${caseData.reason}\n` +
+        `${Emojis.time} Created at: ${time(caseData.created, 'd')} ${time(caseData.created, 'R')}\n` +
+        `${Emojis.time} Updated at: ${time(caseData.updated, 'd')} ${time(caseData.updated, 'R')}\n` +
+        `${caseData.expires ? `${Emojis.time} Expire${caseData.expires.getTime() <= new Date().getTime() ? 'd' : 's'} at:** ${time(caseData.expires.getTime(), 'd')} ${time(caseData.expires.getTime(), 'R')}\n` : ''}` +
+        `${deleted ? `${Emojis.trash} Removed at: ${time(new Date(), 'd')} ${time(new Date(), 'R')}` : ''}`,
       footer: `Case ID: ${caseData.id}`,
       reference: message
     })

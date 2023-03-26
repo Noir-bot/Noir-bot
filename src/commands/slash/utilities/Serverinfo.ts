@@ -82,7 +82,7 @@ export default class ServerinfoCommand extends ChatCommand {
         inline: true
       },
       {
-        name: 'Server features',
+        name: 'Subscriptions',
         value: `Boost level \`${guild.premiumTier}\`\n` +
           `Boost count \`${guild.premiumSubscriptionCount}\`\n` +
           `Noir ${premiumData?.status() ? `\`premium\` ${Emojis.premium}` : '\`basic\`'}`,

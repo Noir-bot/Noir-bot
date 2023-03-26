@@ -1,4 +1,5 @@
 import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
 import Logs from '@helpers/Logs'
 import { Duration } from '@sapphire/time-utilities'
 import Client from '@structures/Client'
@@ -60,11 +61,11 @@ export default class WarnRule {
 
     if (!member?.bannable) return
 
-    const description = `**User:** ${client.users.cache.get(user)?.username} \`${user}\`\n` +
-      `**Reason:** User reached the limit of mod-rule\n` +
-      `**Created at:** ${time(created, 'd')} ${time(created, 'R')}\n` +
-      `**Updated at:** ${time(created, 'd')} ${time(created, 'R')}\n` +
-      `${duration ? `**Expires at:** ${time(new Duration(duration).offset, 'd')} ${time(new Duration(duration).offset, 'R')}\n` : ''}`
+    const description = `${Emojis.rulebrekaer} User: ${client.users.cache.get(user)?.username} \`${user}\`\n` +
+      `${Emojis.document} Reason: User reached the limit of mod-rule\n` +
+      `${Emojis.time} Created at: ${time(created, 'd')} ${time(created, 'R')}\n` +
+      `${Emojis.time} Updated at: ${time(created, 'd')} ${time(created, 'R')}\n` +
+      `${duration ? `${Emojis.time} Expires at: ${time(new Duration(duration).offset, 'd')} ${time(new Duration(duration).offset, 'R')}\n` : ''}`
 
     const message = await Logs.log({
       client,

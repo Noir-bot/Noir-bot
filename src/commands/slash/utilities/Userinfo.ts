@@ -1,3 +1,4 @@
+import Emojis from '@constants/Emojis'
 import Reply from "@helpers/Reply"
 import Client from "@structures/Client"
 import ChatCommand from "@structures/commands/ChatCommand"
@@ -57,16 +58,16 @@ export default class UserinfoCommand extends ChatCommand {
     const fetchedUser = await member.user.fetch()
     const fields = []
 
-    const description = `User: ${userMention(member.id)} \`${member.id}\`\n` +
-      `Hoist role: ${member.roles.hoist}\n` +
-      `Accent color: \`${member.user.hexAccentColor ?? fetchedUser.hexAccentColor ?? member.displayHexColor ?? 'No color'}\`\n` +
-      `${member.avatarURL() ? `Server avatar: [open](${member.avatarURL({ size: 4096 })})\n` : ''}` +
-      `Created at: ${time(member.user.createdAt, 'd')} (${time(member.user.createdAt, 'R')})\n` +
-      `${member.joinedAt ? `Joined at: ${time(member.joinedAt, 'd')} (${time(member.joinedAt, 'R')})\n` : ''}`
+    const description = `${Emojis.user} User: ${userMention(member.id)} \`${member.id}\`\n` +
+      `${Emojis.chain} Hoist role: ${member.roles.hoist}\n` +
+      `${Emojis.color} Accent color: \`${member.user.hexAccentColor ?? fetchedUser.hexAccentColor ?? member.displayHexColor ?? 'No color'}\`\n` +
+      `${member.avatarURL() ? `${Emojis.image} Server avatar: [open](${member.avatarURL({ size: 4096 })})\n` : ''}` +
+      `${Emojis.time} Created at: ${time(member.user.createdAt, 'd')}\n` +
+      `${Emojis.time} ${member.joinedAt ? `Joined at: ${time(member.joinedAt, 'd')}\n` : ''}`
 
     if (member.roles.cache.size > 1) {
       fields.push({
-        name: `Role${member.roles.cache.size > 2 ? 's' : ''} (${member.roles.cache.size > 1 ? member.roles.cache.size - 1 : 0})`,
+        name: `${Emojis.role} Role${member.roles.cache.size > 2 ? 's' : ''} (${member.roles.cache.size > 1 ? member.roles.cache.size - 1 : 0})`,
         value: `${member.roles.cache.filter(role => role.id != member.guild.id).map(role => role).join(' ')}`,
         inline: false
       })

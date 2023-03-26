@@ -1,4 +1,5 @@
 import Colors from "@constants/Colors"
+import Emojis from '@constants/Emojis'
 import Options from '@constants/Options'
 import Reply from "@helpers/Reply"
 import Client from "@structures/Client"
@@ -33,32 +34,32 @@ export default class Botinfo extends ChatCommand {
 
     const fields: EmbedField[] = [
       {
-        name: 'Servers count',
+        name: `${Emojis.closeDoor} Servers count`,
         value: `${client.guilds.cache.size}`,
         inline: true
       },
       {
-        name: 'Users count',
+        name: `${Emojis.user} Users`,
         value: `${client.users.cache.size}`,
         inline: true
       },
       {
-        name: 'Channels count',
+        name: `${Emojis.channel} Channels`,
         value: `${client.channels.cache.size}`,
         inline: true
       },
       {
-        name: 'Uptime',
+        name: `${Emojis.time} Uptime`,
         value: `${uptime ? time(uptime, 'R') : '\`Unexpected error\`'}`,
         inline: true
       },
       {
-        name: 'Memory usage',
+        name: `${Emojis.slider} Memory usage`,
         value: `\`${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB\``,
         inline: true
       },
       {
-        name: 'Noir version',
+        name: `${Emojis.chain} Version`,
         value: `\`v${pkg.version} beta\``,
         inline: true
       }
