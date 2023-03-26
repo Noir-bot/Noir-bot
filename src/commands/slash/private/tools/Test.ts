@@ -18,6 +18,7 @@ export default class Reset extends ChatCommand {
       {
         name: 'test',
         description: 'This command changes constantly depending on what is currently being developed',
+        defaultMemberPermissions: ['Administrator'],
         type: ApplicationCommandType.ChatInput,
       }
     )

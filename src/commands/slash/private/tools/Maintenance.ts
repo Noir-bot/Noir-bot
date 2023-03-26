@@ -3,7 +3,7 @@ import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import {AccessType,CommandType} from '@structures/commands/Command'
+import { AccessType, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
 import { ActivityType, ChatInputCommandInteraction } from 'discord.js'
 
@@ -21,6 +21,7 @@ export default class MaintenanceCommand extends ChatCommand {
         name: 'maintenance',
         description: 'Maintenance mode',
         type: ApplicationCommandType.ChatInput,
+        defaultMemberPermissions: ['Administrator'],
         dmPermission: true,
         options: [
           {

@@ -21,6 +21,7 @@ export default class DeleteCommand extends ChatCommand {
         name: 'delete',
         description: 'Delete command',
         type: ApplicationCommandType.ChatInput,
+        defaultMemberPermissions: ['Administrator'],
         dmPermission: false,
         options: [
           {
