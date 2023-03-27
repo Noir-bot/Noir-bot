@@ -142,6 +142,7 @@ export default class ModerationResponse {
 
     else if (method.startsWith('moderationRulesEdit')) {
       const ruleId = method.split('.')[1]
+      console.log('Rule ID', ruleId)
       await RuleSettings.editResponse(client, interaction, id, ruleId)
     }
   }

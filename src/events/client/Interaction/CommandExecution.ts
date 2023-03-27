@@ -1,4 +1,4 @@
-import MaintenanceCommand from '@commands/slash/private/Maintenance'
+import MaintenanceCommand from '@commands/slash/private/tools/Maintenance'
 import Colors from '@constants/Colors'
 import Options from '@constants/Options'
 import Reply from '@helpers/Reply'

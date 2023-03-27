@@ -59,6 +59,7 @@ export default class Client extends BaseClient {
         return
       }
     })
+
   }
 
   private handleErrors() {

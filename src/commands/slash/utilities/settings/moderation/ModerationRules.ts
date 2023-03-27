@@ -1,5 +1,6 @@
 import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
 import Colors from '@constants/Colors'
+import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Utils from '@helpers/Utils'
 import { Duration } from '@sapphire/time-utilities'
@@ -9,6 +10,7 @@ import Save from '@structures/Save'
 import Moderation from '@structures/moderation/Moderation'
 import ModerationRules, { ModerationRuleRegex } from '@structures/moderation/ModerationRules'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
+import Emojis from '../../../../../constants/Emojis'
 
 export default class RuleSettings {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string) {
@@ -20,11 +22,13 @@ export default class RuleSettings {
       [
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesStatus', 'button'))
-          .setLabel(`${moderationData.rules ? 'Disable' : 'Enable'} moderation rule${rulesData?.rules && rulesData.rules.length > 0 ? 's' : ''}`)
+          .setLabel(`${moderationData.rules ? 'Disable' : 'Enable'} rule${rulesData?.rules && rulesData.rules.length > 0 ? 's' : ''}`)
+          .setEmoji(`${moderationData.rules ? Emojis.enable : Emojis.disable}`)
           .setStyle(SettingsUtils.generateStyle(moderationData.rules)),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRulesAdd', 'button'))
           .setLabel('Add rule')
+          .setEmoji(Emojis.addField)
           .setStyle(SettingsUtils.defaultStyle)
       ],
       [
@@ -59,7 +63,7 @@ export default class RuleSettings {
       const selectMenu = new StringSelectMenuBuilder()
         .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRules', 'select'))
         .setPlaceholder(`Select to edit`)
-        .setDisabled(rulesData.rules.length == 0)
+        .setDisabled(!moderationData.rules || rulesData.rules.length == 0)
         .addOptions(
           rulesData.rules.map(rule => {
             return {
@@ -73,29 +77,20 @@ export default class RuleSettings {
       actionRows.unshift(new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(selectMenu))
     }
 
+    const links = [
+      `[Docs](${Options.docsLink}/moderation/rules)`,
+      `[Action types](${Options.docsLink}/moderation/rules#action-types)`,
+      `[Duration](${Options.docsLink}/moderation/rules#action-duration)`,
+      `[Quantity](${Options.docsLink}/moderation/rules#action-duration)`
+    ].map(link => `${Emojis.point} ${link}`).join('\n')
+
     try {
       await Reply.reply({
         client,
         interaction: interaction,
         author: 'Setup rules',
-        description: 'Create moderation rule to punish users after specified amount of warnings. Create up to 20 rules and edit customize them as you want.',
-        fields: [
-          {
-            name: 'What is an action',
-            value: 'Action is the type of punishment to give the user after x amount of warnings. Here\'s a list of available types \`ban\`  \`kick\`\n\`timeout\` Timeout with custom amount of time\n\`softban\` Ban and unban to clear messages\n\`tempban\` Temporary ban',
-            inline: false
-          },
-          {
-            name: 'What is duration',
-            value: 'Every rule can have duration which determines the duration of the action which is executed after user got x amount of warnings. Duration is optional and only required for temporal actions such as `tempban` or `restriction`, in other cases you can use \'permanent\' for permanent actions. Duration has it format e.g. \`1h10m\` 1 hour and 10 minutes.',
-            inline: false
-          },
-          {
-            name: 'How to delete a rule',
-            value: 'In order to delete a rule, change the amount option to `0` and it will be automatically deleted.',
-            inline: false
-          }
-        ],
+        description: 'Create moderation rule to punish users after specified amount of warnings.',
+        fields: [{ name: 'Useful links', value: links, inline: false }],
         color: Colors.primary,
         components: actionRows
       })
@@ -224,36 +219,38 @@ export default class RuleSettings {
 
   public static async editResponse(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>, id: string, ruleId: string) {
     const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
+    const rulesData = await ModerationRules.cache(client, interaction.guildId, false, true)
     const save = Save.cache(client, `${interaction.guildId}-moderation`)
+    const currentRuleQuantity = parseInt(ruleId)
 
     const ruleAction = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesActionUpdate', 'input')).toLowerCase()
     const ruleQuantity = parseInt(interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesQuantityUpdate', 'input')))
     const ruleDuration = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesDurationUpdate', 'input')).toLowerCase()
 
-    console.log(ruleAction, ruleQuantity, ruleDuration)
-
-    const duration = new Duration(ruleDuration)
-
     if (!moderationData) return
-    if (!ModerationRuleRegex.test(ruleAction)) return
+    if (!ruleAction.match(ModerationRuleRegex)) return console.log('error regex', ruleAction)
+    if (!rulesData?.rules) return
+
     if (ruleAction != 'ban' && ruleAction != 'softban' && ruleAction != 'kick') {
+      const duration = new Duration(ruleDuration) ?? undefined
+
       if (ruleDuration != 'permanent' && parseInt(ruleDuration) != 0 && isNaN(duration.offset)) return
       if (ruleAction == 'restriction' && duration.offset > 1209600000) return
       if (duration.offset > 31556952000) return
     }
 
-    const rulesData = await ModerationRules.cache(client, interaction.guildId, false, true)
-
-    if (rulesData?.rules && rulesData.rules.some(rule => rule.quantity == ruleQuantity)) return
+    if (ruleQuantity != currentRuleQuantity) {
+      if (rulesData?.rules.some(rule => rule.quantity == ruleQuantity)) {
+        return console.log('Rule already exists.')
+      }
+    }
 
     if (ruleQuantity == 0 && rulesData?.rules) {
-      rulesData.rules = rulesData.rules.filter(rule => rule.quantity != parseInt(ruleId))
+      rulesData.rules = rulesData.rules.filter(rule => rule.quantity != currentRuleQuantity)
     }
 
     else {
-      const index = rulesData?.rules.findIndex(rule => rule.quantity == parseInt(ruleId))
-
-      console.log('Index: ' + index)
+      const index = rulesData?.rules.findIndex(rule => rule.quantity == currentRuleQuantity)
 
       if ((index == 0 || index) && rulesData?.rules) {
         console.log('Updated from: ' + rulesData.rules[index].action + ' => ' + ruleAction)
@@ -265,7 +262,6 @@ export default class RuleSettings {
           duration: ruleDuration.replace(/$0^|$permanent^/, 'permanent') ?? undefined
         }
       }
-
     }
 
     save.count += 1

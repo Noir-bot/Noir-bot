@@ -6,7 +6,7 @@ import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import Moderation from '@structures/moderation/Moderation'
 import ModerationRules from '@structures/moderation/ModerationRules'
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction } from 'discord.js'
 
 export default class ModerationSettings {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
@@ -28,14 +28,10 @@ export default class ModerationSettings {
           .setDisabled(!moderationData.status),
         new ButtonBuilder()
           .setCustomId(SettingsUtils.generateId('settings', id, 'moderationRules', 'button'))
-          // .setLabel(`${moderationRules?.rules ? moderationRules.rules.length > 0 ? 'Edit' : 'Setup' : 'Setup'} moderation rule${moderationRules?.rules ? moderationRules.rules?.length > 1 ? 's' : '' : ' '}`)
-          // .setStyle(SettingsUtils.generateStyle(moderationData.rules))
-          // .setEmoji('🎛️')
-          // .setDisabled(!moderationData.status)
-          .setLabel('Setup rules (in development)')
-          .setStyle(ButtonStyle.Secondary)
-          .setEmoji(Emojis.development)
-          .setDisabled(true)
+          .setLabel(`${moderationRules?.rules ? moderationRules.rules.length > 0 ? 'Edit' : 'Setup' : 'Setup'} moderation rule${moderationRules?.rules ? moderationRules.rules?.length > 1 ? 's' : '' : ' '}`)
+          .setStyle(SettingsUtils.generateStyle(moderationData.rules))
+          .setEmoji(Emojis.book)
+          .setDisabled(!moderationData.status)
       ],
       [
         SettingsUtils.generateBack('settings', id, 'moderationBack.settings'),

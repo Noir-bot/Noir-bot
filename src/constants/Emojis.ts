@@ -45,4 +45,5 @@ export default class Emojis {
   public static readonly unlock = '<:Unlock:1089599760572358767>'
   public static readonly news = '<:News:1089623443307249864>'
   public static readonly status = '<:Status:1089623440773882039>'
+  public static readonly book = '<:Book:1090017588383318026>'
 }
