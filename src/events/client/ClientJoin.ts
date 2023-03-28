@@ -5,7 +5,7 @@ import Event from "@structures/Event"
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Guild, MessageActionRowComponentBuilder } from 'discord.js'
 import Reply from '../../helpers/Reply'
 
-export default class ReadyEvent extends Event {
+export default class ClientJoin extends Event {
   constructor(client: Client) {
     super(client, 'guildCreate', true)
   }

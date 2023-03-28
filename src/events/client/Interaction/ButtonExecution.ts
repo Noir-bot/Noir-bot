@@ -1,8 +1,8 @@
 import WarnConfirmation from '@commands/slash/moderation/warn/Confirmation'
+import RolesCommand from '@commands/slash/private/info/Roles'
 import SettingsResponses from '@commands/slash/utilities/settings/SettingsResponses'
 import Client from '@structures/Client'
 import { ButtonInteraction } from 'discord.js'
-import RolesCommand from '../../../commands/slash/private/info/Roles'
 
 export default class ButtonExecution {
   public static async button(client: Client, interaction: ButtonInteraction) {

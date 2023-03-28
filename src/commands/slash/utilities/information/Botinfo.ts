@@ -8,7 +8,7 @@ import { AccessType, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandType } from 'discord-api-types/v10'
 import { ChatInputCommandInteraction, EmbedField, time } from "discord.js"
 
-const pkg = require('../../../../package.json')
+const pkg = require('../../../../../package.json')
 
 export default class Botinfo extends ChatCommand {
   constructor(client: Client) {

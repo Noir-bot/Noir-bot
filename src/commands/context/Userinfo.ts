@@ -1,10 +1,10 @@
-import UserinfoCommand from '@commands/slash/utilities/Userinfo'
+import UserinfoCommand from '@commands/slash/utilities/information/Userinfo'
 import Client from '@structures/Client'
 import { AccessType, CommandType } from '@structures/commands/Command'
 import ContextMenuCommand from '@structures/commands/ContextMenuCommand'
 import { ApplicationCommandType, ContextMenuCommandInteraction } from 'discord.js'
 
-export default class UserInfoContext extends ContextMenuCommand {
+export default class UserinfoContext extends ContextMenuCommand {
   constructor(client: Client) {
     super(
       client,

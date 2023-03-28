@@ -18,8 +18,8 @@ export default class UserinfoCommand extends ChatCommand {
       {
         name: 'userinfo',
         description: 'Get information about the server',
-        dmPermission: false,
         type: ApplicationCommandType.ChatInput,
+        dmPermission: false,
         options: [
           {
             name: 'user',

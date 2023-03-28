@@ -1,8 +1,8 @@
+import RolesCommand from '@commands/slash/private/info/Roles'
 import RulesCommand from '@commands/slash/private/info/Rules'
 import SettingsResponses from '@commands/slash/utilities/settings/SettingsResponses'
 import Client from '@structures/Client'
 import { AnySelectMenuInteraction } from 'discord.js'
-import RolesCommand from '../../../commands/slash/private/info/Roles'
 
 export default class SelectMenuExecution {
   public static async selectMenu(client: Client, interaction: AnySelectMenuInteraction) {
