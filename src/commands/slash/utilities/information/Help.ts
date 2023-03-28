@@ -31,13 +31,19 @@ export default class HelpCommand extends ChatCommand {
   }
 
   public static async initialMessage(client: Client, interaction: ChatInputCommandInteraction | ButtonInteraction) {
-    const button = new ButtonBuilder()
-      .setURL(Options.docsLink)
-      .setLabel('Noir docs')
-      .setStyle(ButtonStyle.Link)
+    const buttons = [
+      new ButtonBuilder()
+        .setURL(Options.docsLink)
+        .setLabel('Noir docs')
+        .setStyle(ButtonStyle.Link),
+      new ButtonBuilder()
+        .setURL(Options.botInvite)
+        .setLabel('Invite Noir')
+        .setStyle(ButtonStyle.Link),
+    ]
 
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
-      .addComponents(button)
+      .addComponents(buttons)
 
     await Reply.reply({
       client,

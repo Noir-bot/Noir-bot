@@ -7,7 +7,8 @@ export default class Options {
   public static readonly token = process.env.TOKEN!
   public static readonly cluster = process.env.DATABASE!
   public static readonly guildId = process.env.GUILD_ID!
-  public static readonly guildInvite = process.env.INVITE!
+  public static readonly guildInvite = process.env.GUILD_INVITE!
+  public static readonly botInvite = process.env.BOT_INVITE!
   public static readonly clientId = process.env.CLIENT_ID!
   public static readonly avatar = 'https://cdn.discordapp.com/avatars/690728155052245072/da5d06534afcc88e5cbdf50b15c6d487.png?size=4096'
   public static readonly statusChannel = process.env.STATUS_CHANNEL!
