@@ -141,7 +141,7 @@ export default class WelcomeWebhook {
     const webhookAvatar = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'welcomeWebhookAvatar', 'input'))
 
     welcomeData.webhookName = WelcomeMessage.formatVariable(webhookName, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: client.user?.avatarURL() } })
-    welcomeData.webhookAvatar = WelcomeMessage.formatVariable(webhookAvatar, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: client.user?.avatarURL() } })
+    welcomeData.webhookAvatar = WelcomeMessage.formatImage(webhookAvatar, { guild: interaction.guild.iconURL(), client: client.user?.avatarURL() })
     saves.count += 1
 
     await this.initialMessage(client, interaction, id)

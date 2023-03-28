@@ -146,7 +146,7 @@ export default class ModerationLogs {
     const save = Save.cache(client, `${interaction.guildId}-moderation`)
 
     moderationData.webhookName = WelcomeMessage.formatVariable(webhookName, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: client.user?.avatarURL() } })
-    moderationData.webhookAvatar = WelcomeMessage.formatVariable(webhookAvatar, { guild: { icon: interaction.guild.iconURL() }, client: { avatar: client.user?.avatarURL() } })
+    moderationData.webhookAvatar = WelcomeMessage.formatImage(webhookAvatar, { guild: interaction.guild.iconURL(), client: client.user?.avatarURL() })
     save.count += 1
 
     await this.initialMessage(client, interaction, id)

@@ -96,7 +96,11 @@ export default class WelcomeMessage {
     let result: string | undefined | null = undefined
     input = input?.trim()
 
-    if (options?.guild && input?.match(/\{\{server icon\}\}/g)) {
+    if (options?.guild?.match(/\{\{remove\}\}/)) {
+      result = undefined
+    }
+
+    else if (options?.guild && input?.match(/\{\{server icon\}\}/g)) {
       result = input?.replace(/\{\{server icon\}\}/g, options.guild)
     }
 

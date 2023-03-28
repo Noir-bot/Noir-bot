@@ -56,8 +56,6 @@ export default class WelcomeEditorFooter {
     if (footerImageInput) {
       const formatted = WelcomeMessage.formatImage(footerImageInput, { guild: interaction.guild.iconURL(), client: client.user?.avatarURL(), user: client.user?.avatarURL() })
 
-      if (!formatted) return
-
       messageData.footerImage = formatted == footerImageInput ? undefined : formatted
       messageData.rawFooterImage = WelcomeMessage.formatRemove(footerImageInput)
       saves.count += 1
