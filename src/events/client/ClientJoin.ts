@@ -11,7 +11,7 @@ export default class ClientJoin extends Event {
   }
 
   public execute(client: Client, guild: Guild): void {
-    const channel = guild.systemChannel ?? guild.channels.cache.first()
+    const channel = guild.systemChannel ?? guild.systemChannel
 
     if (!channel || channel.type != ChannelType.GuildText) return
 
