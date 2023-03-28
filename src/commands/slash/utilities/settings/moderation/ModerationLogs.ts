@@ -1,13 +1,13 @@
 import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
 import Colors from '@constants/Colors'
 import Emojis from '@constants/Emojis'
+import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import Save from '@structures/Save'
 import Moderation from '@structures/moderation/Moderation'
 import WelcomeMessage from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, AnySelectMenuInteraction, ButtonBuilder, ButtonInteraction, ChannelSelectMenuBuilder, ChannelSelectMenuInteraction, ChannelType, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle, channelMention } from 'discord.js'
-import Options from './../../../../../constants/Options'
 
 export default class ModerationLogs {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {

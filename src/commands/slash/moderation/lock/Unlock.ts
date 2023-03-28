@@ -4,15 +4,15 @@ import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandType } from '@structures/commands/Command'
+import Moderation from '@structures/moderation/Moderation'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, ChatInputCommandInteraction, GuildChannel, channelMention, time } from 'discord.js'
-import Moderation from '../../../../structures/moderation/Moderation'
 
 export default class LockCommand extends ChatCommand {
   constructor(client: Client) {
     super(
       client,
       {
-        permissions: ['ManageChannels', 'EmbedLinks'],
+        permissions: ['ManageRoles', 'EmbedLinks'],
         access: AccessType.Moderation,
         type: CommandType.Public,
         status: true

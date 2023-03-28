@@ -1,11 +1,11 @@
+import Colors from '@constants/Colors'
 import Emojis from '@constants/Emojis'
+import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandType } from '@structures/commands/Command'
+import Moderation from '@structures/moderation/Moderation'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, channelMention, time } from 'discord.js'
-import Colors from '../../../constants/Colors'
-import Reply from '../../../helpers/Reply'
-import Moderation from '../../../structures/moderation/Moderation'
 
 export default class PurgeCommand extends ChatCommand {
   constructor(client: Client) {

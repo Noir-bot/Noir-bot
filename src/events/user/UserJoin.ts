@@ -40,7 +40,7 @@ export default class UserJoin extends Event {
     if (!welcomeData.webhook) return
 
     const webhook = await Welcome.getWebhook(client, welcomeData.webhook)
-    const data = { guild: { name: member.guild.name, icon: member.guild.iconURL(), members: member.guild.memberCount, createdAt: time(member.guild.createdTimestamp, 'd'), created: time(member.guild.createdTimestamp, 'R'), joinedAt: time(member.guild.joinedTimestamp, 'd'), joined: time(member.guild.joinedTimestamp, 'R') }, user: { name: member.user.username, avatar: member.user.avatarURL(), createdAt: time(member.user.createdTimestamp, 'd'), created: time(member.user.createdTimestamp, 'R') }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
+    const data = { guild: { name: member.guild.name, icon: member.guild.iconURL(), members: member.guild.memberCount, createdAt: time(member.guild.createdAt, 'd'), created: time(member.guild.createdAt, 'R'), joinedAt: time(member.guild.joinedAt, 'd'), joined: time(member.guild.joinedAt, 'R') }, user: { name: member.user.username, avatar: member.user.avatarURL(), createdAt: time(member.user.createdAt, 'd'), created: time(member.user.createdAt, 'R') }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
 
     if (webhook) {
       const messageData = await WelcomeMessage.cache(client, member.guild.id, 'guild_join', false, true)

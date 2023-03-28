@@ -1,12 +1,12 @@
 import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
 import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import Premium from '@structures/Premium'
 import Save from '@structures/Save'
 import Welcome from '@structures/welcome/Welcome'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, roleMention, RoleSelectMenuBuilder, RoleSelectMenuInteraction } from 'discord.js'
-import Emojis from '../../../../../constants/Emojis'
 
 export default class WelcomeRole {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | RoleSelectMenuInteraction<'cached'>, id: string) {

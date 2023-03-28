@@ -10,7 +10,7 @@ export default class UserinfoCommand extends ChatCommand {
     super(
       client,
       {
-        permissions: ['SendMessages'],
+        permissions: ['EmbedLinks'],
         access: AccessType.Public,
         type: CommandType.Public,
         status: true

@@ -11,7 +11,7 @@ export default class HelpCommand extends ChatCommand {
     super(
       client,
       {
-        permissions: ['SendMessages', 'EmbedLinks'],
+        permissions: ['EmbedLinks'],
         access: AccessType.Public,
         type: CommandType.Public,
         status: true

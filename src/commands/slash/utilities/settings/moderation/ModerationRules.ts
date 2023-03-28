@@ -1,5 +1,6 @@
 import SettingsUtils from '@commands/slash/utilities/settings/SettingsUtils'
 import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
 import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Utils from '@helpers/Utils'
@@ -10,7 +11,6 @@ import Save from '@structures/Save'
 import Moderation from '@structures/moderation/Moderation'
 import ModerationRules, { ModerationRuleRegex } from '@structures/moderation/ModerationRules'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
-import Emojis from '../../../../../constants/Emojis'
 
 export default class RuleSettings {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string) {

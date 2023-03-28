@@ -1,5 +1,6 @@
 import Colors from '@constants/Colors'
 import Emojis from '@constants/Emojis'
+import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import Save from '@structures/Save'
@@ -7,7 +8,6 @@ import WelcomeMessage from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, AnySelectMenuInteraction, ButtonBuilder, ButtonInteraction, ChannelSelectMenuBuilder, ChannelSelectMenuInteraction, ChannelType, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, TextInputBuilder, TextInputStyle, channelMention } from 'discord.js'
 import Welcome from '../../../../../structures/welcome/Welcome'
 import SettingsUtils from '../SettingsUtils'
-import Options from './../../../../../constants/Options'
 
 export default class WelcomeWebhook {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ChannelSelectMenuInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {

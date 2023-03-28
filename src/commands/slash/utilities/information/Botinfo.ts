@@ -15,7 +15,7 @@ export default class Botinfo extends ChatCommand {
     super(
       client,
       {
-        permissions: [],
+        permissions: ['EmbedLinks'],
         access: AccessType.Public,
         type: CommandType.Public,
         status: true

@@ -168,11 +168,11 @@ export default class WelcomeEditor {
     }
 
     else {
-      const variables = { guild: { name: interaction.guild?.name, icon: interaction.guild?.iconURL(), members: interaction.guild?.memberCount, createdAt: time(interaction.guild.createdTimestamp, 'd'), created: time(interaction.guild.createdTimestamp, 'R') }, user: { name: interaction.user.username, avatar: interaction.user.avatarURL(), createdAt: time(interaction.user.createdTimestamp, 'd'), created: time(interaction.user.createdTimestamp, 'R'), joinedAt: 'Unspecified', joined: 'Unspecified' }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
+      const variables = { guild: { name: interaction.guild?.name, icon: interaction.guild?.iconURL(), members: interaction.guild?.memberCount, createdAt: time(interaction.guild.createdAt, 'd'), created: time(interaction.guild.createdAt, 'R') }, user: { name: interaction.user.username, avatar: interaction.user.avatarURL(), createdAt: time(interaction.user.createdAt, 'd'), created: time(interaction.user.createdAt, 'R'), joinedAt: 'Unspecified', joined: 'Unspecified' }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
 
-      if (interaction.member.joinedTimestamp) {
-        variables.user.joinedAt = time(interaction.member.joinedTimestamp, 'd')
-        variables.user.joined = time(interaction.member.joinedTimestamp, 'R')
+      if (interaction.member.joinedAt) {
+        variables.user.joinedAt = time(interaction.member.joinedAt, 'd')
+        variables.user.joined = time(interaction.member.joinedAt, 'R')
       }
 
       const author = WelcomeMessage.formatVariable(messageData.author, variables) ?? undefined

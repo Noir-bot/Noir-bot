@@ -1,20 +1,20 @@
 import Colors from "@constants/Colors"
+import Emojis from '@constants/Emojis'
 import Reply from '@helpers/Reply'
 import Client from "@structures/Client"
+import Premium from '@structures/Premium'
 import ChatCommand from "@structures/commands/ChatCommand"
 import { AccessType, CommandType } from '@structures/commands/Command'
+import Moderation from '@structures/moderation/Moderation'
 import Welcome from '@structures/welcome/Welcome'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, userMention } from 'discord.js'
-import Emojis from '../../../constants/Emojis'
-import Premium from '../../../structures/Premium'
-import Moderation from '../../../structures/moderation/Moderation'
 
 export default class ServerinfoCommand extends ChatCommand {
   constructor(client: Client) {
     super(
       client,
       {
-        permissions: ['SendMessages'],
+        permissions: ['EmbedLinks'],
         access: AccessType.Public,
         type: CommandType.Public,
         status: true
