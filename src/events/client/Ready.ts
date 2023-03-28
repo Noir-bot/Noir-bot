@@ -13,7 +13,7 @@ export default class ReadyEvent extends Event {
   }
 
   public async execute(client: Client) {
-    console.info(chalk.green.bold(`[Shard ${client.shard}] Noir Ready!`))
+    console.info(chalk.cyan.bold(`[✨] Noir Ready!`))
 
     client?.user?.setActivity({
       name: `${Options.activity}`,

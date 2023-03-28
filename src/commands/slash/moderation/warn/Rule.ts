@@ -6,58 +6,61 @@ import Client from '@structures/Client'
 import { Message, time } from 'discord.js'
 
 export default class WarnRule {
-  public static async check(client: Client, guild: string, user: string) {
-    const rules = await client.prisma.rule.findMany({
+  public static async check(client: Client, guild: string, user: string, id: string) {
+    const caseQuantity = await client.prisma.case.count({
       where: {
-        guild: guild
+        guild: guild,
+        user: user,
+        action: 'warn'
       }
     })
 
-    if (rules) {
-      const warns = await client.prisma.case.findMany({
+    if (!caseQuantity) return
+
+    const rule = await client.prisma.rule.findFirst({
+      where: {
+        guild: guild,
+        quantity: caseQuantity,
+
+      }
+    })
+
+    if (rule) {
+      const ruleData = await client.prisma.rule.findFirst({
         where: {
-          action: 'warn',
-          user: user,
-          guild: guild
+          guild: guild,
+          quantity: caseQuantity
         }
       })
 
-      let suitable
+      if (!ruleData) return
 
-      for (const rule of rules) {
-        if (warns.length == rule.quantity) {
-          suitable = rule
-        }
-      }
-
-      if (!suitable) return
-
-      if (suitable.action == 'ban') {
+      if (ruleData.action == 'ban') {
         this.banResponse(client, guild, user, false)
       }
 
-      else if (suitable.action == 'softban') {
+      else if (ruleData.action == 'softban') {
         this.banResponse(client, guild, user, true)
       }
 
-      else if (suitable.action == 'tempban' && suitable.duration) {
-        this.banResponse(client, guild, user, false, suitable.duration)
+      else if (ruleData.action == 'tempban' && ruleData.duration) {
+        this.banResponse(client, guild, user, false, ruleData.duration)
       }
 
-      else if (suitable.action == 'timeout' && suitable.duration) {
-        this.timeoutResponse(client, guild, user, suitable.duration)
+      else if (ruleData.action == 'timeout' && ruleData.duration) {
+        this.timeoutResponse(client, guild, user, ruleData.duration)
       }
 
-      else if (suitable.action == 'kick') {
+      else if (ruleData.action == 'kick') {
         this.kickResponse(client, guild, user)
       }
     }
   }
 
   public static async banResponse(client: Client, guild: string, user: string, softban: boolean, duration?: string | null) {
-    const created = new Date()
     const guildData = client.guilds.cache.get(guild)
     const member = guildData?.members.cache.get(user)
+    const created = new Date()
 
     if (!member?.bannable) return
 
@@ -118,11 +121,11 @@ export default class WarnRule {
     if (!member?.moderatable) return
     if (!new Duration(duration).offset) return
 
-    const description = `**User:** ${client.users.cache.get(user)?.username} \`${user}\`\n` +
-      `**Reason:** User reached the limit of mod-rule\n` +
-      `**Created at:** ${time(created, 'd')} ${time(created, 'R')}\n` +
-      `**Updated at:** ${time(created, 'd')} ${time(created, 'R')}\n` +
-      `${duration ? `**Expires at:** ${time(new Duration(duration).fromNow, 'd')} ${time(new Duration(duration).fromNow, 'R')}\n` : ''}`
+    const description = `${Emojis.rulebrekaer} User: ${client.users.cache.get(user)?.username} \`${user}\`\n` +
+      `${Emojis.document} Reason: User reached the limit of mod-rule\n` +
+      `${Emojis.time} Created at: ${time(created, 'd')} ${time(created, 'R')}\n` +
+      `${Emojis.time} Updated at: ${time(created, 'd')} ${time(created, 'R')}\n` +
+      `${duration ? `${Emojis.time} Expires at: ${time(new Duration(duration).fromNow, 'd')} ${time(new Duration(duration).fromNow, 'R')}\n` : ''}`
 
     const message = await Logs.log({
       client,
@@ -167,10 +170,10 @@ export default class WarnRule {
 
     if (!member?.moderatable) return
 
-    const description = `**User:** ${client.users.cache.get(user)?.username} \`${user}\`\n` +
-      `**Reason:** User reached the limit of mod-rule\n` +
-      `**Created at:** ${time(created, 'd')} ${time(created, 'R')}\n` +
-      `**Updated at:** ${time(created, 'd')} ${time(created, 'R')}\n`
+    const description = `${Emojis.rulebrekaer} User: ${client.users.cache.get(user)?.username} \`${user}\`\n` +
+      `${Emojis.document} Reason: User reached the limit of mod-rule\n` +
+      `${Emojis.time} Created at: ${time(created, 'd')} ${time(created, 'R')}\n` +
+      `${Emojis.time} Updated at: ${time(created, 'd')} ${time(created, 'R')}\n`
 
     const message = await Logs.log({
       client,

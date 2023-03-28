@@ -5,6 +5,7 @@ import Reply from '@helpers/Reply'
 import Case from '@structures/Case'
 import Client from '@structures/Client'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, User } from 'discord.js'
+import WarnRule from './Rule'
 
 export default class WarnConfirmation {
   public static async confirmationMessage(client: Client, interaction: ChatInputCommandInteraction | ButtonInteraction, user: User, reason: string) {
@@ -97,5 +98,6 @@ export default class WarnConfirmation {
     })
 
     await WarnLogs.LogsMessage(client, interaction, data, id)
+    await WarnRule.check(client, interaction.guildId!, data.user, id)
   }
 }

@@ -149,8 +149,9 @@ export default class RuleSettings {
     const duration = new Duration(ruleDuration)
 
     if (!moderationData) return
-    if (!ModerationRuleRegex.test(ruleAction)) return
+    if (!ruleAction.match(ModerationRuleRegex)) return
     if (ruleQuantity == 0 || rulesData?.rules.some(rule => rule.quantity == ruleQuantity)) return
+
     if (ruleAction != 'ban' && ruleAction != 'softban' && ruleAction != 'kick') {
       if (ruleDuration != 'permanent' && parseInt(ruleDuration) != 0 && isNaN(duration.offset)) return
       if (ruleAction == 'restriction' && duration.offset > 1209600000) return

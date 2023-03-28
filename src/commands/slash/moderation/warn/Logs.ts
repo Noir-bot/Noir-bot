@@ -1,4 +1,3 @@
-import WarnRule from '@commands/slash/moderation/warn/Rule'
 import Colors from '@constants/Colors'
 import Emojis from '@constants/Emojis'
 import Logs from '@helpers/Logs'
@@ -43,10 +42,9 @@ export default class WarnLogs {
     }
 
     else {
-      DataCase.save(client, caseCache, id)
+      await DataCase.save(client, caseCache, id)
     }
 
-    WarnRule.check(client, interaction.guildId!, caseCache.user)
     client.moderationCases.delete(id)
   }
 
