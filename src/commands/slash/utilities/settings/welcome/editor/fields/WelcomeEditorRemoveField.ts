@@ -57,9 +57,6 @@ export default class WelcomeEditorRemoveField {
     const save = Save.cache(client, `${interaction.guildId}-welcome`)
     const ids = interaction.values.map(id => parseInt(id)).sort((a, b) => b - a)
 
-    console.log('ids', ids)
-    console.log(messageData.fieldsId)
-
     ids.forEach(id => {
       messageData.fieldsId.splice(id, 1)
       messageData.fieldsName.splice(id, 1)
@@ -68,11 +65,8 @@ export default class WelcomeEditorRemoveField {
 
       save.count += 1
     })
-    console.log(messageData.fieldsId)
 
     messageData.fieldsId = messageData.fieldsId.map((id, index) => index)
-
-    console.log(messageData.fieldsId)
 
     if (messageData.fieldsId.length >= 1) {
       await this.request(client, interaction, id, type)

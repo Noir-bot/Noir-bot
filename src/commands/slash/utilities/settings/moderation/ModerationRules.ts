@@ -229,7 +229,7 @@ export default class RuleSettings {
     const ruleDuration = interaction.fields.getTextInputValue(SettingsUtils.generateId('settings', id, 'moderationRulesDurationUpdate', 'input')).toLowerCase()
 
     if (!moderationData) return
-    if (!ruleAction.match(ModerationRuleRegex)) return console.log('error regex', ruleAction)
+    if (!ruleAction.match(ModerationRuleRegex)) return
     if (!rulesData?.rules) return
 
     if (ruleAction != 'ban' && ruleAction != 'softban' && ruleAction != 'kick') {
@@ -242,7 +242,7 @@ export default class RuleSettings {
 
     if (ruleQuantity != currentRuleQuantity) {
       if (rulesData?.rules.some(rule => rule.quantity == ruleQuantity)) {
-        return console.log('Rule already exists.')
+        return
       }
     }
 
@@ -254,8 +254,6 @@ export default class RuleSettings {
       const index = rulesData?.rules.findIndex(rule => rule.quantity == currentRuleQuantity)
 
       if ((index == 0 || index) && rulesData?.rules) {
-        console.log('Updated from: ' + rulesData.rules[index].action + ' => ' + ruleAction)
-
         rulesData.rules[index] = {
           guild: interaction.guildId,
           action: ruleAction,

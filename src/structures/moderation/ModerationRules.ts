@@ -47,8 +47,6 @@ export default class ModerationRules {
         } catch (err) {
           console.log(err)
         }
-
-        console.log('saved rules')
       }
     }
 

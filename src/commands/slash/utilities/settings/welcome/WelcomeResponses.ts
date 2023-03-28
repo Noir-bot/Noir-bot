@@ -32,7 +32,7 @@ export default class WelcomeResponse {
         const messageType = methods[2] as WelcomeMessageType
         const reg = /guild_join|guild_left|direct_join/g
 
-        if (!reg.test(messageType)) return console.log('stape')
+        if (!reg.test(messageType)) return
 
         await WelcomeEditor.initialMessage(client, interaction, id, messageType)
       }

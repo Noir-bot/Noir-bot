@@ -40,8 +40,6 @@ export default class DeleteCommand extends ChatCommand {
     const commandId = interaction.options.getString('command', true)
     const command = await client.application?.commands.fetch(commandId) || await client.guilds.cache.get(Options.guildId)?.commands.fetch(commandId)
 
-    console.log(command?.name)
-
     if (!command) return
 
     await command?.delete()

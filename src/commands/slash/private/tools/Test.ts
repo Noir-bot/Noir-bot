@@ -26,7 +26,6 @@ export default class Reset extends ChatCommand {
 
   public async execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>) {
     const cache = await ModerationRules.cache(client, interaction.guildId!, false, true)
-    console.log('Current cache\n', cache)
 
     if (cache) {
       cache.rules[0].action = 'updated'
