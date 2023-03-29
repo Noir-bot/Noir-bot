@@ -78,9 +78,9 @@ export default class ModerationRules {
   }
 }
 
-export type ModerationRuleTypes = 'ban' | 'kick' | 'timeout' | 'tempban' | 'softban'
+export type ModerationRuleTypes = 'ban' | 'kick' | 'timeout' | 'softban'
 
-export const ModerationRuleRegex = /ban|kick|timeout|tempban|softban/g
+export const ModerationRuleRegex = /ban|kick|timeout|softban/g
 
 export interface ModerationRule {
   guild: string

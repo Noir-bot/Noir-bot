@@ -68,7 +68,7 @@ export default class WarnRule {
       `${Emojis.document} Reason: User reached the limit of mod-rule\n` +
       `${Emojis.time} Created at: ${time(created, 'd')} ${time(created, 'R')}\n` +
       `${Emojis.time} Updated at: ${time(created, 'd')} ${time(created, 'R')}\n` +
-      `${duration ? `${Emojis.time} Expires at: ${time(new Duration(duration).offset, 'd')} ${time(new Duration(duration).offset, 'R')}\n` : ''}`
+      `${duration ? `${Emojis.time} Expires at: ${time(new Duration(duration).fromNow, 'd')} ${time(new Duration(duration).fromNow, 'R')}\n` : ''}`
 
     const message = await Logs.log({
       client,
@@ -92,6 +92,10 @@ export default class WarnRule {
         updated: new Date()
       }
     })
+
+    // if (caseData.action == 'tempban' && caseData.expires) {
+    //   client.periodicCases.set(caseData.id, caseData.expires)
+    // }
 
     await Logs.log({
       client,

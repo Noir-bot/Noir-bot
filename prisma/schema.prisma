@@ -1,86 +1,87 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE")
+  provider = "postgresql"
+  url      = env("DATABASE")
 }
 
 model Premium {
-    guild   String   @id @unique
-    expires DateTime @default(now())
+  guild   String   @id @unique
+  expires DateTime @default(now())
 }
 
 model Case {
-    id        Int       @id @unique @default(autoincrement())
-    guild     String
-    action    String
-    moderator String
-    user      String
-    reason    String?
-    reference String?
-    expires   DateTime?
-    duration  Int?
-    updated   DateTime  @default(now())
-    created   DateTime  @default(now())
+  id        Int       @id @unique @default(autoincrement())
+  guild     String
+  action    String
+  moderator String
+  user      String
+  reason    String?
+  reference String?
+  expires   DateTime?
+  duration  Int?
+  updated   DateTime  @default(now())
+  created   DateTime  @default(now())
+  resolved  Boolean   @default(false)
 }
 
 model Moderation {
-    guild   String  @id @unique
-    status  Boolean @default(false)
-    logs    Boolean @default(false)
-    rules   Boolean @default(false)
-    webhook String?
+  guild   String  @id @unique
+  status  Boolean @default(false)
+  logs    Boolean @default(false)
+  rules   Boolean @default(false)
+  webhook String?
 }
 
 model Rule {
-    id       Int     @id @unique @default(autoincrement())
-    guild    String
-    action   String
-    quantity Int
-    duration String?
+  id       Int     @id @unique @default(autoincrement())
+  guild    String
+  action   String
+  quantity Int
+  duration String?
 }
 
 model Welcome {
-    guild   String   @id @unique
-    status  Boolean  @default(false)
-    restore Boolean  @default(false)
-    roles   String[] @default([])
-    webhook String?
+  guild   String   @id @unique
+  status  Boolean  @default(false)
+  restore Boolean  @default(false)
+  roles   String[] @default([])
+  webhook String?
 }
 
 model UserRestore {
-    id    Int      @id @unique @default(autoincrement())
-    guild String
-    user  String
-    roles String[] @default([])
+  id    Int      @id @unique @default(autoincrement())
+  guild String
+  user  String
+  roles String[] @default([])
 }
 
 model WelcomeMessage {
-    id             String    @id @unique @default(cuid())
-    status         Boolean
-    guild          String
-    type           String
-    message        String?
-    url            String?
-    color          String?
-    rawColor       String?
-    title          String?
-    author         String?
-    footer         String?
-    authorImage    String?
-    rawAuthorImage String?
-    footerImage    String?
-    rawFooterImage String?
-    description    String?
-    thumbnail      String?
-    rawThumbnail   String?
-    image          String?
-    rawImage       String?
-    fieldsId       Int[]
-    fieldsName     String[]
-    fieldsValue    String[]
-    fieldsInline   Boolean[]
-    timestamp      Boolean   @default(false)
+  id             String    @id @unique @default(cuid())
+  status         Boolean
+  guild          String
+  type           String
+  message        String?
+  url            String?
+  color          String?
+  rawColor       String?
+  title          String?
+  author         String?
+  footer         String?
+  authorImage    String?
+  rawAuthorImage String?
+  footerImage    String?
+  rawFooterImage String?
+  description    String?
+  thumbnail      String?
+  rawThumbnail   String?
+  image          String?
+  rawImage       String?
+  fieldsId       Int[]
+  fieldsName     String[]
+  fieldsValue    String[]
+  fieldsInline   Boolean[]
+  timestamp      Boolean   @default(false)
 }

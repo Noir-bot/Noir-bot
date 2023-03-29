@@ -18,7 +18,8 @@ export default class WarnConfirmation {
       reason: reason,
       action: 'warn',
       created: time,
-      updated: time
+      updated: time,
+      resolved: false
     })
 
     setTimeout(() => {

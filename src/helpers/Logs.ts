@@ -21,7 +21,8 @@ export default class Logs {
       thumbnail?: string,
       image?: string,
       content?: string,
-      reference?: Message
+      reference?: Message,
+      referenceId?: string
     }) {
     const moderationData = await Moderation.cache(properties.client, properties.guild, false, true)
 
@@ -30,6 +31,12 @@ export default class Logs {
     const webhook = await Moderation.getWebhook(properties.client, moderationData.webhook)
 
     if (!webhook) return
+
+    let message = properties.reference
+
+    if (properties.referenceId) {
+      message = webhook.channel?.messages.cache.get(properties.referenceId) ?? await webhook.channel?.messages.fetch(properties.referenceId)
+    }
 
     return await Reply.sendWebhook({
       client: properties.client,
@@ -47,7 +54,7 @@ export default class Logs {
       footerImage: properties.footerImage,
       thumbnail: properties.thumbnail,
       image: properties.image,
-      reference: properties.reference
+      reference: message
     }).catch((err) => { console.log(err) })
   }
 }

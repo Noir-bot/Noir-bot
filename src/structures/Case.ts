@@ -11,6 +11,7 @@ export default class Case {
   public expires?: Date
   public updated: Date
   public created: Date
+  public resolved: boolean
 
   constructor(data: CaseData) {
     this.id = data.id
@@ -24,6 +25,7 @@ export default class Case {
     this.expires = data.expires
     this.updated = data.updated
     this.created = data.created
+    this.resolved = data.resolved
   }
 
   public static async save(client: Client, data: CaseData, id: string) {
@@ -41,7 +43,8 @@ export default class Case {
           reference: cachedCase.reference,
           expires: cachedCase.expires,
           updated: cachedCase.updated,
-          created: cachedCase.created
+          created: cachedCase.created,
+          resolved: cachedCase.resolved
         }
       })
 
@@ -66,6 +69,7 @@ export interface CaseData {
   expires?: Date
   updated: Date
   created: Date
+  resolved: boolean
 }
 
-export type CaseAction = 'warn' | 'timeout' | 'ban' | 'tempban' | 'softban' | 'unban' | 'kick' | 'channel_lock'
+export type CaseAction = 'warn' | 'timeout' | 'ban' | 'softban' | 'kick'

@@ -60,7 +60,7 @@ export default class Botinfo extends ChatCommand {
       },
       {
         name: `${Emojis.chain} Version`,
-        value: `\`v${pkg.version} beta\``,
+        value: `\`${Options.version} beta\``,
         inline: true
       }
     ]

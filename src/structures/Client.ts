@@ -24,6 +24,7 @@ export default class Client extends BaseClient {
   public moderationRules = new Collection<string, ModerationRules>()
   public moderationCases = new Collection<string, Case>()
   public channelLocks = new Collection<string, boolean>()
+  // public periodicCases = new Collection<number, Date>()
   public prisma = new PrismaClient()
 
   constructor() {
