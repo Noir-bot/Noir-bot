@@ -46,4 +46,8 @@ export default class Emojis {
   public static readonly news = '<:News:1089623443307249864>'
   public static readonly status = '<:Status:1089623440773882039>'
   public static readonly book = '<:Book:1090017588383318026>'
+  public static readonly rightArrow = '<:Rightarrow:1090633097994838026>'
+  public static readonly map = '<:Map:1090665672633237637>'
+  public static readonly globe = '<:Globe:1090665669890146354>'
+  public static readonly timer = '<:Timer:1090666493785677859>'
 }
