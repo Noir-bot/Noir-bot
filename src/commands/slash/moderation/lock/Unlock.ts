@@ -15,7 +15,8 @@ export default class LockCommand extends ChatCommand {
         permissions: ['ManageRoles', 'EmbedLinks'],
         access: AccessType.Moderation,
         type: CommandType.Public,
-        status: true
+        status: true,
+        rateLimit: 5
       },
       {
         name: 'unlock',

@@ -30,4 +30,5 @@ export interface CommandOptions {
   access: AccessType
   type: CommandType
   status: boolean
+  rateLimit?: number
 }

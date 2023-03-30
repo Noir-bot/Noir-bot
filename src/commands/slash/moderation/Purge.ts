@@ -15,7 +15,8 @@ export default class PurgeCommand extends ChatCommand {
         permissions: ['ManageMessages', 'EmbedLinks'],
         access: AccessType.Moderation,
         type: CommandType.Public,
-        status: true
+        status: true,
+        rateLimit: 5
       },
       {
         name: 'purge',

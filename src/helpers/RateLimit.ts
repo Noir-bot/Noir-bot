@@ -1,6 +1,6 @@
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
-import { ButtonInteraction, ChatInputCommandInteraction, ColorResolvable, ModalSubmitInteraction, time } from 'discord.js'
+import { AnySelectMenuInteraction, ButtonInteraction, ColorResolvable, CommandInteraction, ContextMenuCommandInteraction, ModalMessageModalSubmitInteraction, ModalSubmitInteraction, time } from 'discord.js'
 import Colors from '../constants/Colors'
 
 export default class RateLimit {
@@ -27,7 +27,7 @@ export default class RateLimit {
   public static async message(
     properties: {
       client: Client,
-      interaction: ChatInputCommandInteraction | ButtonInteraction | ModalSubmitInteraction,
+      interaction: CommandInteraction | ContextMenuCommandInteraction | ButtonInteraction | ModalSubmitInteraction | ModalMessageModalSubmitInteraction | AnySelectMenuInteraction,
       id: string
       author?: string,
       authorImage?: string,
