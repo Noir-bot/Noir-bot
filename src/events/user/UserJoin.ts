@@ -1,9 +1,9 @@
+import WelcomeHelper from '@commands/slash/utilities/settings/welcome/WelcomeHelper'
+import Client from '@structures/Client'
+import Event from '@structures/Event'
+import Welcome from '@structures/welcome/Welcome'
 import WelcomeMessage from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, GuildMember, MessageActionRowComponentBuilder, time } from 'discord.js'
-import WelcomeHelper from '../../commands/slash/utilities/settings/welcome/WelcomeHelper'
-import Client from '../../structures/Client'
-import Event from '../../structures/Event'
-import Welcome from '../../structures/welcome/Welcome'
 
 export default class UserJoin extends Event {
   constructor(client: Client) {
@@ -41,6 +41,7 @@ export default class UserJoin extends Event {
 
     const webhook = await Welcome.getWebhook(client, welcomeData.webhook)
     const data = { guild: { name: member.guild.name, icon: member.guild.iconURL(), members: member.guild.memberCount, createdAt: time(member.guild.createdAt, 'd'), created: time(member.guild.createdAt, 'R'), joinedAt: time(member.guild.joinedAt, 'd'), joined: time(member.guild.joinedAt, 'R') }, user: { name: member.user.username, avatar: member.user.avatarURL(), createdAt: time(member.user.createdAt, 'd'), created: time(member.user.createdAt, 'R') }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
+    const imageData = { guild: member.guild.iconURL(), user: member.user.avatarURL(), client: client.user?.avatarURL() }
 
     if (webhook) {
       const messageData = await WelcomeMessage.cache(client, member.guild.id, 'guild_join', false, true)
@@ -48,7 +49,7 @@ export default class UserJoin extends Event {
       if (!messageData.status) return
 
       if (messageData) {
-        await WelcomeHelper.send(messageData, data, webhook)
+        await WelcomeHelper.send(messageData, data, imageData, webhook)
       }
     }
 
@@ -71,7 +72,7 @@ export default class UserJoin extends Event {
 
       const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents([button])
 
-      await WelcomeHelper.send(messageData, data, member.user, actionRow)
+      await WelcomeHelper.send(messageData, data, imageData, member.user, actionRow)
     }
   }
 }

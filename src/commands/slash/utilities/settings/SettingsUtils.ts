@@ -8,7 +8,7 @@ export default class SettingsUtils {
   public static successStyle = ButtonStyle.Success
   public static warningStyle = ButtonStyle.Danger
 
-  public static generateId(name: string, id: string, label: string, type: componentTypes) {
+  public static generateId(name: string, id: string, label: string, type: componentTypes): string {
     return `${name}-${id}-${label}-${type}`
   }
 
@@ -16,7 +16,7 @@ export default class SettingsUtils {
     return data ? this.successStyle : this.defaultStyle
   }
 
-  public static generateBack(name: string, id: string, label: string, status = false) {
+  public static generateBack(name: string, id: string, label: string, status = false): ButtonBuilder {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
       .setLabel('Go back')
@@ -25,7 +25,15 @@ export default class SettingsUtils {
       .setDisabled(status)
   }
 
-  public static generateSave(name: string, id: string, label: string, client: Client, guild: string, type?: string, status = false) {
+  public static generateSave(
+    name: string,
+    id: string,
+    label: string,
+    client: Client,
+    guild: string,
+    type?: string,
+    status = false
+  ): ButtonBuilder {
     const saves = Save.cache(client, `${guild}-${type}`)
 
     return new ButtonBuilder()
@@ -36,7 +44,7 @@ export default class SettingsUtils {
       .setDisabled(status)
   }
 
-  public static generateExample(name: string, id: string, label: string, status = false) {
+  public static generateExample(name: string, id: string, label: string, status = false): ButtonBuilder {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
       .setLabel('Preview message')
@@ -45,7 +53,7 @@ export default class SettingsUtils {
       .setDisabled(status)
   }
 
-  public static generateRestore(name: string, id: string, label: string, status = false) {
+  public static generateRestore(name: string, id: string, label: string, status = false): ButtonBuilder {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
       .setLabel('Refresh')
@@ -54,7 +62,7 @@ export default class SettingsUtils {
       .setDisabled(status)
   }
 
-  public static generateReset(name: string, id: string, label: string, status = false) {
+  public static generateReset(name: string, id: string, label: string, status = false): ButtonBuilder {
     return new ButtonBuilder()
       .setCustomId(this.generateId(name, id, label, 'button'))
       .setLabel('Clear data')

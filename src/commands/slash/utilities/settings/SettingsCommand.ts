@@ -13,26 +13,26 @@ export default class SettingsCommand extends ChatCommand {
     super(
       client,
       {
-        permissions: ['SendMessages', 'EmbedLinks', 'ManageWebhooks'],
+        permissions: ['EmbedLinks', 'ManageWebhooks'],
         access: AccessType.Public,
         type: CommandType.Public,
         status: true
       },
       {
         name: 'settings',
-        description: 'Noir settings',
-        defaultMemberPermissions: ['ManageGuild', 'ManageWebhooks'],
+        description: 'Configure and setup Noir',
+        defaultMemberPermissions: ['ManageGuild'],
         type: ApplicationCommandType.ChatInput,
         dmPermission: false
       }
     )
   }
 
-  public async execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>) {
+  public async execute<Interaction extends ChatInputCommandInteraction<'cached'>>(client: Client, interaction: Interaction): Promise<void> {
     await SettingsCommand.initialMessage(client, interaction, interaction.guildId)
   }
 
-  public static async initialMessage(client: Client, interaction: ChatInputCommandInteraction<'cached'> | ButtonInteraction<'cached'>, id: string) {
+  public static async initialMessage<Interaction extends ChatInputCommandInteraction<'cached'> | ButtonInteraction<'cached'>>(client: Client, interaction: Interaction, id: string): Promise<void> {
     const buttons = [
       new ButtonBuilder()
         .setCustomId(SettingsUtils.generateId('settings', id, 'welcome', 'button'))
@@ -50,8 +50,8 @@ export default class SettingsCommand extends ChatCommand {
       .addComponents(buttons)
 
     await Reply.reply({
-      client: client,
-      interaction: interaction,
+      client,
+      interaction,
       color: Colors.primary,
       author: 'Noir settings',
       authorImage: client.user?.avatarURL(),

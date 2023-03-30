@@ -1,6 +1,6 @@
 import Colors from '@constants/Colors'
-import Options from '@constants/Options'
 import Client from '@structures/Client'
+import Preferences from '../../constants/Preferences'
 
 export default class WelcomeMessage {
   public type: WelcomeMessageType
@@ -56,7 +56,7 @@ export default class WelcomeMessage {
   }
 
   public static formatRemove(input: string) {
-    return input.trim().toLowerCase() == Options.removeValue ? '' : input
+    return input.trim().toLowerCase() == Preferences.removeValue ? '' : input
   }
 
   public static formatColor(input: string) {
@@ -122,7 +122,7 @@ export default class WelcomeMessage {
   public static formatVariable(input?: string, options?: { guild?: { name?: string, icon?: string | null, members?: number, createdAt?: string | null, created?: string | null }, user?: { name?: string, avatar?: string | null, createdAt?: string | null, created?: string | null, joinedAt?: string | null, joined?: string | null }, client?: { name?: string, avatar?: string | null } }) {
     input = input?.trim()
 
-    if (input?.trim().toLowerCase() == Options.removeValue) {
+    if (input?.trim().toLowerCase() == Preferences.removeValue) {
       input = undefined
     }
 

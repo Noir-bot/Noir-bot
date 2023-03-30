@@ -1,9 +1,9 @@
+import WelcomeHelper from '@commands/slash/utilities/settings/welcome/WelcomeHelper'
+import Client from '@structures/Client'
+import Event from '@structures/Event'
+import Welcome from '@structures/welcome/Welcome'
+import WelcomeMessage from '@structures/welcome/WelcomeMessage'
 import { GuildMember, time } from 'discord.js'
-import WelcomeHelper from '../../commands/slash/utilities/settings/welcome/WelcomeHelper'
-import Client from '../../structures/Client'
-import Event from '../../structures/Event'
-import Welcome from '../../structures/welcome/Welcome'
-import WelcomeMessage from '../../structures/welcome/WelcomeMessage'
 
 export default class UserJoin extends Event {
   constructor(client: Client) {
@@ -36,6 +36,7 @@ export default class UserJoin extends Event {
 
     const webhook = await Welcome.getWebhook(client, welcomeData.webhook)
     const data = { guild: { name: member.guild.name, icon: member.guild.iconURL(), members: member.guild.memberCount, createdAt: time(member.guild.createdAt, 'd'), created: time(member.guild.createdAt, 'R') }, user: { name: member.user.username, avatar: member.user.avatarURL(), createdAt: time(member.user.createdAt, 'd'), created: time(member.user.createdAt, 'R'), joined: 'Unspecified', joinedAt: 'Unspecified' }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }
+    const imageData = { guild: member.guild.iconURL(), user: member.user.avatarURL(), client: client.user?.avatarURL() }
 
     if (member.joinedTimestamp) {
       data.user.joinedAt = time(member.joinedTimestamp, 'd')
@@ -47,7 +48,7 @@ export default class UserJoin extends Event {
     const messageData = await WelcomeMessage.cache(client, member.guild.id, 'guild_left', false, true)
 
     if (messageData) {
-      await WelcomeHelper.send(messageData, data, webhook)
+      await WelcomeHelper.send(messageData, data, imageData, webhook)
     }
   }
 }

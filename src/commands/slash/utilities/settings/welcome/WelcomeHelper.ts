@@ -2,7 +2,7 @@ import WelcomeMessage from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, EmbedBuilder, EmbedField, MessageActionRowComponentBuilder, User, Webhook } from 'discord.js'
 
 export default class WelcomeHelper {
-  public static async send(messageData: WelcomeMessage, data: any, target: Webhook | User, actionRow?: ActionRowBuilder<MessageActionRowComponentBuilder>) {
+  public static async send(messageData: WelcomeMessage, data: any, imageData: any, target: Webhook | User, actionRow?: ActionRowBuilder<MessageActionRowComponentBuilder>) {
     const embedStatus = messageData.author ?? messageData.description ?? messageData.fieldsValue.length > 0 ?? messageData.footer ?? messageData.image ?? messageData.thumbnail ?? messageData.title
 
     if (!embedStatus) {
@@ -20,13 +20,13 @@ export default class WelcomeHelper {
       try {
         const embed = new EmbedBuilder()
         const author = messageData.author ? WelcomeMessage.formatVariable(messageData.author, data) : undefined
-        const authorImage = messageData.authorImage ?? messageData.rawAuthorImage ? WelcomeMessage.formatVariable(messageData.rawAuthorImage, data) : undefined
+        const authorImage = messageData.authorImage ?? messageData.rawAuthorImage ? WelcomeMessage.formatImage(messageData.rawAuthorImage, imageData) : undefined
         const color = messageData.rawColor ? WelcomeMessage.formatColor(messageData.rawColor) : undefined
         const description = messageData.description ? WelcomeMessage.formatVariable(messageData.description, data) : undefined
         const footer = messageData.footer ? WelcomeMessage.formatVariable(messageData.footer, data) : undefined
-        const footerImage = messageData.footerImage ?? messageData.rawFooterImage ? WelcomeMessage.formatVariable(messageData.rawFooterImage, data) : undefined
-        const image = messageData.image ?? messageData.rawImage ? WelcomeMessage.formatVariable(messageData.rawImage, data) : undefined
-        const thumbnail = messageData.thumbnail ?? messageData.rawThumbnail ? WelcomeMessage.formatVariable(messageData.rawThumbnail, data) : undefined
+        const footerImage = messageData.footerImage ?? messageData.rawFooterImage ? WelcomeMessage.formatImage(messageData.rawFooterImage, imageData) : undefined
+        const image = messageData.image ?? messageData.rawImage ? WelcomeMessage.formatImage(messageData.rawImage, imageData) : undefined
+        const thumbnail = messageData.thumbnail ?? messageData.rawThumbnail ? WelcomeMessage.formatImage(messageData.rawThumbnail, imageData) : undefined
         const title = messageData.title ? WelcomeMessage.formatVariable(messageData.title, data) : undefined
         const url = messageData.url ? WelcomeMessage.formatVariable(messageData.url, data) : undefined
 

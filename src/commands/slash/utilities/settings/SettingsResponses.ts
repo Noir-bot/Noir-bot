@@ -4,7 +4,7 @@ import Client from '@structures/Client'
 import { AnySelectMenuInteraction, ButtonInteraction, ModalMessageModalSubmitInteraction } from 'discord.js'
 
 export default class SettingsResponses {
-  public static async button(client: Client, interaction: ButtonInteraction<'cached'>) {
+  public static async button(client: Client, interaction: ButtonInteraction<'cached'>): Promise<void> {
     const parts = interaction.customId.split('-')
     const method = parts[2]
 
@@ -17,7 +17,7 @@ export default class SettingsResponses {
     }
   }
 
-  public static async modal(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>) {
+  public static async modal(client: Client, interaction: ModalMessageModalSubmitInteraction<'cached'>): Promise<void> {
     const parts = interaction.customId.split('-')
     const method = parts[2]
 
@@ -30,7 +30,7 @@ export default class SettingsResponses {
     }
   }
 
-  public static async select(client: Client, interaction: AnySelectMenuInteraction<'cached'>) {
+  public static async select(client: Client, interaction: AnySelectMenuInteraction<'cached'>): Promise<void> {
     const parts = interaction.customId.split('-')
     const method = parts[2]
 
