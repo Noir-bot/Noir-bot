@@ -12,7 +12,6 @@ import Emojis from '@constants/Emojis'
 import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
-import Premium from '@structures/Premium'
 import Save from '@structures/Save'
 import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ColorResolvable, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, time } from 'discord.js'
@@ -20,7 +19,6 @@ import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ColorResolvable, Me
 export default class WelcomeEditor {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'> | StringSelectMenuInteraction<'cached'>, id: string, type: WelcomeMessageType = 'guild_join') {
     const messageData = await WelcomeMessage.cache(client, id, type, false, true)
-    const premiumData = await Premium.cache(client, id)
     const embedStatus = messageData?.color ?? messageData?.description ?? messageData?.image ?? messageData?.thumbnail ?? messageData?.timestamp
     const exampleStatus = messageData?.description || messageData?.image || messageData?.thumbnail || messageData?.author || messageData?.authorImage || messageData?.footer || messageData?.title || messageData.fieldsId || messageData.message
 

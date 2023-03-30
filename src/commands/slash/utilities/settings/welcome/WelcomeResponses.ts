@@ -8,6 +8,7 @@ import Save from '@structures/Save'
 import Welcome from '@structures/welcome/Welcome'
 import WelcomeMessage, { WelcomeMessageType } from '@structures/welcome/WelcomeMessage'
 import { AnySelectMenuInteraction, ButtonInteraction, ModalMessageModalSubmitInteraction } from 'discord.js'
+import RateLimit from '../../../../../helpers/RateLimit'
 
 export default class WelcomeResponse {
   public static async buttonResponse(client: Client, interaction: ButtonInteraction<'cached'>, parts: string[]) {
@@ -56,10 +57,25 @@ export default class WelcomeResponse {
     }
 
     else if (method.startsWith('welcomeSave')) {
-      await Welcome.save(client, interaction.guildId)
-      saves.count = 0
-
       const type = methods[1]
+
+      const rateTime = new Date(Date.now() + 15.1000)
+      const rateLimited = RateLimit.limit(client, `${interaction.guildId}-welcomeSave`, 15)
+
+      if (rateLimited) {
+        RateLimit.message({
+          client,
+          interaction,
+          id: `${interaction.guildId}-welcomeSave`
+        })
+
+        return
+      }
+
+      else {
+        await Welcome.save(client, interaction.guildId)
+        saves.count = 0
+      }
 
       if (type == 'welcomeEditor') {
         const messageType = methods[2] as WelcomeMessageType
@@ -86,10 +102,24 @@ export default class WelcomeResponse {
     }
 
     else if (method.startsWith('welcomeRestore')) {
-      await Welcome.cache(client, interaction.guildId, true, true)
-      saves.count = 0
-
       const type = methods[1]
+
+      const rateLimited = RateLimit.limit(client, `${interaction.guildId}-welcomeRestore`, 15)
+
+      if (rateLimited) {
+        RateLimit.message({
+          client,
+          interaction,
+          id: `${interaction.guildId}-welcomeRestore`
+        })
+
+        return
+      }
+
+      else {
+        await Welcome.cache(client, interaction.guildId, true, true)
+        saves.count = 0
+      }
 
       if (type == 'welcomeEditor') {
         const messageType = methods[2] as WelcomeMessageType

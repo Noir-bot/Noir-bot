@@ -7,6 +7,7 @@ import Save from '@structures/Save'
 import Moderation from '@structures/moderation/Moderation'
 import ModerationRules from '@structures/moderation/ModerationRules'
 import { AnySelectMenuInteraction, ButtonInteraction, ModalMessageModalSubmitInteraction } from 'discord.js'
+import RateLimit from '../../../../../helpers/RateLimit'
 
 
 export default class ModerationResponse {
@@ -43,9 +44,25 @@ export default class ModerationResponse {
     }
 
     else if (method.startsWith('moderationSave')) {
-      await Moderation.save(client, interaction.guildId)
       const type = methodSplit[1]
-      saves.count = 0
+
+      const rateTime = new Date(Date.now() + 15.1000)
+      const rateLimited = RateLimit.limit(client, `${interaction.guildId}-moderationSave`, 15)
+
+      if (rateLimited) {
+        RateLimit.message({
+          client,
+          interaction,
+          id: `${interaction.guildId}-moderationSave`
+        })
+
+        return
+      }
+
+      else {
+        await Moderation.save(client, interaction.guildId)
+        saves.count = 0
+      }
 
       if (type == 'moderationLogs') {
         await ModerationLogs.initialMessage(client, interaction, id)
@@ -67,9 +84,25 @@ export default class ModerationResponse {
     }
 
     else if (method.startsWith('moderationRestore')) {
-      await Moderation.cache(client, interaction.guildId, true, true)
       const type = methodSplit[1]
-      saves.count = 0
+
+      const rateTime = new Date(Date.now() + 15.1000)
+      const rateLimited = RateLimit.limit(client, `${interaction.guildId}-moderationRestore`, 15)
+
+      if (rateLimited) {
+        RateLimit.message({
+          client,
+          interaction,
+          id: `${interaction.guildId}-moderationRestore`
+        })
+
+        return
+      }
+
+      else {
+        await Moderation.cache(client, interaction.guildId, true, true)
+        saves.count = 0
+      }
 
       if (type == 'moderationLogs') {
         await ModerationLogs.initialMessage(client, interaction, id)

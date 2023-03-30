@@ -62,7 +62,7 @@ export default class MaintenanceCommand extends ChatCommand {
 
     else {
       client.user?.setActivity({
-        name: `${client.guilds.cache.size} servers`,
+        name: `for ${client.guilds.cache.size} servers`,
         type: ActivityType.Watching
       })
 

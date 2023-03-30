@@ -16,7 +16,7 @@ export default class ReadyEvent extends Event {
     console.info(chalk.cyan.bold(`[✨] Noir Ready!`))
 
     client?.user?.setActivity({
-      name: `${client.guilds.cache.size} servers`,
+      name: `for ${client.guilds.cache.size} servers`,
       type: ActivityType.Watching
     })
 
