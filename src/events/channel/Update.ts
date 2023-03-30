@@ -33,15 +33,15 @@ export default class ChannelUpdate extends Event {
 
     if (oldChannel.isTextBased() && newChannel.isTextBased()) {
       if (oldChannel.type == ChannelType.GuildText && newChannel.type == ChannelType.GuildText) {
-        if (oldChannel.topic != newChannel.topic) {
+        if (newChannel.topic && oldChannel.topic != newChannel.topic) {
           changes += `${Emojis.book} Topic: ${oldChannel.topic || 'No description'} ${Emojis.rightArrow} ${newChannel.topic || 'No description'}\n`
         }
 
-        if (oldChannel.rateLimitPerUser != newChannel.rateLimitPerUser) {
+        if (newChannel.rateLimitPerUser && oldChannel.rateLimitPerUser != newChannel.rateLimitPerUser) {
           changes += `${Emojis.timer} Cooldown: ${Utils.formatTime(oldChannel.rateLimitPerUser * 1000) ?? 0} ${Emojis.rightArrow} ${Utils.formatTime(newChannel.rateLimitPerUser * 1000 ?? 0)}\n`
         }
 
-        if (oldChannel.nsfw != newChannel.nsfw) {
+        if (newChannel.nsfw && oldChannel.nsfw != newChannel.nsfw) {
           changes += `${Emojis.lock} Age restricted: ${oldChannel.nsfw ? Emojis.enable : Emojis.disable} ${Emojis.rightArrow} ${newChannel.nsfw ? Emojis.enable : Emojis.disable}\n`
         }
       }
@@ -53,11 +53,11 @@ export default class ChannelUpdate extends Event {
           changes += `${Emojis.status} Bitrate: ${oldChannel.bitrate / 1000 ?? 0}kbps ${Emojis.rightArrow} ${newChannel.bitrate / 1000 ?? 0}kbps\n`
         }
 
-        if (oldChannel.userLimit != newChannel.userLimit) {
+        if (newChannel.userLimit && oldChannel.userLimit != newChannel.userLimit) {
           changes += `${Emojis.user} User limit: ${oldChannel.userLimit} ${Emojis.rightArrow} ${newChannel.userLimit}\n`
         }
 
-        if (oldChannel.rtcRegion != newChannel.rtcRegion) {
+        if (newChannel.rtcRegion && oldChannel.rtcRegion != newChannel.rtcRegion) {
           changes += `${Emojis.globe} Region: ${oldChannel.rtcRegion} ${Emojis.rightArrow} ${newChannel.rtcRegion}\n`
         }
 
