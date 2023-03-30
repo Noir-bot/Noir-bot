@@ -37,7 +37,7 @@ export default class HelpCommand extends ChatCommand {
         .setLabel('Noir docs')
         .setStyle(ButtonStyle.Link),
       new ButtonBuilder()
-        .setURL(Options.botInvite)
+        .setURL(Options.clientInvite)
         .setLabel('Invite Noir')
         .setStyle(ButtonStyle.Link),
     ]

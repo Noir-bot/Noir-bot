@@ -62,11 +62,11 @@ export default class MaintenanceCommand extends ChatCommand {
 
     else {
       client.user?.setActivity({
-        name: Options.activity,
-        type: ActivityType.Listening
+        name: `${client.guilds.cache.size} servers`,
+        type: ActivityType.Watching
       })
 
-      client.user?.setStatus(Options.status)
+      client.user?.setStatus('online')
     }
   }
 }

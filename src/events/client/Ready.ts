@@ -16,14 +16,11 @@ export default class ReadyEvent extends Event {
     console.info(chalk.cyan.bold(`[✨] Noir Ready!`))
 
     client?.user?.setActivity({
-      name: `${Options.activity}`,
-      type: ActivityType.Listening
+      name: `${client.guilds.cache.size} servers`,
+      type: ActivityType.Watching
     })
 
     await this.loadCommands(client, `${__dirname}/../../commands/**/**/*{.js,.ts}`)
-
-    // await this.loadCases(client) UNDEF DEVELOPMENT
-    // this.handleCases(client)
   }
 
   private async loadCommands(client: Client, path: string) {
