@@ -1,4 +1,5 @@
 import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
@@ -34,27 +35,27 @@ export default class RulesCommand extends ChatCommand {
   public static fields = [
     [
       {
-        name: 'Attitude',
+        name: `${Emojis.book} Attitude`,
         value: `Please be polite and respectful towards people in the server. Don't be rude or mean to anyone.`,
         inline: false
       },
       {
-        name: 'Forbidden topics',
+        name: `${Emojis.channel} Forbidden topics`,
         value: 'Prohibited topics, such as politics, religion, discrimination, or other sensitive content, are strictly off-limits in the server.',
         inline: false
       },
       {
-        name: 'Advertisement',
+        name: `${Emojis.chain} Advertisement`,
         value: 'Please refrain from promoting other Discord servers, websites, or products without permission from the server moderators. Spamming or excessive self-promotion is not allowed.',
         inline: false
       },
       {
-        name: 'Offensive content',
+        name: `${Emojis.image} Offensive content`,
         value: 'Please do not share any inappropriate or offensive content, including sexually explicit images or videos.',
         inline: false
       },
       {
-        name: 'Moderation',
+        name: `${Emojis.user} Moderation`,
         value: 'If the server moderators find that a member has violated any of these rules they may take corresponding action.',
         inline: false
       }
