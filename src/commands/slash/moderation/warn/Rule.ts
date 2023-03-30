@@ -20,8 +20,7 @@ export default class WarnRule {
     const rule = await client.prisma.rule.findFirst({
       where: {
         guild: guild,
-        quantity: caseQuantity,
-
+        quantity: caseQuantity
       }
     })
 

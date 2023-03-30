@@ -26,7 +26,9 @@ export default class Logs {
     }) {
     const moderationData = await Moderation.cache(properties.client, properties.guild, false, true)
 
-    if (!moderationData || !moderationData.webhook) return
+    if (!moderationData) return
+    else if (!moderationData.logs) return
+    else if (!moderationData.webhook) return
 
     const webhook = await Moderation.getWebhook(properties.client, moderationData.webhook)
 

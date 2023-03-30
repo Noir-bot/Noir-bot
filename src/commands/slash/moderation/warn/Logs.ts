@@ -73,7 +73,7 @@ export default class WarnLogs {
         `${Emojis.document} Reason: ${caseData.reason}\n` +
         `${Emojis.time} Created at: ${time(caseData.created, 'd')} ${time(caseData.created, 'R')}\n` +
         `${Emojis.time} Updated at: ${time(caseData.updated, 'd')} ${time(caseData.updated, 'R')}\n` +
-        `${caseData.expires ? `${Emojis.time} Expire${caseData.expires.getTime() <= new Date().getTime() ? 'd' : 's'} at:** ${time(caseData.expires.getTime(), 'd')} ${time(caseData.expires.getTime(), 'R')}\n` : ''}` +
+        `${caseData.expires ? `${Emojis.time} Expire${caseData.expires.getTime() <= new Date().getTime() ? 'd' : 's'} at: ${time(caseData.expires.getTime(), 'd')} ${time(caseData.expires.getTime(), 'R')}\n` : ''}` +
         `${deleted ? `${Emojis.trash} Removed at: ${time(new Date(), 'd')} ${time(new Date(), 'R')}` : ''}`,
       footer: `Case ID: ${caseData.id}`,
       reference: message
