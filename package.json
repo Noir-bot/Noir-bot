@@ -38,7 +38,7 @@
         "start": "node -r tsconfig-paths/register ./build/index.js",
         "prisma": "prisma generate",
         "push": "prisma db push",
-        "build": "tsc --project --statistics . && tsc-alias"
+        "build": "tsc --project . && tsc-alias"
     },
     "keywords": [],
     "repository": "https://github.com/noir-development/noir-bot/"
