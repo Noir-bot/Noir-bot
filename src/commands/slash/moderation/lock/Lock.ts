@@ -1,10 +1,10 @@
 import Colors from '@constants/Colors'
 import Emojis from '@constants/Emojis'
+import Logs from '@helpers/Logs'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandType } from '@structures/commands/Command'
-import Moderation from '@structures/moderation/Moderation'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, ChatInputCommandInteraction, GuildChannel, channelMention, time } from 'discord.js'
 
 export default class LockCommand extends ChatCommand {
@@ -86,29 +86,17 @@ export default class LockCommand extends ChatCommand {
       description: `${channelMention(channel.id)} has been successfully locked.`,
     })
 
-    const modData = await Moderation.cache(client, interaction.guildId)
+    const description = `${Emojis.channel} Channel:${channelMention(channel.id)}\n` +
+      `${Emojis.user} Moderator: ${interaction.user.username} \`${interaction.user.id}\`\n` +
+      `${reason ? `${Emojis.document} Reason: ${reason}\n` : ''}` +
+      `${Emojis.lock} Locked at: ${time(new Date(), 'd')} (${time(new Date(), 'R')})`
 
-    if (modData.webhook) {
-      const webhook = await Moderation.getWebhook(client, modData.webhook)
-
-      if (webhook) {
-        const description = `${Emojis.channel} Channel:${channelMention(channel.id)}\n` +
-          `${Emojis.user} Moderator: ${interaction.user.username} \`${interaction.user.id}\`\n` +
-          `${reason ? `${Emojis.document} Reason: ${reason}\n` : ''}` +
-          `${Emojis.lock} Locked at: ${time(new Date(), 'd')} (${time(new Date(), 'R')})`
-
-        try {
-          Reply.sendWebhook({
-            client,
-            webhook,
-            description,
-            author: 'Channel lock',
-            color: Colors.logsGuild
-          })
-        } catch (error) {
-          console.log(error)
-        }
-      }
-    }
+    Logs.log({
+      client,
+      guild: interaction.guildId,
+      description,
+      author: 'Channel lock',
+      color: Colors.logsGuild
+    })
   }
 }
