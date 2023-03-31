@@ -84,7 +84,7 @@ export default class WarnRule {
         moderator: client.user?.id!,
         user: user,
         reason: 'Auto-ban for reaching the warn limit.',
-        reference: message.id,
+        reference: message ? message.id : undefined,
         expires: duration ? new Duration(duration).fromNow : null,
         duration: duration ? new Duration(duration).offset : null,
         created: new Date(),
@@ -103,7 +103,7 @@ export default class WarnRule {
       color: Colors.primary,
       description: description,
       footer: `Case ID: ${caseData.id}`,
-      reference: message
+      reference: message ? message : undefined
     }) as Message
 
     if (softban && member) {
@@ -147,7 +147,7 @@ export default class WarnRule {
         created: new Date(),
         updated: new Date(),
         reason: 'Auto-timeout for reaching the warn limit.',
-        reference: message.id,
+        reference: message ? message.id : undefined,
         expires: new Duration(duration).fromNow,
         duration: new Duration(duration).offset
       }
@@ -160,7 +160,7 @@ export default class WarnRule {
       color: Colors.primary,
       description: description,
       footer: `Case ID: ${caseData.id}`,
-      reference: message
+      reference: message ? message : undefined
     }) as Message
 
     member.timeout(new Duration(duration).offset)
@@ -195,7 +195,7 @@ export default class WarnRule {
         created: new Date(),
         updated: new Date(),
         reason: 'Auto-kick for reaching the warn limit.',
-        reference: message.id ?? null,
+        reference: message ? message.id : undefined,
       }
     })
 
@@ -206,7 +206,7 @@ export default class WarnRule {
       color: Colors.primary,
       description: description,
       footer: `Case ID: ${caseData.id}`,
-      reference: message
+      reference: message ? message : undefined
     }) as Message
 
     member.kick()

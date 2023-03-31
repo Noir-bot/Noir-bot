@@ -1,6 +1,7 @@
 import MaintenanceCommand from '@commands/slash/private/tools/Maintenance'
 import Colors from '@constants/Colors'
 import Options from '@constants/Options'
+import RateLimit from '@helpers/RateLimit'
 import Reply from '@helpers/Reply'
 import Utils from '@helpers/Utils'
 import Client from '@structures/Client'
@@ -13,6 +14,22 @@ export default class CommandExecution {
     const command = client.commands.get(interaction.commandName) as Command
 
     try {
+      if (command.options.rateLimit && command.options.rateLimit > 0) {
+        const id = `${interaction.command?.id}-${interaction.user.id}`
+        const rateLimit = RateLimit.limit(client, id, command.options.rateLimit)
+
+        if (rateLimit) {
+          await RateLimit.message({
+            client,
+            interaction,
+            update: false,
+            id,
+          })
+
+          return
+        }
+      }
+
       if (Options.maintenance && command.data.name != new MaintenanceCommand(client).data.name) {
         await Reply.reply({
           client: client,
