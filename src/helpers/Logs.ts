@@ -24,11 +24,11 @@ export default class Logs {
       reference?: Message,
       referenceId?: string
     }) {
-    const moderationData = await Moderation.cache(properties.client, properties.guild, false, true)
+    const moderationData = await Moderation.cache(properties.client, properties.guild)
 
     if (!moderationData) return
-    else if (!moderationData.logs) return
-    else if (!moderationData.webhook) return
+    if (!moderationData.logs) return
+    if (!moderationData.webhook) return
 
     const webhook = await Moderation.getWebhook(properties.client, moderationData.webhook)
 
@@ -56,7 +56,7 @@ export default class Logs {
       footerImage: properties.footerImage,
       thumbnail: properties.thumbnail,
       image: properties.image,
-      reference: message
+      reference: message ? message : undefined
     }).catch((err) => { console.log(err) })
   }
 }

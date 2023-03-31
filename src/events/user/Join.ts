@@ -13,9 +13,7 @@ export default class UserJoin extends Event {
   public async execute(client: Client, member: GuildMember) {
     const welcomeData = await Welcome.cache(client, member.guild.id)
 
-    if (welcomeData?.roles) {
-      await member.roles.add(welcomeData.roles)
-    }
+    if (!welcomeData.status) return
 
     if (welcomeData.restore) {
       const roles = await client.prisma.userRestore.findFirst({
@@ -38,6 +36,10 @@ export default class UserJoin extends Event {
 
     if (!welcomeData.status) return
     if (!welcomeData.webhook) return
+
+    if (welcomeData?.roles) {
+      await member.roles.add(welcomeData.roles)
+    }
 
     const webhook = await Welcome.getWebhook(client, welcomeData.webhook)
     const data = { guild: { name: member.guild.name, icon: member.guild.iconURL(), members: member.guild.memberCount, createdAt: time(member.guild.createdAt, 'd'), created: time(member.guild.createdAt, 'R'), joinedAt: time(member.guild.joinedAt, 'd'), joined: time(member.guild.joinedAt, 'R') }, user: { name: member.user.username, avatar: member.user.avatarURL(), createdAt: time(member.user.createdAt, 'd'), created: time(member.user.createdAt, 'R') }, client: { name: client.user?.username, avatar: client.user?.avatarURL() } }

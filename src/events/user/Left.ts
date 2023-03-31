@@ -1,9 +1,10 @@
 import WelcomeHelper from '@commands/slash/utilities/settings/welcome/WelcomeHelper'
+import UserKick from '@events/user/Kick'
 import Client from '@structures/Client'
 import Event from '@structures/Event'
 import Welcome from '@structures/welcome/Welcome'
 import WelcomeMessage from '@structures/welcome/WelcomeMessage'
-import { GuildMember, time } from 'discord.js'
+import { AuditLogEvent, GuildMember, time } from 'discord.js'
 
 export default class UserJoin extends Event {
   constructor(client: Client) {
@@ -11,7 +12,18 @@ export default class UserJoin extends Event {
   }
 
   public async execute(client: Client, member: GuildMember) {
+    const auditLogs = await member.guild.fetchAuditLogs({ type: AuditLogEvent.MemberKick, limit: 1 })
+    const eventInfo = auditLogs.entries.first()
+
+    if (eventInfo?.targetId == member.id && eventInfo.createdAt.getTime() > new Date().getTime() - 10000) {
+      await UserKick.response(client, member, eventInfo)
+
+      return
+    }
+
     const welcomeData = await Welcome.cache(client, member.guild.id)
+
+    if (!welcomeData.status) return
 
     if (welcomeData.restore) {
       const memberRoles = member.roles.cache
