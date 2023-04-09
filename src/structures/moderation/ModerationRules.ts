@@ -10,10 +10,10 @@ export default class ModerationRules {
   public static async save(client: Client, guildId: string) {
     const cache = client.moderationRules.get('(cached)' + guildId)
 
-    if (cache && cache.rules.length > 0) {
-      const data = await client.prisma.rule.findMany({ where: { guild: guildId } })
+    if (cache) {
+      const data = await client.prisma.rule.count({ where: { guild: guildId } })
 
-      if (!data) {
+      if (data == 0) {
         await client.prisma.rule.createMany({
           data: cache.rules.map(rule => {
             return {
@@ -33,19 +33,21 @@ export default class ModerationRules {
           }
         })
 
-        try {
-          await client.prisma.rule.createMany({
-            data: cache.rules.map(rule => {
-              return {
-                guild: rule.guild,
-                action: rule.action,
-                quantity: rule.quantity,
-                duration: rule.duration
-              }
+        if (cache.rules.length > 0) {
+          try {
+            await client.prisma.rule.createMany({
+              data: cache.rules.map(rule => {
+                return {
+                  guild: rule.guild,
+                  action: rule.action,
+                  quantity: rule.quantity,
+                  duration: rule.duration
+                }
+              })
             })
-          })
-        } catch (err) {
-          console.log(err)
+          } catch (err) {
+            console.log(err)
+          }
         }
       }
     }
