@@ -1,3 +1,4 @@
+import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import { AnySelectMenuInteraction, ButtonInteraction, ColorResolvable, CommandInteraction, ContextMenuCommandInteraction, ModalMessageModalSubmitInteraction, ModalSubmitInteraction, time } from 'discord.js'
@@ -6,6 +7,8 @@ import Colors from '../constants/Colors'
 export default class RateLimit {
   public static limit(client: Client, id: string, time: number): boolean {
     const data = client.rateLimits.get(id)
+
+    if (Options.owners.includes(id)) return false
 
     if (data) {
       if (data < new Date()) {
