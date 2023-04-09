@@ -46,7 +46,6 @@ export default class ModerationResponse {
     else if (method.startsWith('moderationSave')) {
       const type = methodSplit[1]
 
-      const rateTime = new Date(Date.now() + 15.1000)
       const rateLimited = RateLimit.limit(client, `${interaction.guildId}-moderationSave`, 15)
 
       if (rateLimited) {
@@ -62,31 +61,30 @@ export default class ModerationResponse {
       else {
         await Moderation.save(client, interaction.guildId)
         saves.count = 0
-      }
 
-      if (type == 'moderationLogs') {
-        await ModerationLogs.initialMessage(client, interaction, id)
-      }
+        if (type == 'moderationLogs') {
+          await ModerationLogs.initialMessage(client, interaction, id)
+        }
 
-      else if (type == 'moderationWebhookChannel') {
-        await ModerationLogs.channelRequest(client, interaction, id)
-      }
+        else if (type == 'moderationWebhookChannel') {
+          await ModerationLogs.channelRequest(client, interaction, id)
+        }
 
-      else if (type == 'moderationRules') {
-        await ModerationRules.save(client, interaction.guildId)
-        await ModerationRules.cache(client, interaction.guildId, true, true)
-        await RuleSettings.initialMessage(client, interaction, id)
-      }
+        else if (type == 'moderationRules') {
+          await ModerationRules.save(client, interaction.guildId)
+          await ModerationRules.cache(client, interaction.guildId, true, true)
+          await RuleSettings.initialMessage(client, interaction, id)
+        }
 
-      else {
-        await ModerationSettings.initialMessage(client, interaction, id)
+        else {
+          await ModerationSettings.initialMessage(client, interaction, id)
+        }
       }
     }
 
     else if (method.startsWith('moderationRestore')) {
       const type = methodSplit[1]
 
-      const rateTime = new Date(Date.now() + 15.1000)
       const rateLimited = RateLimit.limit(client, `${interaction.guildId}-moderationRestore`, 15)
 
       if (rateLimited) {
@@ -102,24 +100,24 @@ export default class ModerationResponse {
       else {
         await Moderation.cache(client, interaction.guildId, true, true)
         saves.count = 0
-      }
 
-      if (type == 'moderationLogs') {
-        await ModerationLogs.initialMessage(client, interaction, id)
-      }
+        if (type == 'moderationLogs') {
+          await ModerationLogs.initialMessage(client, interaction, id)
+        }
 
-      else if (type == 'moderationWebhookChannel') {
-        await ModerationLogs.channelRequest(client, interaction, id)
-      }
+        else if (type == 'moderationWebhookChannel') {
+          await ModerationLogs.channelRequest(client, interaction, id)
+        }
 
-      else if (type == 'moderationRules') {
-        await ModerationRules.cache(client, interaction.guildId, true, true)
+        else if (type == 'moderationRules') {
+          await ModerationRules.cache(client, interaction.guildId, true, true)
 
-        await RuleSettings.initialMessage(client, interaction, id)
-      }
+          await RuleSettings.initialMessage(client, interaction, id)
+        }
 
-      else {
-        await ModerationSettings.initialMessage(client, interaction, id)
+        else {
+          await ModerationSettings.initialMessage(client, interaction, id)
+        }
       }
     }
 

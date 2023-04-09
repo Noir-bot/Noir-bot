@@ -236,7 +236,7 @@ export default class RuleSettings {
       const duration = new Duration(ruleDuration) ?? undefined
 
       if (ruleDuration != 'permanent' && parseInt(ruleDuration) != 0 && isNaN(duration.offset)) return
-      if (ruleAction == 'restriction' && duration.offset > 1209600000) return
+      if (ruleAction == 'timeout' && duration.offset > 1209600000) return
       if (duration.offset > 31556952000) return
     }
 
@@ -247,6 +247,7 @@ export default class RuleSettings {
     }
 
     if (ruleQuantity == 0 && rulesData?.rules) {
+      console.log('deleting')
       rulesData.rules = rulesData.rules.filter(rule => rule.quantity != currentRuleQuantity)
     }
 
@@ -258,7 +259,7 @@ export default class RuleSettings {
           guild: interaction.guildId,
           action: ruleAction,
           quantity: ruleQuantity,
-          duration: ruleDuration.replace(/$0^|$permanent^/, 'permanent') ?? undefined
+          duration: ruleDuration.replace(/$0^|$permanent^/, 'permanent')
         }
       }
     }
