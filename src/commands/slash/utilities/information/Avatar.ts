@@ -50,9 +50,9 @@ export default class AvatarCommand extends ChatCommand {
 
   public async execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>) {
     const member = interaction.options.getMember('user') ?? interaction.member
-    const ephemeral = interaction.options.getBoolean('private') ?? true
-    const server = interaction.options.getBoolean('server') ?? false
     const target = interaction.options.getUser('target')
+    const server = interaction.options.getBoolean('server') ?? false
+    const ephemeral = target ? false : interaction.options.getBoolean('private') ?? true
 
     AvatarCommand.getInfo(client, interaction, member, target, server, ephemeral)
   }
@@ -72,7 +72,7 @@ export default class AvatarCommand extends ChatCommand {
       client,
       interaction,
       ephemeral,
-      content: target ? `Avatar for ${userMention(target.id)}` : undefined,
+      content: target ? `Requested for ${userMention(target.id)}` : undefined,
       title: `${member.user.username}'s avatar`,
       color: color ?? Colors.primary,
       image: avatar,

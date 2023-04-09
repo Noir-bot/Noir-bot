@@ -50,8 +50,8 @@ export default class BannerCommand extends ChatCommand {
 
   public async execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>) {
     const member = interaction.options.getMember('user') ?? interaction.member
-    const ephemeral = interaction.options.getBoolean('private') ?? true
     const target = interaction.options.getUser('target')
+    const ephemeral = target ? false : interaction.options.getBoolean('private') ?? true
 
     BannerCommand.getInfo(client, interaction, member, target, ephemeral)
   }
@@ -82,7 +82,7 @@ export default class BannerCommand extends ChatCommand {
       client,
       interaction,
       ephemeral,
-      content: target ? `Banner for ${userMention(target.id)}` : undefined,
+      content: target ? `Requested for ${userMention(target.id)}` : undefined,
       title: `${member.user.username}'s banner`,
       color: color ?? Colors.primary,
       image: banner ?? undefined,
