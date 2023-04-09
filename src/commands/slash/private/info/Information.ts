@@ -46,7 +46,7 @@ export default class RulesCommand extends ChatCommand {
         },
         {
           name: `${Emojis.premium} Noir Premium`,
-          value: `Get bracing features for your server, exclusive premium role and support our team to make even more epic stuff.\n${Emojis.point} [Patreon](${Options.patreonLink})\n${Emojis.point} [Buy me a coffee](${Options.buyMeACoffeeLink})`,
+          value: `Get bracing features for your server, exclusive premium role and support our team to make even more epic stuff.\n${Emojis.point} [Patreon](${Options.patreonLink})`,
           inline: false,
         }
       ]
