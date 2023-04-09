@@ -83,7 +83,7 @@ export default class BannerCommand extends ChatCommand {
       interaction,
       ephemeral,
       content: target ? `Banner for ${userMention(target.id)}` : undefined,
-      author: `${member.user.username}'s banner`,
+      title: `${member.user.username}'s banner`,
       color: color ?? Colors.primary,
       image: banner ?? undefined,
     })

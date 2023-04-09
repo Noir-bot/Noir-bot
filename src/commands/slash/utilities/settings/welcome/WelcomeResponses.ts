@@ -59,7 +59,6 @@ export default class WelcomeResponse {
     else if (method.startsWith('welcomeSave')) {
       const type = methods[1]
 
-      const rateTime = new Date(Date.now() + 15.1000)
       const rateLimited = RateLimit.limit(client, `${interaction.guildId}-welcomeSave`, 15)
 
       if (rateLimited) {

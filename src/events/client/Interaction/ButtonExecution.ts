@@ -1,3 +1,4 @@
+import InfractionsCommand from '@commands/slash/moderation/infractions/Infractions'
 import WarnConfirmation from '@commands/slash/moderation/warn/Confirmation'
 import RolesCommand from '@commands/slash/private/info/Roles'
 import SettingsResponses from '@commands/slash/utilities/settings/SettingsResponses'
@@ -12,5 +13,7 @@ export default class ButtonExecution {
     if (name == 'settings' && interaction.inCachedGuild()) await SettingsResponses.button(client, interaction)
     else if (name == 'warn') WarnConfirmation.handleButton(client, interaction)
     else if ((name == 'rolesadd' || name == 'rolesremove') && interaction.inCachedGuild()) await RolesCommand.button(client, interaction, name)
+    else if ((name == 'rolesadd' || name == 'rolesremove') && interaction.inCachedGuild()) await RolesCommand.button(client, interaction, name)
+    else if (name == 'infractions' && interaction.inCachedGuild()) InfractionsCommand.button(client, interaction)
   }
 }

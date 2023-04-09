@@ -1,4 +1,5 @@
 import CaseEdit from '@commands/slash/moderation/case/Edit'
+import InfractionsCommand from '@commands/slash/moderation/infractions/Infractions'
 import SettingsResponses from '@commands/slash/utilities/settings/SettingsResponses'
 import Client from '@structures/Client'
 import { ModalMessageModalSubmitInteraction } from 'discord.js'
@@ -10,5 +11,6 @@ export default class ModalExecution {
 
     if (name == 'settings' && interaction.inCachedGuild()) await SettingsResponses.modal(client, interaction)
     else if (name == 'case') await CaseEdit.modalResponse(client, interaction)
+    else if (name == 'infractions' && interaction.inCachedGuild()) await InfractionsCommand.modal(client, interaction)
   }
 }

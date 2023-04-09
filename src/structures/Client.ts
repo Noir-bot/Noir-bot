@@ -2,6 +2,7 @@ import Options from '@constants/Options'
 import { PrismaClient } from '@prisma/client'
 import Case from '@structures/Case'
 import Event from '@structures/Event'
+import Infraction from '@structures/Infraction'
 import Premium from '@structures/Premium'
 import Save from '@structures/Save'
 import Command from '@structures/commands/Command'
@@ -23,6 +24,7 @@ export default class Client extends BaseClient {
   public moderation = new Collection<string, Moderation>()
   public moderationRules = new Collection<string, ModerationRules>()
   public moderationCases = new Collection<string, Case>()
+  public infractions = new Collection<string, Infraction>()
   public channelLocks = new Collection<string, boolean>()
   // public periodicCases = new Collection<number, Date>()
   public rateLimits = new Collection<string, Date>()

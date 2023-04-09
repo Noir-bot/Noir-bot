@@ -73,7 +73,7 @@ export default class AvatarCommand extends ChatCommand {
       interaction,
       ephemeral,
       content: target ? `Avatar for ${userMention(target.id)}` : undefined,
-      author: `${member.user.username}'s avatar`,
+      title: `${member.user.username}'s avatar`,
       color: color ?? Colors.primary,
       image: avatar,
     })

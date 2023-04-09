@@ -1,3 +1,4 @@
+import InfractionsCommand from '@commands/slash/moderation/infractions/Infractions'
 import RolesCommand from '@commands/slash/private/info/Roles'
 import RulesCommand from '@commands/slash/private/info/Rules'
 import SettingsResponses from '@commands/slash/utilities/settings/SettingsResponses'
@@ -12,5 +13,6 @@ export default class SelectMenuExecution {
     if (name == 'settings' && interaction.inCachedGuild()) await SettingsResponses.select(client, interaction)
     else if (name == 'roles' && interaction.inCachedGuild() && interaction.isStringSelectMenu()) await RolesCommand.select(client, interaction)
     else if (name == 'rules' && interaction.inCachedGuild() && interaction.isStringSelectMenu()) RulesCommand.select(client, interaction)
+    else if (name == 'infractions' && interaction.inCachedGuild() && interaction.isStringSelectMenu()) InfractionsCommand.select(client, interaction)
   }
 }
