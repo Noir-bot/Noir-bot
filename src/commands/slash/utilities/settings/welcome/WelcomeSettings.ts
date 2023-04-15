@@ -7,10 +7,9 @@ import Client from '@structures/Client'
 import Welcome from '@structures/welcome/Welcome'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, MessageActionRowComponentBuilder, ModalMessageModalSubmitInteraction } from 'discord.js'
 
-
 export default class WelcomeSettings {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | ModalMessageModalSubmitInteraction<'cached'>, id: string) {
-    let welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
+    const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
 
     const buttons = [
       [
@@ -70,7 +69,7 @@ export default class WelcomeSettings {
       color: Colors.primary,
       author: 'Welcome settings',
       authorImage: client.user?.avatarURL(),
-      description: `Highly customizable tools to welcome new users in the best way.`,
+      description: 'Highly customizable tools to welcome new users in the best way.',
       fields: [{ name: 'Useful links', value: links, inline: false }],
       components: actionRows,
       ephemeral: true,

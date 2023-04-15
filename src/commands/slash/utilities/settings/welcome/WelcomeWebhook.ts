@@ -68,12 +68,11 @@ export default class WelcomeWebhook {
     ]
 
     const channelSelectMenu = new ChannelSelectMenuBuilder()
-      .setCustomId(SettingsUtils.generateId('settings', id, `welcomeWebhookChannel`, 'select'))
+      .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeWebhookChannel', 'select'))
       .setPlaceholder('Select channel for messages')
       .setChannelTypes(ChannelType.GuildText)
       .setMaxValues(1)
       .setMinValues(1)
-
 
     const selectActionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()
       .addComponents(channelSelectMenu)

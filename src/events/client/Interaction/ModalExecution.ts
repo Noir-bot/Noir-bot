@@ -1,4 +1,3 @@
-import CaseEdit from '@commands/slash/moderation/case/Edit'
 import InfractionsCommand from '@commands/slash/moderation/infractions/Infractions'
 import SettingsResponses from '@commands/slash/utilities/settings/SettingsResponses'
 import Client from '@structures/Client'
@@ -10,7 +9,6 @@ export default class ModalExecution {
     const name = parts[0].toLowerCase()
 
     if (name == 'settings' && interaction.inCachedGuild()) await SettingsResponses.modal(client, interaction)
-    else if (name == 'case') await CaseEdit.modalResponse(client, interaction)
     else if (name == 'infractions' && interaction.inCachedGuild()) await InfractionsCommand.modal(client, interaction)
   }
 }

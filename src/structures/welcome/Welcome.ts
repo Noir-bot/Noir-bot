@@ -121,8 +121,12 @@ export default class Welcome {
 
     if (!webhookData) return
 
-    const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token)
+    try {
+      const webhook = await client.fetchWebhook(webhookData?.id, webhookData?.token)
 
-    return webhook
+      return webhook
+    } catch {
+      return
+    }
   }
 }

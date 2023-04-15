@@ -1,5 +1,4 @@
-import Client from "@structures/Client"
-
+import Client from '@structures/Client'
 
 export default class Infraction {
   public guild: string
@@ -30,7 +29,7 @@ export default class Infraction {
     return { cases, nextPageStatus, prevPageStatus }
   }
 
-  public static async cache(client: Client, guild: string, user: string, force: boolean = false) {
+  public static async cache(client: Client, guild: string, user: string, force = false) {
     const infractionData = client.infractions.get(user + '.' + guild)
 
     if (!infractionData || force) {
@@ -43,7 +42,7 @@ export default class Infraction {
 
       if (!infractionsQuery) return
 
-      const infractions = infractionsQuery.map((data) => {
+      const infractions = infractionsQuery.map(data => {
         return {
           id: data.id,
           guild: data.guild,
