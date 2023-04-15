@@ -1,8 +1,8 @@
 import Emojis from '@constants/Emojis'
-import Reply from "@helpers/Reply"
-import Client from "@structures/Client"
-import ChatCommand from "@structures/commands/ChatCommand"
-import { AccessType, CommandType } from "@structures/commands/Command"
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import ChatCommand from '@structures/commands/ChatCommand'
+import { AccessType, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, ColorResolvable, ContextMenuCommandInteraction, GuildMember, User, time, userMention } from 'discord.js'
 
 export default class UserinfoCommand extends ChatCommand {

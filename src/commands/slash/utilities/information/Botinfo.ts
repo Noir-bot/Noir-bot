@@ -1,14 +1,12 @@
-import Colors from "@constants/Colors"
+import Colors from '@constants/Colors'
 import Emojis from '@constants/Emojis'
 import Options from '@constants/Options'
-import Reply from "@helpers/Reply"
-import Client from "@structures/Client"
-import ChatCommand from "@structures/commands/ChatCommand"
+import Reply from '@helpers/Reply'
+import Client from '@structures/Client'
+import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandType } from 'discord-api-types/v10'
-import { ChatInputCommandInteraction, EmbedField, time } from "discord.js"
-
-const pkg = require('../../../../../package.json')
+import { ChatInputCommandInteraction, EmbedField, time } from 'discord.js'
 
 export default class Botinfo extends ChatCommand {
   constructor(client: Client) {
@@ -50,7 +48,7 @@ export default class Botinfo extends ChatCommand {
       },
       {
         name: `${Emojis.time} Uptime`,
-        value: `${uptime ? time(uptime, 'R') : '\`Unexpected error\`'}`,
+        value: `${uptime ? time(uptime, 'R') : '`Unexpected error`'}`,
         inline: true
       },
       {

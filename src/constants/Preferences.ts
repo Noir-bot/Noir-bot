@@ -1,4 +1,4 @@
-import Emojis from "./Emojis"
+import Emojis from './Emojis'
 
 export default class Preferences {
   public static readonly premiumEmoji = Emojis.premium || '⭐'

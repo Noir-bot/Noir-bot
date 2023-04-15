@@ -27,6 +27,6 @@ export default class AvatarContext extends ContextMenuCommand {
 
     if (!user) return
 
-    AvatarCommand.getInfo(client, interaction, user, undefined)
+    AvatarCommand.getInfo(client, interaction, user)
   }
 }

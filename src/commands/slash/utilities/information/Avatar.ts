@@ -1,9 +1,8 @@
-import Colors from '@constants/Colors'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandType } from '@structures/commands/Command'
-import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, ContextMenuCommandInteraction, GuildMember, User, userMention } from 'discord.js'
+import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, ContextMenuCommandInteraction, GuildMember } from 'discord.js'
 
 export default class AvatarCommand extends ChatCommand {
   constructor(client: Client) {
@@ -32,12 +31,6 @@ export default class AvatarCommand extends ChatCommand {
             type: ApplicationCommandOptionType.Boolean
           },
           {
-            name: 'target',
-            description: 'Mention user to get avatar for him',
-            type: ApplicationCommandOptionType.User,
-            required: false
-          },
-          {
             name: 'private',
             description: 'Send avatar in private message',
             type: ApplicationCommandOptionType.Boolean,
@@ -50,32 +43,26 @@ export default class AvatarCommand extends ChatCommand {
 
   public async execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>) {
     const member = interaction.options.getMember('user') ?? interaction.member
-    const target = interaction.options.getUser('target')
     const server = interaction.options.getBoolean('server') ?? false
-    const ephemeral = target ? false : interaction.options.getBoolean('private') ?? true
+    const ephemeral = interaction.options.getBoolean('private') ?? true
 
-    AvatarCommand.getInfo(client, interaction, member, target, server, ephemeral)
+    AvatarCommand.getInfo(client, interaction, member, server, ephemeral)
   }
 
   public static async getInfo(
     client: Client,
     interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
     member: GuildMember,
-    target?: User | null,
     server = false,
     ephemeral = true
   ) {
     const avatar = server ? member.displayAvatarURL({ size: 4096 }) : member.user.displayAvatarURL({ size: 4096 })
-    const color = member.user.accentColor ?? (await member.user.fetch()).accentColor
 
     Reply.reply({
       client,
       interaction,
       ephemeral,
-      content: target ? `Requested for ${userMention(target.id)}` : undefined,
-      title: `${member.user.username}'s avatar`,
-      color: color ?? Colors.primary,
-      image: avatar,
+      content: avatar
     })
   }
 }

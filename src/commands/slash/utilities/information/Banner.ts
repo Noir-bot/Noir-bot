@@ -3,7 +3,7 @@ import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandType } from '@structures/commands/Command'
-import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, ContextMenuCommandInteraction, GuildMember, User, userMention } from 'discord.js'
+import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, ContextMenuCommandInteraction, GuildMember } from 'discord.js'
 
 export default class BannerCommand extends ChatCommand {
   constructor(client: Client) {
@@ -32,12 +32,6 @@ export default class BannerCommand extends ChatCommand {
           //   type: ApplicationCommandOptionType.Boolean
           // },
           {
-            name: 'target',
-            description: 'Mention user to get banner for him',
-            type: ApplicationCommandOptionType.User,
-            required: false
-          },
-          {
             name: 'private',
             description: 'Send banner in private message',
             type: ApplicationCommandOptionType.Boolean,
@@ -50,25 +44,22 @@ export default class BannerCommand extends ChatCommand {
 
   public async execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>) {
     const member = interaction.options.getMember('user') ?? interaction.member
-    const target = interaction.options.getUser('target')
-    const ephemeral = target ? false : interaction.options.getBoolean('private') ?? true
+    const ephemeral = interaction.options.getBoolean('private') ?? true
 
-    BannerCommand.getInfo(client, interaction, member, target, ephemeral)
+    BannerCommand.getInfo(client, interaction, member, ephemeral)
   }
 
   public static async getInfo(
     client: Client,
     interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>,
     member: GuildMember,
-    target?: User | null,
     ephemeral = true
   ) {
     const fetchUser = await member.user.fetch()
     const banner = fetchUser.bannerURL({ size: 4096 })
-    const color = fetchUser.accentColor
 
     if (!banner) {
-      return Reply.reply({
+      Reply.reply({
         client,
         interaction,
         author: 'Banner error',
@@ -76,16 +67,15 @@ export default class BannerCommand extends ChatCommand {
         color: Colors.warning,
         description: 'User has no banner'
       })
+
+      return
     }
 
     Reply.reply({
       client,
       interaction,
       ephemeral,
-      content: target ? `Requested for ${userMention(target.id)}` : undefined,
-      title: `${member.user.username}'s banner`,
-      color: color ?? Colors.primary,
-      image: banner ?? undefined,
+      content: banner,
     })
   }
 }

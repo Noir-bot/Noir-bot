@@ -1,9 +1,9 @@
-import Colors from "@constants/Colors"
+import Colors from '@constants/Colors'
 import Emojis from '@constants/Emojis'
 import Reply from '@helpers/Reply'
-import Client from "@structures/Client"
+import Client from '@structures/Client'
 import Premium from '@structures/Premium'
-import ChatCommand from "@structures/commands/ChatCommand"
+import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandType } from '@structures/commands/Command'
 import Moderation from '@structures/moderation/Moderation'
 import Welcome from '@structures/welcome/Welcome'
@@ -66,7 +66,6 @@ export default class ServerinfoCommand extends ChatCommand {
       `${Emojis.channel} channels: \`${guild.channels.cache.size}\`\n` +
       `${Emojis.role} roles: \`${guild.roles.cache.size}\`\n`
 
-
     const fields = [
       {
         name: 'Information',
@@ -89,7 +88,6 @@ export default class ServerinfoCommand extends ChatCommand {
         inline: true
       }
     ]
-
 
     Reply.reply({
       client: client,
