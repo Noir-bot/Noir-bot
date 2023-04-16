@@ -179,18 +179,18 @@ export default class WelcomeEditor {
       const authorImage = messageData.authorImage ?? WelcomeMessage.formatVariable(messageData.rawAuthorImage, variables) ?? undefined
       const content = WelcomeMessage.formatVariable(messageData.message, variables) ?? undefined
       const description = WelcomeMessage.formatVariable(messageData.description, variables) ?? undefined
-      const fields = messageData.fieldsId.map(id => {
+      const fields = messageData.fieldsId.length > 0 ? messageData.fieldsId.map(id => {
         return {
           name: WelcomeMessage.formatVariable(messageData?.fieldsName[id], variables) ?? messageData?.fieldsName[id],
           value: WelcomeMessage.formatVariable(messageData?.fieldsValue[id], variables) ?? messageData?.fieldsValue[id],
           inline: messageData?.fieldsInline[id]
         }
-      })
+      }) : undefined
       const footer = WelcomeMessage.formatVariable(messageData.footer, variables) ?? undefined
       const footerImage = messageData.footerImage ?? WelcomeMessage.formatVariable(messageData.rawFooterImage, variables) ?? undefined
       const image = messageData.image ?? WelcomeMessage.formatVariable(messageData.rawImage, variables) ?? undefined
       const thumbnail = messageData.thumbnail ?? WelcomeMessage.formatVariable(messageData.rawThumbnail, variables) ?? undefined
-      const color = messageData.color as ColorResolvable ?? 'Default'
+      const color = messageData.color as ColorResolvable ?? undefined
       const timestamp = messageData.timestamp ? new Date() : undefined
 
       try {
@@ -213,14 +213,14 @@ export default class WelcomeEditor {
           components: [actionRow],
         })
       } catch (error) {
-        await Reply.reply({
-          client,
-          interaction: interaction,
-          color: Colors.warning,
-          author: 'Message error',
-          description: 'Message object is empty, setup message before testing.',
-          components: [actionRow]
-        })
+        // await Reply.reply({
+        //   client,
+        //   interaction: interaction,
+        //   color: Colors.warning,
+        //   author: 'Message error',
+        //   description: 'Message object is empty, setup message before testing.',
+        //   components: [actionRow]
+        // })
 
         console.log(error)
       }
@@ -296,6 +296,7 @@ export default class WelcomeEditor {
 
       messageData.status = !messageData.status
       const saves = Save.cache(client, `${interaction.guildId}-welcome`)
+
       saves.count += 1
 
       await WelcomeEditor.initialMessage(client, interaction, id, messageType)
@@ -343,6 +344,7 @@ export default class WelcomeEditor {
 
     else if (method.startsWith('welcomeEditorEditField')) {
       const fieldId = parseInt(interaction.values[0])
+
       await WelcomeEditorEditField.request(client, interaction, id, messageType, fieldId)
     }
 
@@ -382,6 +384,7 @@ export default class WelcomeEditor {
 
     else if (method.startsWith('welcomeEditorEditField')) {
       const fieldId = parseInt(method.split('.')[2])
+
       await WelcomeEditorEditField.response(client, interaction, id, messageType, fieldId)
     }
   }

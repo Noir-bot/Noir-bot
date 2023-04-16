@@ -63,37 +63,38 @@ export default class WelcomeMessage {
     input = input.trim().toLowerCase()
 
     switch (input) {
-      case 'blue':
-        return '#254ee6'
-      case 'cyan':
-        return '#37e3e6'
-      case 'lightblue':
-        return '#2a9dfa'
-      case 'lime':
-        return '#68e620'
-      case 'green':
-        return '#42f01f'
-      case 'red':
-        return '#f72525'
-      case 'coral':
-        return '#fc3a30'
-      case 'orange':
-        return '#f05316'
-      case 'yellow':
-        return '#e6c327'
-      case 'gray':
-        return '#3e4247'
-      case 'noir':
-        return '#141414'
-      case 'embed':
-        return Colors.embedHex
-      default:
-        return undefined
+    case 'blue':
+      return '#254ee6'
+    case 'cyan':
+      return '#37e3e6'
+    case 'lightblue':
+      return '#2a9dfa'
+    case 'lime':
+      return '#68e620'
+    case 'green':
+      return '#42f01f'
+    case 'red':
+      return '#f72525'
+    case 'coral':
+      return '#fc3a30'
+    case 'orange':
+      return '#f05316'
+    case 'yellow':
+      return '#e6c327'
+    case 'gray':
+      return '#3e4247'
+    case 'noir':
+      return '#141414'
+    case 'embed':
+      return Colors.embedHex
+    default:
+      return undefined
     }
   }
 
   public static formatImage(input?: string, options?: { guild?: string | null, user?: string | null, client?: string | null }) {
     let result: string | undefined | null = undefined
+
     input = input?.trim()
 
     if (options?.guild?.match(/\{\{remove\}\}/)) {

@@ -192,15 +192,13 @@ export default class Reply {
         })
       }
 
-      else {
-        return await properties.webhook.send({
-          embeds: properties.embed?.data ? [properties.embed.data] : [],
-          components: properties?.components ?? [],
-          content: properties?.content
-        }).catch((error) => {
-          console.log(error)
-        })
-      }
+      return await properties.webhook.send({
+        embeds: properties.embed?.data ? [properties.embed.data] : [],
+        components: properties?.components ?? [],
+        content: properties?.content
+      }).catch((error) => {
+        console.log(error)
+      })
     }
 
     else if (properties.interaction) {
@@ -226,15 +224,16 @@ export default class Reply {
             components: properties?.components ?? [],
             content: properties?.content ?? ''
           })
-        } else {
-          return await properties.interaction.reply({
-            embeds: properties.embed?.data ? [properties.embed.data] : [],
-            components: properties?.components ?? [],
-            content: properties?.content ?? '',
-            ephemeral: properties?.ephemeral ?? true,
-            fetchReply: properties.fetch ?? false
-          })
         }
+
+        return await properties.interaction.reply({
+          embeds: properties.embed?.data ? [properties.embed.data] : [],
+          components: properties?.components ?? [],
+          content: properties?.content ?? '',
+          ephemeral: properties?.ephemeral ?? true,
+          fetchReply: properties.fetch ?? false
+        })
+
       } catch (err) {
         return await properties.interaction.reply({
           embeds: properties.embed?.data ? [properties.embed.data] : [],
