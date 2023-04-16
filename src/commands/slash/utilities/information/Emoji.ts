@@ -38,7 +38,7 @@ export default class EmojiCommand extends ChatCommand {
     const emojiId = interaction.options.getString('emoji', true)
 
     try {
-      const emoji = interaction.guild.emojis.cache.get(emojiId) ?? await interaction.guild.emojis.fetch(emojiId)
+      const emoji = client.emojis.cache.get(emojiId) ?? interaction.guild.emojis.cache.get(emojiId) ?? await interaction.guild.emojis.fetch(emojiId)
 
       if (!emoji) {
         Reply.reply({
