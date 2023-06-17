@@ -6,7 +6,7 @@ import Utils from '@helpers/Utils'
 import Client from '@structures/Client'
 import Infraction from '@structures/Infraction'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ActionRowBuilder, ApplicationCommandOptionType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalMessageModalSubmitInteraction, StringSelectMenuBuilder, StringSelectMenuInteraction, TextInputBuilder, TextInputStyle } from 'discord.js'
 
 export default class InfractionsCommand extends ChatCommand {
@@ -15,6 +15,7 @@ export default class InfractionsCommand extends ChatCommand {
       client,
       {
         permissions: ['EmbedLinks'],
+        category: CommandCategory.Moderation,
         access: AccessType.Moderation,
         type: CommandType.Public,
         status: true,
@@ -39,6 +40,7 @@ export default class InfractionsCommand extends ChatCommand {
 
   public async execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>): Promise<void> {
     const user = interaction.options.getUser('user', true)
+
     await InfractionsCommand.initialMessage(client, interaction, user.id)
   }
 
@@ -61,6 +63,7 @@ export default class InfractionsCommand extends ChatCommand {
 
     if (cases.length == 0) {
       const newData = infractionData.getCasesByPage(1)
+
       nextPageStatus = newData.nextPageStatus
       prevPageStatus = newData.prevPageStatus
       cases = newData.cases
@@ -159,17 +162,20 @@ export default class InfractionsCommand extends ChatCommand {
       }
 
       const [guild, user] = id.split('.')
+
       await Infraction.cache(client, guild, user, true)
       await InfractionsCommand.initialMessage(client, interaction, user, parseInt(page))
     }
 
     else if (action == 'previous') {
       const [_, user] = id.split('.')
+
       await InfractionsCommand.initialMessage(client, interaction, user, parseInt(page) - 1)
     }
 
     else if (action == 'next') {
       const [_, user] = id.split('.')
+
       await InfractionsCommand.initialMessage(client, interaction, user, parseInt(page) + 1)
     }
 
@@ -203,6 +209,7 @@ export default class InfractionsCommand extends ChatCommand {
       }
 
       const [guild, user] = id.split('.')
+
       await InfractionsCommand.clearResponse(client, interaction, parseInt(page), guild, user)
     }
   }
@@ -351,6 +358,7 @@ export default class InfractionsCommand extends ChatCommand {
       this.initialMessage(client, interaction, user, page)
     } catch (error) {
       console.log(error)
+
       return
     }
   }
@@ -372,6 +380,7 @@ export default class InfractionsCommand extends ChatCommand {
       this.initialMessage(client, interaction, user, page)
     } catch (error) {
       console.log(error)
+
       return
     }
   }

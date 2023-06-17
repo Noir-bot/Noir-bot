@@ -1,6 +1,6 @@
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandType, CacheType, ChatInputCommandInteraction, TextInputBuilder } from 'discord.js'
 
 export default class EvalCommand extends ChatCommand {
@@ -9,6 +9,7 @@ export default class EvalCommand extends ChatCommand {
       client,
       {
         permissions: 'Administrator',
+        category: CommandCategory.Private,
         access: AccessType.Private,
         type: CommandType.Private,
         status: true,

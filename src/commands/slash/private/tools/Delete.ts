@@ -2,7 +2,7 @@ import Colors from '@constants/Colors'
 import Options from '@constants/Options'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandType } from 'discord-api-types/v10'
 import { ApplicationCommandOptionType, ChatInputCommandInteraction } from 'discord.js'
 import Reply from '../../../../helpers/Reply'
@@ -13,6 +13,7 @@ export default class DeleteCommand extends ChatCommand {
       client,
       {
         permissions: [],
+        category: CommandCategory.Private,
         access: AccessType.Private,
         type: CommandType.Private,
         status: true
@@ -34,7 +35,6 @@ export default class DeleteCommand extends ChatCommand {
       }
     )
   }
-
 
   public async execute(client: Client, interaction: ChatInputCommandInteraction<'cached'>) {
     const commandId = interaction.options.getString('command', true)

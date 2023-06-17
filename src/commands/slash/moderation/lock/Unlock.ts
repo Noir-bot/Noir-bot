@@ -4,7 +4,7 @@ import Logs from '@helpers/Logs'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChannelType, ChatInputCommandInteraction, GuildChannel, channelMention, time } from 'discord.js'
 
 export default class LockCommand extends ChatCommand {
@@ -13,6 +13,7 @@ export default class LockCommand extends ChatCommand {
       client,
       {
         permissions: ['ManageRoles', 'EmbedLinks'],
+        category: CommandCategory.Moderation,
         access: AccessType.Moderation,
         type: CommandType.Public,
         status: true,
@@ -65,10 +66,7 @@ export default class LockCommand extends ChatCommand {
       return
     }
 
-    else {
-      client.channelLocks.delete(channel.id)
-    }
-
+    client.channelLocks.delete(channel.id)
 
     channel.permissionOverwrites.edit(interaction.guild.roles.everyone, {
       SendMessages: null,

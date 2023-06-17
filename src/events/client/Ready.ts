@@ -13,7 +13,7 @@ export default class ReadyEvent extends Event {
   }
 
   public async execute(client: Client) {
-    console.info(chalk.cyan.bold(`[✨] Noir Ready!`))
+    console.info(chalk.cyan.bold('[✨] Noir Ready!'))
 
     client?.user?.setActivity({
       name: `for ${client.guilds.cache.size} servers`,
@@ -34,12 +34,24 @@ export default class ReadyEvent extends Event {
 
         if (!command.execute) return
 
-        if (command.options.type == 'private') {
-          client.guilds.cache.get(Options.guildId)?.commands.create(command.data)
+        if (command.options.development && client.user?.id == Options.clientId) {
+          return
         }
 
-        if (command.options.type == 'public') {
-          client.application?.commands.create(command.data)
+        if (command.options.type == 'private') {
+          client.guilds.cache.get(Options.guildId)?.commands.create(command.data).then((cmd) => {
+            if (command) {
+              client.commandsId.set(command.data.name, cmd.id)
+            }
+          })
+        }
+
+        else if (command.options.type == 'public') {
+          client.application?.commands.create(command.data).then((cmd) => {
+            if (command) {
+              client.commandsId.set(command.data.name, cmd.id)
+            }
+          })
         }
 
         client.commands.set(command.data.name, command)
@@ -141,4 +153,4 @@ export default class ReadyEvent extends Event {
   //     })
   //   })
   // }
-} 
+}

@@ -4,7 +4,7 @@ import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import Premium from '@structures/Premium'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import Moderation from '@structures/moderation/Moderation'
 import Welcome from '@structures/welcome/Welcome'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, userMention } from 'discord.js'
@@ -15,6 +15,7 @@ export default class ServerinfoCommand extends ChatCommand {
       client,
       {
         permissions: ['EmbedLinks'],
+        category: CommandCategory.Information,
         access: AccessType.Public,
         type: CommandType.Public,
         status: true

@@ -5,7 +5,7 @@ import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ChatInputCommandInteraction, MessageActionRowComponentBuilder } from 'discord.js'
 
 export default class SettingsCommand extends ChatCommand {
@@ -14,6 +14,7 @@ export default class SettingsCommand extends ChatCommand {
       client,
       {
         permissions: ['EmbedLinks', 'ManageWebhooks'],
+        category: CommandCategory.Moderation,
         access: AccessType.Public,
         type: CommandType.Public,
         status: true
@@ -55,7 +56,7 @@ export default class SettingsCommand extends ChatCommand {
       color: Colors.primary,
       author: 'Noir settings',
       authorImage: client.user?.avatarURL(),
-      description: `Hello ${interaction.user.username}, welcome to Noir's settings. Checkout our [quick guide](${Options.docsLink}/quick-guide) about Noir\'s setup.`,
+      description: `Hello ${interaction.user.username}, welcome to Noir's settings. Checkout our [quick guide](${Options.docsLink}/quick-guide) about Noir's setup.`,
       fields: [
         {
           name: 'Noir support',

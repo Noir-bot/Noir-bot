@@ -13,9 +13,11 @@ import WelcomeMessage from '@structures/welcome/WelcomeMessage'
 import { Client as BaseClient, Collection } from 'discord.js'
 import glob from 'glob'
 import { promisify } from 'util'
+import Message from './Message'
 
 export default class Client extends BaseClient {
   public commands = new Collection<string, Command>()
+  public commandsId = new Collection<string, string>()
   public events = new Collection<string, Event>()
   public premium = new Collection<string, Premium>()
   public save = new Collection<string, Save>()
@@ -26,7 +28,7 @@ export default class Client extends BaseClient {
   public moderationCases = new Collection<string, Case>()
   public infractions = new Collection<string, Infraction>()
   public channelLocks = new Collection<string, boolean>()
-  // public periodicCases = new Collection<number, Date>()
+  public messages =  new Collection<number, Message>()
   public rateLimits = new Collection<string, Date>()
   public prisma = new PrismaClient()
 

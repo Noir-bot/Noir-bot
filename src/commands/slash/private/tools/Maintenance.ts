@@ -3,7 +3,7 @@ import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
 import { ActivityType, ChatInputCommandInteraction } from 'discord.js'
 
@@ -13,6 +13,7 @@ export default class MaintenanceCommand extends ChatCommand {
       client,
       {
         permissions: [],
+        category: CommandCategory.Private,
         access: AccessType.Private,
         type: CommandType.Private,
         status: true

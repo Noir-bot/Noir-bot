@@ -4,7 +4,7 @@ import ReadyEvent from '@events/client/Ready'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js'
 
 export default class Reset extends ChatCommand {
@@ -13,6 +13,7 @@ export default class Reset extends ChatCommand {
       client,
       {
         permissions: ['SendMessages'],
+        category: CommandCategory.Private,
         access: AccessType.Private,
         type: CommandType.Private,
         status: true

@@ -3,7 +3,7 @@ import Emojis from '@constants/Emojis'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import Moderation from '@structures/moderation/Moderation'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, channelMention, time } from 'discord.js'
 
@@ -13,6 +13,7 @@ export default class PurgeCommand extends ChatCommand {
       client,
       {
         permissions: ['ManageMessages', 'EmbedLinks'],
+        category: CommandCategory.Moderation,
         access: AccessType.Moderation,
         type: CommandType.Public,
         status: true,

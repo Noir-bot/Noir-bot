@@ -2,7 +2,7 @@ import Colors from '@constants/Colors'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js'
 
 export default class EmojiCommand extends ChatCommand {
@@ -11,6 +11,7 @@ export default class EmojiCommand extends ChatCommand {
       client,
       {
         permissions: 'EmbedLinks',
+        category: CommandCategory.Information,
         access: AccessType.Public,
         type: CommandType.Public,
         rateLimit: 5,

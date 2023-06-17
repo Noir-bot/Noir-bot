@@ -1,10 +1,10 @@
 import Emojis from '@constants/Emojis'
+import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandType } from 'discord-api-types/v10'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
-import Reply from '../../../../helpers/Reply'
 
 export default class RolesCommand extends ChatCommand {
   constructor(client: Client) {
@@ -12,6 +12,7 @@ export default class RolesCommand extends ChatCommand {
       client,
       {
         permissions: [],
+        category: CommandCategory.Private,
         access: AccessType.Private,
         type: CommandType.Private,
         status: true

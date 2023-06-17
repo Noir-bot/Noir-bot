@@ -1,7 +1,7 @@
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import ModerationRules, { ModerationRule } from '@structures/moderation/ModerationRules'
 import { ApplicationCommandType, ChatInputCommandInteraction } from 'discord.js'
 
@@ -11,6 +11,7 @@ export default class Reset extends ChatCommand {
       client,
       {
         permissions: ['SendMessages'],
+        category: CommandCategory.Private,
         access: AccessType.Private,
         type: CommandType.Private,
         status: true
@@ -43,7 +44,7 @@ export default class Reset extends ChatCommand {
     Reply.reply({
       client,
       interaction,
-      content: "Completed! Check the console for the results."
+      content: 'Completed! Check the console for the results.'
     })
   }
 }

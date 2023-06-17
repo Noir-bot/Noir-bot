@@ -1,9 +1,9 @@
-import Colors from "@constants/Colors"
-import Emojis from "@constants/Emojis"
-import Logs from "@helpers/Logs"
-import Client from "@structures/Client"
-import Event from "@structures/Event"
-import { AuditLogEvent, GuildBan, time } from "discord.js"
+import Colors from '@constants/Colors'
+import Emojis from '@constants/Emojis'
+import Logs from '@helpers/Logs'
+import Client from '@structures/Client'
+import Event from '@structures/Event'
+import { AuditLogEvent, GuildBan, time } from 'discord.js'
 
 export default class UserBan extends Event {
   constructor(client: Client) {

@@ -2,7 +2,7 @@ import Emojis from '@constants/Emojis'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, ColorResolvable, ContextMenuCommandInteraction, GuildMember, User, time, userMention } from 'discord.js'
 
 export default class UserinfoCommand extends ChatCommand {
@@ -11,6 +11,7 @@ export default class UserinfoCommand extends ChatCommand {
       client,
       {
         permissions: ['EmbedLinks'],
+        category: CommandCategory.Information,
         access: AccessType.Public,
         type: CommandType.Public,
         status: true
@@ -78,7 +79,7 @@ export default class UserinfoCommand extends ChatCommand {
       interaction,
       content: target ? `Information for ${userMention(target.id)}` : undefined,
       ephemeral: ephemeralStatus,
-      author: `${member.user.tag}`,
+      author: `${member.user.tag.replace('#0', '')}`,
       authorImage: member.displayAvatarURL({ size: 4096 }) ?? member.user.avatarURL({ size: 4096 }),
       thumbnail: member.user.avatarURL({ size: 4096 }) ?? undefined,
       image: fetchedUser.bannerURL({ size: 4096 }) ?? undefined,

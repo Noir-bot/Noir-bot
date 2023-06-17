@@ -3,7 +3,7 @@ import Emojis from '@constants/Emojis'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ActionRowBuilder, ApplicationCommandType, ChatInputCommandInteraction, MessageActionRowComponentBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
 
 export default class RulesCommand extends ChatCommand {
@@ -12,6 +12,7 @@ export default class RulesCommand extends ChatCommand {
       client,
       {
         permissions: [],
+        category: CommandCategory.Private,
         access: AccessType.Private,
         type: CommandType.Private,
         status: true
@@ -36,7 +37,7 @@ export default class RulesCommand extends ChatCommand {
     [
       {
         name: `${Emojis.book} Attitude`,
-        value: `Please be polite and respectful towards people in the server. Don't be rude or mean to anyone.`,
+        value: 'Please be polite and respectful towards people in the server. Don\'t be rude or mean to anyone.',
         inline: false
       },
       {

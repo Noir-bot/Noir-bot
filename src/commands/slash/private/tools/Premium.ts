@@ -4,7 +4,7 @@ import { Duration } from '@sapphire/time-utilities'
 import Client from '@structures/Client'
 import Premium from '@structures/Premium'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandOptionType, ApplicationCommandType } from 'discord-api-types/v10'
 import { ChatInputCommandInteraction } from 'discord.js'
 
@@ -14,6 +14,7 @@ export default class PremiumCommand extends ChatCommand {
       client,
       {
         permissions: [],
+        category: CommandCategory.Private,
         access: AccessType.Private,
         type: CommandType.Private,
         status: true

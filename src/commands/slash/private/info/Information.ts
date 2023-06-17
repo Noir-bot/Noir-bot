@@ -3,7 +3,7 @@ import Options from '@constants/Options'
 import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
-import { AccessType, CommandType } from '@structures/commands/Command'
+import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
 import { ApplicationCommandType, ChatInputCommandInteraction, channelMention } from 'discord.js'
 
 export default class RulesCommand extends ChatCommand {
@@ -12,6 +12,7 @@ export default class RulesCommand extends ChatCommand {
       client,
       {
         permissions: [],
+        category: CommandCategory.Private,
         access: AccessType.Private,
         type: CommandType.Private,
         status: true
@@ -32,7 +33,7 @@ export default class RulesCommand extends ChatCommand {
       channel: interaction.channelId,
       author: interaction.guild.name,
       authorImage: interaction.guild.iconURL() ?? undefined,
-      description: `Welcome to Noir's official Discord server.`,
+      description: 'Welcome to Noir\'s official Discord server.',
       fields: [
         {
           name: `${Emojis.channel} Support`,

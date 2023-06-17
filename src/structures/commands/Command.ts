@@ -14,21 +14,30 @@ export default abstract class Command {
 }
 
 export const enum AccessType {
-  Public = "public",
-  Private = "private",
-  Moderation = "moderation",
-  Premium = "premium",
+  Public = 'public',
+  Private = 'private',
+  Moderation = 'moderation',
+  Premium = 'premium'
 }
 
 export const enum CommandType {
-  Public = "public",
-  Private = "private",
+  Public = 'public',
+  Private = 'private'
+}
+
+export const enum CommandCategory {
+  Information = 'information',
+  Moderation = 'moderation',
+  Utility = 'utility',
+  Private = 'private',
 }
 
 export interface CommandOptions {
   permissions: PermissionResolvable
+  category: CommandCategory
   access: AccessType
   type: CommandType
   status: boolean
   rateLimit?: number
+  development?: boolean
 }
