@@ -5,7 +5,8 @@ import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
-import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
+import { ActionRowBuilder, AnySelectMenuInteraction, ApplicationCommandType, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, MessageActionRowComponentBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
+import HelpResponses from './Responses'
 
 export default class HelpCommand extends ChatCommand {
   constructor(client: Client) {
@@ -53,17 +54,27 @@ export default class HelpCommand extends ChatCommand {
     await HelpCommand.initialMessage(client, interaction)
   }
 
-  public static async select(client: Client, interaction: StringSelectMenuInteraction) {
-    const category = interaction.values[0]
+  public static async select(client: Client, interaction: AnySelectMenuInteraction<'cached'>) {
+    const id = interaction.customId
 
-    HelpCommand.categoryMessage(client, interaction, category)
+    if (id == 'help-categories' && interaction.isStringSelectMenu()) {
+      const category = interaction.values[0]
+
+      await HelpCommand.categoryMessage(client, interaction, category)
+    }
+
+    else {
+      await HelpResponses.select(client, interaction)
+    }
   }
 
-  public static async button(client: Client, interaction: ButtonInteraction) {
-    const type = interaction.customId.split('-')[1]
+  public static async button(client: Client, interaction: ButtonInteraction<'cached'>) {
+    const id = interaction.customId
 
-    if (type == 'back') {
+    if (id == 'help-back') {
       await HelpCommand.initialMessage(client, interaction)
+    } else {
+      await HelpResponses.button(client, interaction)
     }
   }
 
@@ -73,7 +84,7 @@ export default class HelpCommand extends ChatCommand {
         .setCustomId('help-setup')
         .setLabel('Setup Noir')
         .setStyle(ButtonStyle.Primary)
-        .setDisabled(true),
+        .setEmoji(Emojis.wizard),
       new ButtonBuilder()
         .setURL(Options.docsLink)
         .setLabel('Noir docs')
@@ -128,7 +139,7 @@ export default class HelpCommand extends ChatCommand {
     ]
 
     if (category == 'i') {
-      description = '# Information commands\nGet information about servers, users and other stuff\n\n' +
+      description = '# Information commands \nGet information about servers, users and other stuff\n\n' +
       `${client.commands
         .filter(command => command.options.category == CommandCategory.Information && command.options.type == CommandType.Public && command.data.type == ApplicationCommandType.ChatInput)
         .map(command => `- </${command.data.name}:${client.commandsId.get(command.data.name)}> ${(command as ChatCommand).data.description ?? 'No description'}`)

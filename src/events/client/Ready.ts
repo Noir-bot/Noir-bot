@@ -13,14 +13,14 @@ export default class ReadyEvent extends Event {
   }
 
   public async execute(client: Client) {
-    console.info(chalk.cyan.bold('[✨] Noir Ready!'))
-
     client?.user?.setActivity({
       name: `for ${client.guilds.cache.size} servers`,
       type: ActivityType.Watching
     })
 
     await this.loadCommands(client, `${__dirname}/../../commands/**/**/*{.js,.ts}`)
+
+    console.info(chalk.cyan.bold('[✨] Noir Ready!'))
   }
 
   private async loadCommands(client: Client, path: string) {

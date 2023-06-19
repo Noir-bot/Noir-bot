@@ -1,7 +1,7 @@
 import InfractionsCommand from '@commands/slash/moderation/infractions/Infractions'
 import WarnConfirmation from '@commands/slash/moderation/warn/Confirmation'
 import RolesCommand from '@commands/slash/private/info/Roles'
-import HelpCommand from '@commands/slash/utilities/information/Help'
+import HelpCommand from '@commands/slash/utilities/help/Help'
 import SettingsResponses from '@commands/slash/utilities/settings/SettingsResponses'
 import Client from '@structures/Client'
 import { ButtonInteraction } from 'discord.js'

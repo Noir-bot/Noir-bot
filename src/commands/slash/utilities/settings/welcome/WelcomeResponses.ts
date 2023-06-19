@@ -44,6 +44,7 @@ export default class WelcomeResponse {
 
       else if (type == 'welcomeExample') {
         const messageType = methods[3] as WelcomeMessageType
+
         await WelcomeEditor.exampleResponse(client, interaction, id, messageType)
       }
 
@@ -71,33 +72,32 @@ export default class WelcomeResponse {
         return
       }
 
-      else {
-        await Welcome.save(client, interaction.guildId)
-        saves.count = 0
+      await Welcome.save(client, interaction.guildId)
+      saves.count = 0
 
-        if (type == 'welcomeEditor') {
-          const messageType = methods[2] as WelcomeMessageType
+      if (type == 'welcomeEditor') {
+        const messageType = methods[2] as WelcomeMessageType
 
-          await WelcomeMessage.save(client, interaction.guildId, messageType)
-          await WelcomeEditor.initialMessage(client, interaction, id, messageType)
-        }
-
-        else if (type == 'welcomeRoles') {
-          await WelcomeRole.initialMessage(client, interaction, id)
-        }
-
-        else if (type == 'welcomeWebhook') {
-          await WelcomeWebhook.initialMessage(client, interaction, id)
-        }
-
-        else if (type == 'welcomeWebhookChannel') {
-          await WelcomeWebhook.channelRequest(client, interaction, id)
-        }
-
-        else {
-          await WelcomeSettings.initialMessage(client, interaction, id)
-        }
+        await WelcomeMessage.save(client, interaction.guildId, messageType)
+        await WelcomeEditor.initialMessage(client, interaction, id, messageType)
       }
+
+      else if (type == 'welcomeRoles') {
+        await WelcomeRole.initialMessage(client, interaction, id)
+      }
+
+      else if (type == 'welcomeWebhook') {
+        await WelcomeWebhook.initialMessage(client, interaction, id)
+      }
+
+      else if (type == 'welcomeWebhookChannel') {
+        await WelcomeWebhook.channelRequest(client, interaction, id)
+      }
+
+      else {
+        await WelcomeSettings.initialMessage(client, interaction, id)
+      }
+
     }
 
     else if (method.startsWith('welcomeRestore')) {
@@ -115,37 +115,37 @@ export default class WelcomeResponse {
         return
       }
 
-      else {
-        await Welcome.cache(client, interaction.guildId, true, true)
-        saves.count = 0
+      await Welcome.cache(client, interaction.guildId, true, true)
+      saves.count = 0
 
-        if (type == 'welcomeEditor') {
-          const messageType = methods[2] as WelcomeMessageType
+      if (type == 'welcomeEditor') {
+        const messageType = methods[2] as WelcomeMessageType
 
-          await WelcomeMessage.cache(client, interaction.guildId, messageType, true, true)
-          await WelcomeEditor.initialMessage(client, interaction, id, messageType)
-        }
-
-        else if (type == 'welcomeRoles') {
-          await WelcomeRole.initialMessage(client, interaction, id)
-        }
-
-        else if (type == 'welcomeWebhook') {
-          await WelcomeWebhook.initialMessage(client, interaction, id)
-        }
-
-        else if (type == 'welcomeWebhookChannel') {
-          await WelcomeWebhook.channelRequest(client, interaction, id)
-        }
-
-        else {
-          await WelcomeSettings.initialMessage(client, interaction, id)
-        }
+        await WelcomeMessage.cache(client, interaction.guildId, messageType, true, true)
+        await WelcomeEditor.initialMessage(client, interaction, id, messageType)
       }
+
+      else if (type == 'welcomeRoles') {
+        await WelcomeRole.initialMessage(client, interaction, id)
+      }
+
+      else if (type == 'welcomeWebhook') {
+        await WelcomeWebhook.initialMessage(client, interaction, id)
+      }
+
+      else if (type == 'welcomeWebhookChannel') {
+        await WelcomeWebhook.channelRequest(client, interaction, id)
+      }
+
+      else {
+        await WelcomeSettings.initialMessage(client, interaction, id)
+      }
+
     }
 
     else if (method.startsWith('welcomeExample')) {
       const messageType = methods[2] as WelcomeMessageType
+
       await WelcomeEditor.exampleResponse(client, interaction, id, messageType)
     }
 
@@ -168,6 +168,7 @@ export default class WelcomeResponse {
 
     else if (method == 'welcomeStatus') {
       const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
+
       welcomeData.status = !welcomeData.status
       saves.count += 1
       await WelcomeSettings.initialMessage(client, interaction, id)
@@ -187,6 +188,7 @@ export default class WelcomeResponse {
       }
 
       const welcomeData = await Welcome.cache(client, interaction.guildId, false, true)
+
       welcomeData.restore = !welcomeData.restore
       saves.count += 1
       await WelcomeSettings.initialMessage(client, interaction, id)

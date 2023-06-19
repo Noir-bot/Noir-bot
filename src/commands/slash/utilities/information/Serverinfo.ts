@@ -5,8 +5,6 @@ import Client from '@structures/Client'
 import Premium from '@structures/Premium'
 import ChatCommand from '@structures/commands/ChatCommand'
 import { AccessType, CommandCategory, CommandType } from '@structures/commands/Command'
-import Moderation from '@structures/moderation/Moderation'
-import Welcome from '@structures/welcome/Welcome'
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, userMention } from 'discord.js'
 
 export default class ServerinfoCommand extends ChatCommand {
@@ -50,22 +48,7 @@ export default class ServerinfoCommand extends ChatCommand {
     await interaction.deferReply({ ephemeral: ephemeralStatus })
 
     const guild = await interaction.guild.fetch()
-    const welcomeData = await Welcome.cache(client, guild.id)
-    const moderationData = await Moderation.cache(client, guild.id)
     const premiumData = await Premium.cache(client, guild.id)
-
-    enum VerificationLevel {
-      None = 0,
-      Low = 1,
-      Medium = 2,
-      High = 3,
-      Very_High = 4
-    }
-
-    const description = `${Emojis.user} members: \`${guild.memberCount}\`\n` +
-      `${Emojis.bot} bots: \`${guild.members.cache.filter(m => m.user.bot).size}\`\n` +
-      `${Emojis.channel} channels: \`${guild.channels.cache.size}\`\n` +
-      `${Emojis.role} roles: \`${guild.roles.cache.size}\`\n`
 
     const fields = [
       {
@@ -78,7 +61,7 @@ export default class ServerinfoCommand extends ChatCommand {
       },
       {
         name: 'Owner',
-        value: Emojis.crown + ' ' + client.users.cache.get(guild.ownerId)?.tag ?? 'Unknown',
+        value: Emojis.crown + ' ' + client.users.cache.get(guild.ownerId)?.tag.replace('#0', '') ?? 'Unknown',
         inline: true
       },
       {

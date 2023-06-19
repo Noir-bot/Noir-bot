@@ -16,7 +16,7 @@ export default class WelcomeRole {
     const selectMenu = new RoleSelectMenuBuilder()
       .setCustomId(SettingsUtils.generateId('settings', id, 'welcomeRoles', 'select'))
       .setPlaceholder('Select roles')
-      .setMaxValues(premiumData?.status() ? 15 : 3)
+      .setMaxValues(premiumData?.status() ? 7 : 3)
 
     const buttons = [
       SettingsUtils.generateBack('settings', id, 'welcomeBack'),
@@ -58,6 +58,7 @@ export default class WelcomeRole {
     welcomeData.roles = roleIds
 
     const saves = Save.cache(client, `${interaction.guildId}-welcome`)
+
     saves.count += 1
 
     await this.initialMessage(client, interaction, id)
@@ -69,6 +70,7 @@ export default class WelcomeRole {
     welcomeData.roles = []
 
     const saves = Save.cache(client, `${interaction.guildId}-welcome`)
+
     saves.count += 1
 
     await this.initialMessage(client, interaction, id)

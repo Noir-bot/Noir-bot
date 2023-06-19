@@ -1,5 +1,5 @@
 export default class Emojis {
-  public static readonly point = '•'
+  public static readonly point = '- '
   public static readonly enable = '<:Enable:1089216713712746496>'
   public static readonly disable = '<:Disable:1089216708629237794>'
   public static readonly back = '<:Back:1089270607868334110>'
@@ -57,4 +57,6 @@ export default class Emojis {
   public static readonly kick = '<:Kick:1094555181968015460>'
   public static readonly timeout = '<:Timeout:1094555184253898772>'
   public static readonly warn = '<:Warn:1094555185650606100>'
+  public static readonly wizard = '<:Wizard:1119960124505739316>'
+  public static readonly finish = '<:Finish:1119960881447587870>'
 }
