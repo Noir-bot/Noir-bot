@@ -168,13 +168,13 @@ export default class InfractionsCommand extends ChatCommand {
     }
 
     else if (action == 'previous') {
-      const [_, user] = id.split('.')
+      const [, user] = id.split('.')
 
       await InfractionsCommand.initialMessage(client, interaction, user, parseInt(page) - 1)
     }
 
     else if (action == 'next') {
-      const [_, user] = id.split('.')
+      const [, user] = id.split('.')
 
       await InfractionsCommand.initialMessage(client, interaction, user, parseInt(page) + 1)
     }
