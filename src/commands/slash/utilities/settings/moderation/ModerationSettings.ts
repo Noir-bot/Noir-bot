@@ -57,7 +57,7 @@ export default class ModerationSettings {
       color: Colors.primary,
       author: 'Moderation settings',
       authorImage: client.user?.avatarURL(),
-      description: `Great tools to automate server and keep track of activities going in the server.`,
+      description: 'Great tools to automate server and keep track of activities going in the server.',
       fields: [{ name: 'Useful links', value: links, inline: false }],
       // fields: [
       //   {

@@ -81,7 +81,7 @@ export default class HelpCommand extends ChatCommand {
   public static async initialMessage(client: Client, interaction: ChatInputCommandInteraction | ButtonInteraction) {
     const buttons = [
       new ButtonBuilder()
-        .setCustomId('help-setup')
+        .setCustomId(`help-setup-${interaction.user.id}`)
         .setLabel('Setup Noir')
         .setStyle(ButtonStyle.Primary)
         .setEmoji(Emojis.wizard),

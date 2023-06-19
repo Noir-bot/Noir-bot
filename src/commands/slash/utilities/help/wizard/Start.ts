@@ -14,9 +14,9 @@ export default class HelpWizardStart {
         .setEmoji(Emojis.leftArrow),
       new ButtonBuilder()
         .setCustomId('help-setup-start')
-        .setLabel('Start (welcome)')
+        .setLabel('Start')
         .setStyle(ButtonStyle.Success)
-        .setEmoji(Emojis.welcome)
+        .setEmoji(Emojis.wizard)
     ]
 
     const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>()

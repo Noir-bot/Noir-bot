@@ -1,3 +1,4 @@
+import Reply from '@helpers/Reply'
 import Client from '@structures/Client'
 import Moderation from '@structures/moderation/Moderation'
 import { AnySelectMenuInteraction, ButtonInteraction } from 'discord.js'
@@ -11,16 +12,42 @@ export default class HelpResponses {
   public static async button(client: Client, interaction: ButtonInteraction<'cached'>) {
     const id = interaction.customId
 
-    if (id == 'help-setup' || id == 'help-welcome-back') {
-      await HelpWizardStart.initialMessage(client, interaction)
-    }
-
-    else if (id == 'help-setup-start') {
+    if (id == 'help-setup-start') {
       await HelpWizardWelcome.initialMessage(client, interaction)
     }
 
     else if (id == 'help-setup-cancel') {
       await HelpCommand.initialMessage(client, interaction)
+    }
+
+    else if (id.startsWith('help-setup')) {
+      const userId = id.split('-')[2]
+
+      if (interaction.user.id != userId) {
+        await Reply.reply({
+          client,
+          interaction,
+          description: '# Permission error\nThis feature is available for the command author.'
+        })
+
+        return
+      }
+
+      if (!interaction.memberPermissions.has('Administrator') || !interaction.memberPermissions.has('ManageGuild')) {
+        await Reply.reply({
+          client,
+          interaction,
+          description: '# Permission error\nNot enough permission to change server settings.'
+        })
+
+        return
+      }
+
+      await HelpWizardStart.initialMessage(client, interaction)
+    }
+
+    else if (id == 'help-welcome-back') {
+      await HelpWizardStart.initialMessage(client, interaction)
     }
 
     else if (id == 'help-moderation-back') {

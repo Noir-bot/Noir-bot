@@ -12,12 +12,12 @@ export default class HelpWizardFinish {
     const buttons = [
       new ButtonBuilder()
         .setCustomId('help-finish-back')
-        .setLabel('Previous (moderation)')
+        .setLabel('Previous step')
         .setStyle(ButtonStyle.Secondary)
         .setEmoji(Emojis.moderation),
       new ButtonBuilder()
         .setCustomId('help-finish-save')
-        .setLabel('Save changes')
+        .setLabel('Save and confirm')
         .setStyle(ButtonStyle.Secondary)
         .setEmoji(Emojis.finish),
     ]

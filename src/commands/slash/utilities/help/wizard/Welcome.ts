@@ -27,14 +27,14 @@ export default class HelpWizardWelcome {
     const buttons = [
       new ButtonBuilder()
         .setCustomId('help-welcome-back')
-        .setLabel('Previous (setup)')
+        .setLabel('Previous step')
         .setStyle(ButtonStyle.Secondary)
-        .setEmoji(Emojis.wizard),
+        .setEmoji(Emojis.leftArrow),
       new ButtonBuilder()
         .setCustomId('help-welcome-next')
-        .setLabel('Next (moderation)')
+        .setLabel('Next step')
         .setStyle(ButtonStyle.Secondary)
-        .setEmoji(Emojis.moderation)
+        .setEmoji(Emojis.rightArrow)
     ]
 
     const actionRows = [

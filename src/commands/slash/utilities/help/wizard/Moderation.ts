@@ -8,6 +8,7 @@ import { ActionRowBuilder, AnySelectMenuInteraction, ButtonBuilder, ButtonIntera
 export default class HelpWizardModeration {
   public static async initialMessage(client: Client, interaction: ButtonInteraction<'cached'> | AnySelectMenuInteraction<'cached'>) {
     const moderationData = await Moderation.cache(client, interaction.guildId, false, true)
+    const webhookChannel = (moderationData.webhook ? await Moderation.getWebhook(client, moderationData.webhook) : undefined)?.channelId
 
     const channelMenu = new ChannelSelectMenuBuilder()
       .setChannelTypes(ChannelType.GuildText)
@@ -17,35 +18,41 @@ export default class HelpWizardModeration {
       .setMinValues(1)
 
     const buttons = [
-      new ButtonBuilder()
-        .setCustomId('help-moderation-back')
-        .setLabel('Previous (welcome)')
-        .setStyle(ButtonStyle.Secondary)
-        .setEmoji(Emojis.welcome),
-      new ButtonBuilder()
-        .setCustomId('help-moderation-logs')
-        .setLabel(`${moderationData.logs ? 'Disable' : 'Enable'} moderation logs`)
-        .setStyle(moderationData.logs ? ButtonStyle.Danger : ButtonStyle.Success)
-        .setEmoji(moderationData.logs ? Emojis.enable : Emojis.disable),
-      new ButtonBuilder()
-        .setCustomId('help-moderation-next')
-        .setLabel('Finish')
-        .setStyle(ButtonStyle.Secondary)
-        .setEmoji(Emojis.finish)
+      [
+        new ButtonBuilder()
+          .setCustomId('help-moderation-back')
+          .setLabel('Previous step')
+          .setStyle(ButtonStyle.Secondary)
+          .setEmoji(Emojis.leftArrow),
+        new ButtonBuilder()
+          .setCustomId('help-moderation-next')
+          .setLabel('Finish setup')
+          .setStyle(ButtonStyle.Secondary)
+          .setEmoji(Emojis.finish)
+      ],
+      [
+        new ButtonBuilder()
+          .setCustomId('help-moderation-logs')
+          .setLabel(`${moderationData.logs ? 'Disable' : 'Enable'} moderation logs`)
+          .setStyle(moderationData.logs ? ButtonStyle.Success : ButtonStyle.Secondary)
+          .setEmoji(moderationData.logs ? Emojis.enable : Emojis.disable),
+      ]
     ]
 
     const actionRows = [
       new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(buttons),
+        .addComponents(buttons[0]),
       new ActionRowBuilder<MessageActionRowComponentBuilder>()
-        .addComponents(channelMenu)
+        .addComponents(channelMenu),
+      new ActionRowBuilder<MessageActionRowComponentBuilder>()
+        .addComponents(buttons[1])
     ]
 
     await Reply.reply({
       client,
       interaction: interaction,
       color: Colors.primary,
-      description: `# Moderation setup\nModerate you servers with automation. Check out other moderating features with </settings:${client.commandsId.get('settings')}> command.\n\n- Logs status ${moderationData.logs ? Emojis.enable : Emojis.disable}${moderationData.webhookChannel ? `\n- Logs channel <#${moderationData.webhookChannel}>` : ''}`,
+      description: `# Moderation setup\nModerate your servers with automation. Check out other moderating features via </settings:${client.commandsId.get('settings')}> command.\n\n- Logs status ${moderationData.logs ? Emojis.enable : Emojis.disable}${webhookChannel ? `\n- Logs channel <#${webhookChannel}>` : ''}`,
       image: 'https://i.imgur.com/6rmpgHF.png',
       components: actionRows
     })
